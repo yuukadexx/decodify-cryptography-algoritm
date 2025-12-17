@@ -1,0 +1,336 @@
+{% extends "base.html" %}
+
+{% block title %}Bruteforce Attack - CryptoLab{% endblock %}
+
+{% block extra_css %}
+<style>
+    .cipher-container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .cipher-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .cipher-icon {
+        font-size: 4rem;
+        --webkit-background-clip: text;
+        margin-bottom: 1rem;
+    }
+
+    .cipher-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+    }
+
+    .cipher-desc {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+    }
+
+    .cipher-card {
+        background: rgba(30, 41, 59, 0.5);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--text);
+    }
+
+    .form-textarea {
+        width: 100%;
+        min-height: 100px;
+        padding: 1rem;
+        background: rgba(15, 23, 42, 0.5);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        color: var(--text);
+        font-size: 1rem;
+        font-family: 'Courier New', monospace;
+        resize: vertical;
+        transition: all 0.3s;
+    }
+
+    .form-textarea:focus {
+        outline: none;
+        border-color: var(--danger);
+        background: rgba(15, 23, 42, 0.8);
+    }
+
+    .button-group {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        flex: 1;
+        min-width: 150px;
+        padding: 1rem;
+        border: none;
+        border-radius: 10px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 1rem;
+    }
+
+    .btn-attack {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+    }
+
+    .btn-attack:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(239, 68, 68, 0.4);
+    }
+
+    .btn-clear {
+        background: rgba(148, 163, 184, 0.2);
+        border: 2px solid var(--text-muted);
+        color: var(--text-muted);
+    }
+
+    .btn-clear:hover {
+        background: var(--text-muted);
+        color: var(--dark);
+    }
+
+    .info-box {
+        background: rgba(239, 68, 68, 0.1);
+        border-left: 4px solid var(--danger);
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+
+    .info-title {
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: var(--danger);
+    }
+
+    .results-container {
+        display: none;
+    }
+
+    .results-container.show {
+        display: block;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .result-item {
+        background: rgba(15, 23, 42, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s;
+    }
+
+    .result-item:hover {
+        border-color: var(--primary);
+        transform: translateX(5px);
+    }
+
+    .result-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .shift-badge {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.875rem;
+    }
+
+    .score-badge {
+        background: rgba(16, 185, 129, 0.2);
+        color: var(--success);
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+    }
+
+    .result-text {
+        font-family: 'Courier New', monospace;
+        font-size: 0.95rem;
+        color: var(--text);
+        word-break: break-all;
+    }
+
+    .top-result {
+        border: 2px solid var(--success);
+        background: rgba(16, 185, 129, 0.1);
+    }
+
+    .loading {
+        text-align: center;
+        padding: 2rem;
+        display: none;
+    }
+
+    .loading.show {
+        display: block;
+    }
+
+    .spinner {
+        border: 4px solid rgba(255, 255, 255, 0.1);
+        border-top: 4px solid var(--primary);
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="cipher-container">
+    <div class="cipher-header">
+        <div class="cipher-icon">
+            <i class="fas fa-hammer"></i>
+        </div>
+        <h1 class="cipher-title">Bruteforce Attack</h1>
+        <p class="cipher-desc">
+            Coba semua kemungkinan shift (0-25) untuk memecahkan Caesar Cipher
+        </p>
+    </div>
+
+    <div class="info-box">
+        <div class="info-title"><i class="fas fa-exclamation-triangle"></i> Peringatan</div>
+        <p>Bruteforce attack mencoba semua kombinasi yang mungkin. Untuk Caesar Cipher, hanya ada 26 kemungkinan shift (0-25). Hasil dengan score tertinggi kemungkinan besar adalah plaintext asli.</p>
+    </div>
+
+    <div class="cipher-card">
+        <div class="form-group">
+            <label class="form-label">
+                <i class="fas fa-lock"></i> Ciphertext (Teks Terenkripsi)
+            </label>
+            <textarea 
+                id="ciphertext" 
+                class="form-textarea" 
+                placeholder="Masukkan teks yang sudah terenkripsi dengan Caesar Cipher..."
+            ></textarea>
+        </div>
+
+        <div class="button-group">
+            <button class="btn btn-attack" onclick="startBruteforce()">
+                <i class="fas fa-bolt"></i> Start Attack!
+            </button>
+            <button class="btn btn-clear" onclick="clearAll()">
+                <i class="fas fa-trash"></i> Clear
+            </button>
+        </div>
+    </div>
+
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>Mencoba semua kemungkinan shift...</p>
+    </div>
+
+    <div class="cipher-card results-container" id="resultsContainer">
+        <h3 style="margin-bottom: 1.5rem; color: var(--success);">
+            <i class="fas fa-check-circle"></i> Hasil Bruteforce (Diurutkan berdasarkan Score)
+        </h3>
+        <div id="resultsList"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    async function startBruteforce() {
+        const ciphertext = document.getElementById('ciphertext').value;
+        
+        if (!ciphertext.trim()) {
+            alert('Masukkan ciphertext terlebih dahulu!');
+            return;
+        }
+
+        // Show loading
+        document.getElementById('loading').classList.add('show');
+        document.getElementById('resultsContainer').classList.remove('show');
+
+        try {
+            const response = await fetch('/api/bruteforce', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    text: ciphertext
+                })
+            });
+
+            const data = await response.json();
+            displayResults(data.results);
+            
+        } catch (error) {
+            alert('Terjadi kesalahan: ' + error.message);
+        } finally {
+            document.getElementById('loading').classList.remove('show');
+        }
+    }
+
+    function displayResults(results) {
+        const container = document.getElementById('resultsContainer');
+        const list = document.getElementById('resultsList');
+        
+        list.innerHTML = '';
+        
+        results.forEach((result, index) => {
+            const item = document.createElement('div');
+            item.className = 'result-item' + (index === 0 ? ' top-result' : '');
+            
+            item.innerHTML = `
+                <div class="result-header">
+                    <span class="shift-badge">Shift: ${result.shift}</span>
+                    <span class="score-badge">Score: ${result.score.toFixed(0)}</span>
+                </div>
+                <div class="result-text">${result.text}</div>
+            `;
+            
+            list.appendChild(item);
+        });
+        
+        container.classList.add('show');
+    }
+
+    function clearAll() {
+        document.getElementById('ciphertext').value = '';
+        document.getElementById('resultsContainer').classList.remove('show');
+        document.getElementById('resultsList').innerHTML = '';
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,420 @@
+{% extends "base.html" %}
+
+{% block title %}Transposition Cipher - CryptoLab{% endblock %}
+
+{% block extra_css %}
+<style>
+    .cipher-container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .cipher-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .cipher-icon {
+        font-size: 4rem;
+        --webkit-background-clip: text;
+        margin-bottom: 1rem;
+    }
+
+    .cipher-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+    }
+
+    .premium-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 700;
+        margin-left: 1rem;
+    }
+
+    .cipher-desc {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+    }
+
+    .cipher-card {
+        background: rgba(30, 41, 59, 0.5);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .tabs {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .tab {
+        padding: 1rem 2rem;
+        background: transparent;
+        border: none;
+        color: var(--text-muted);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        border-bottom: 3px solid transparent;
+    }
+
+    .tab.active {
+        color: var(--primary);
+        border-bottom-color: var(--primary);
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--text);
+    }
+
+    .form-textarea {
+        width: 100%;
+        min-height: 120px;
+        padding: 1rem;
+        background: rgba(15, 23, 42, 0.5);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        color: var(--text);
+        font-size: 1rem;
+        font-family: 'Courier New', monospace;
+        resize: vertical;
+        transition: all 0.3s;
+    }
+
+    .form-textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        background: rgba(15, 23, 42, 0.8);
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        background: rgba(15, 23, 42, 0.5);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        color: var(--text);
+        font-size: 1rem;
+        transition: all 0.3s;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        background: rgba(15, 23, 42, 0.8);
+    }
+
+    .button-group {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        flex: 1;
+        min-width: 150px;
+        padding: 1rem;
+        border: none;
+        border-radius: 10px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 1rem;
+    }
+
+    .btn-encrypt {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+    }
+
+    .btn-encrypt:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-decrypt {
+        background: linear-gradient(135deg, var(--secondary), #be185d);
+        color: white;
+    }
+
+    .btn-decrypt:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(236, 72, 153, 0.4);
+    }
+
+    .result-box {
+        background: rgba(15, 23, 42, 0.8);
+        border: 2px solid rgba(99, 102, 241, 0.3);
+        border-radius: 10px;
+        padding: 1.5rem;
+        min-height: 120px;
+        font-family: 'Courier New', monospace;
+        font-size: 1rem;
+        word-break: break-all;
+        display: none;
+    }
+
+    .result-box.show {
+        display: block;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .info-box {
+        background: rgba(99, 102, 241, 0.1);
+        border-left: 4px solid var(--primary);
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="cipher-container">
+    <div class="cipher-header">
+        <div class="cipher-icon">
+            <i class="fas fa-arrows-rotate"></i>
+        </div>
+        <h1 class="cipher-title">
+            Transposition Cipher
+            <span class="premium-badge"><i class="fas fa-crown"></i> Premium</span>
+        </h1>
+        <p class="cipher-desc">
+            Ubah posisi karakter tanpa mengubah karakternya
+        </p>
+    </div>
+
+    <div class="cipher-card">
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('railfence')">Rail Fence</button>
+            <button class="tab" onclick="switchTab('columnar')">Columnar</button>
+            <button class="tab" onclick="switchTab('route')">Route Cipher</button>
+        </div>
+
+        <!-- Rail Fence Tab -->
+        <div id="railfence" class="tab-content active">
+            <div class="info-box">
+                <strong>Rail Fence:</strong> Karakter ditulis dalam pola zigzag dengan jumlah "rail" tertentu.
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Teks</label>
+                <textarea id="railfenceText" class="form-textarea" placeholder="Masukkan teks..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Jumlah Rails (2-10)</label>
+                <input type="number" id="railsInput" class="form-input" value="3" min="2" max="10">
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-encrypt" onclick="performRailFence('encrypt')">
+                    <i class="fas fa-lock"></i> Encrypt
+                </button>
+                <button class="btn btn-decrypt" onclick="performRailFence('decrypt')">
+                    <i class="fas fa-unlock"></i> Decrypt
+                </button>
+            </div>
+
+            <div class="form-group" style="margin-top: 1.5rem;">
+                <label class="form-label">Hasil</label>
+                <div id="railfenceResult" class="result-box"></div>
+            </div>
+        </div>
+
+        <!-- Columnar Tab -->
+        <div id="columnar" class="tab-content">
+            <div class="info-box">
+                <strong>Columnar:</strong> Teks ditulis dalam kolom, lalu dibaca berdasarkan urutan keyword.
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Teks</label>
+                <textarea id="columnarText" class="form-textarea" placeholder="Masukkan teks..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Keyword</label>
+                <input type="text" id="columnarKey" class="form-input" placeholder="Contoh: SECRET">
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-encrypt" onclick="performColumnar('encrypt')">
+                    <i class="fas fa-lock"></i> Encrypt
+                </button>
+                <button class="btn btn-decrypt" onclick="performColumnar('decrypt')">
+                    <i class="fas fa-unlock"></i> Decrypt
+                </button>
+            </div>
+
+            <div class="form-group" style="margin-top: 1.5rem;">
+                <label class="form-label">Hasil</label>
+                <div id="columnarResult" class="result-box"></div>
+            </div>
+        </div>
+
+        <!-- Route Tab -->
+        <div id="route" class="tab-content">
+            <div class="info-box">
+                <strong>Route Cipher:</strong> Teks ditulis dalam grid lalu dibaca per kolom.
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Teks</label>
+                <textarea id="routeText" class="form-textarea" placeholder="Masukkan teks..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Rows</label>
+                <input type="number" id="routeRows" class="form-input" value="3" min="2" max="10">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Columns</label>
+                <input type="number" id="routeCols" class="form-input" value="4" min="2" max="10">
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-encrypt" onclick="performRoute('encrypt')">
+                    <i class="fas fa-lock"></i> Encrypt
+                </button>
+                <button class="btn btn-decrypt" onclick="performRoute('decrypt')">
+                    <i class="fas fa-unlock"></i> Decrypt
+                </button>
+            </div>
+
+            <div class="form-group" style="margin-top: 1.5rem;">
+                <label class="form-label">Hasil</label>
+                <div id="routeResult" class="result-box"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function switchTab(tabName) {
+        // Hide all tabs
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.querySelectorAll('.tab').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // Show selected tab
+        document.getElementById(tabName).classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    async function performRailFence(mode) {
+        const text = document.getElementById('railfenceText').value;
+        const rails = parseInt(document.getElementById('railsInput').value);
+
+        if (!text.trim()) {
+            alert('Masukkan teks!');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/transposition/railfence', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text, rails, mode })
+            });
+
+            const data = await response.json();
+            const resultBox = document.getElementById('railfenceResult');
+            resultBox.textContent = data.result;
+            resultBox.classList.add('show');
+        } catch (error) {
+            alert('Error: ' + error.message);
+        }
+    }
+
+    async function performColumnar(mode) {
+        const text = document.getElementById('columnarText').value;
+        const key = document.getElementById('columnarKey').value;
+
+        if (!text.trim() || !key.trim()) {
+            alert('Masukkan teks dan keyword!');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/transposition/columnar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text, key, mode })
+            });
+
+            const data = await response.json();
+            const resultBox = document.getElementById('columnarResult');
+            resultBox.textContent = data.result;
+            resultBox.classList.add('show');
+        } catch (error) {
+            alert('Error: ' + error.message);
+        }
+    }
+
+    async function performRoute(mode) {
+        const text = document.getElementById('routeText').value;
+        const rows = parseInt(document.getElementById('routeRows').value);
+        const cols = parseInt(document.getElementById('routeCols').value);
+
+        if (!text.trim()) {
+            alert('Masukkan teks!');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/transposition/route', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text, rows, cols, mode })
+            });
+
+            const data = await response.json();
+            const resultBox = document.getElementById('routeResult');
+            resultBox.textContent = data.result;
+            resultBox.classList.add('show');
+        } catch (error) {
+            alert('Error: ' + error.message);
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,284 @@
+{% extends "base.html" %}
+
+{% block title %}Register - CryptoLab{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: calc(100vh - 200px);
+        padding: 2rem;
+    }
+
+    .auth-card {
+        background: rgba(30, 41, 59, 0.6);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 3rem;
+        width: 100%;
+        max-width: 450px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .auth-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .auth-icon {
+        font-size: 4rem;
+        --webkit-background-clip: text;
+        margin-bottom: 1rem;
+    }
+
+    .auth-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .auth-subtitle {
+        color: var(--text-muted);
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--text);
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        background: rgba(15, 23, 42, 0.5);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        color: var(--text);
+        font-size: 1rem;
+        transition: all 0.3s;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        background: rgba(15, 23, 42, 0.8);
+    }
+
+    .form-input::placeholder {
+        color: var(--text-muted);
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        border: none;
+        border-radius: 10px;
+        color: white;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+    }
+
+    .auth-footer {
+        text-align: center;
+        margin-top: 2rem;
+        color: var(--text-muted);
+    }
+
+    .auth-footer a {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .auth-footer a:hover {
+        text-decoration: underline;
+    }
+
+    .input-group {
+        position: relative;
+    }
+
+    .input-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+    }
+
+    .form-input.with-icon {
+        padding-left: 3rem;
+    }
+
+    .password-strength {
+        margin-top: 0.5rem;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
+        overflow: hidden;
+    }
+
+    .password-strength-bar {
+        height: 100%;
+        width: 0%;
+        transition: all 0.3s;
+    }
+
+    .strength-weak { width: 33%; background: var(--danger); }
+    .strength-medium { width: 66%; background: var(--warning); }
+    .strength-strong { width: 100%; background: var(--success); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-icon">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <h1 class="auth-title">Buat Akun Baru</h1>
+            <p class="auth-subtitle">Daftar untuk akses fitur premium</p>
+        </div>
+
+        <form method="POST" action="/register" id="registerForm">
+            <div class="form-group">
+                <label class="form-label" for="username">
+                    <i class="fas fa-user"></i> Username
+                </label>
+                <div class="input-group">
+                    <i class="fas fa-user input-icon"></i>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username" 
+                        class="form-input with-icon" 
+                        placeholder="Pilih username"
+                        required
+                        minlength="3"
+                        autocomplete="username"
+                    >
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="email">
+                    <i class="fas fa-envelope"></i> Email
+                </label>
+                <div class="input-group">
+                    <i class="fas fa-envelope input-icon"></i>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        class="form-input with-icon" 
+                        placeholder="email@example.com"
+                        required
+                        autocomplete="email"
+                    >
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password">
+                    <i class="fas fa-key"></i> Password
+                </label>
+                <div class="input-group">
+                    <i class="fas fa-key input-icon"></i>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        class="form-input with-icon" 
+                        placeholder="Minimal 6 karakter"
+                        required
+                        minlength="6"
+                        autocomplete="new-password"
+                        oninput="checkPasswordStrength()"
+                    >
+                </div>
+                <div class="password-strength">
+                    <div class="password-strength-bar" id="strengthBar"></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="confirm_password">
+                    <i class="fas fa-check"></i> Konfirmasi Password
+                </label>
+                <div class="input-group">
+                    <i class="fas fa-check input-icon"></i>
+                    <input 
+                        type="password" 
+                        id="confirm_password" 
+                        name="confirm_password" 
+                        class="form-input with-icon" 
+                        placeholder="Ketik ulang password"
+                        required
+                        autocomplete="new-password"
+                    >
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-rocket"></i> Daftar Sekarang
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Sudah punya akun? <a href="/login">Login di sini</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function checkPasswordStrength() {
+        const password = document.getElementById('password').value;
+        const bar = document.getElementById('strengthBar');
+        
+        let strength = 0;
+        if (password.length >= 6) strength++;
+        if (password.length >= 10) strength++;
+        if (/[A-Z]/.test(password)) strength++;
+        if (/[0-9]/.test(password)) strength++;
+        if (/[^A-Za-z0-9]/.test(password)) strength++;
+        
+        bar.className = 'password-strength-bar';
+        if (strength <= 2) {
+            bar.classList.add('strength-weak');
+        } else if (strength <= 4) {
+            bar.classList.add('strength-medium');
+        } else {
+            bar.classList.add('strength-strong');
+        }
+    }
+
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+        const password = document.getElementById('password').value;
+        const confirm = document.getElementById('confirm_password').value;
+        
+        if (password !== confirm) {
+            e.preventDefault();
+            alert('Password tidak cocok!');
+        }
+    });
+</script>
+{% endblock %}

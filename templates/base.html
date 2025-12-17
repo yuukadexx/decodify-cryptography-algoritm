@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CryptoLab - Simulasi Kriptografi{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #0f172a;
+            --dark-2: #1e293b;
+            --dark-3: #334155;
+            --light: #f1f5f9;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 800;
+            --webkit-background-clip: text;
+            text-decoration: none;
+        }
+
+        .navbar-menu {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            list-style: none;
+        }
+
+        .navbar-menu a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .navbar-menu a:hover {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Flash Messages */
+        .flash-messages {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 400px;
+        }
+
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.2);
+            border-left: 4px solid var(--success);
+            color: var(--success);
+        }
+
+        .alert-danger {
+            background: rgba(239, 68, 68, 0.2);
+            border-left: 4px solid var(--danger);
+            color: var(--danger);
+        }
+
+        .alert-info {
+            background: rgba(99, 102, 241, 0.2);
+            border-left: 4px solid var(--primary);
+            color: var(--primary);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Card */
+        .card {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            --webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Footer */
+        .footer {
+            background: rgba(15, 23, 42, 0.8);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem 0;
+            text-align: center;
+            margin-top: 4rem;
+        }
+
+        .footer-text {
+            color: var(--text-muted);
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .navbar-menu {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: rgba(15, 23, 42, 0.95);
+                flex-direction: column;
+                padding: 1rem;
+            }
+
+            .navbar-menu.active {
+                display: flex;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body data-authenticated="{{ 'true' if current_user.is_authenticated else 'false' }}">
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="/" class="navbar-brand">
+                <i class="fas fa-shield-halved"></i> DecoDify
+            </a>
+            
+            <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <ul class="navbar-menu" id="navbarMenu">
+                <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="/caesar"><i class="fas fa-lock"></i> Caesar</a></li>
+                <li><a href="/vigenere"><i class="fas fa-key"></i> Vigenere</a></li>
+                <li><a href="/bruteforce"><i class="fas fa-hammer"></i> Bruteforce</a></li>
+                
+                {% if current_user.is_authenticated %}
+                    <li><a href="/dashboard"><i class="fas fa-gauge"></i> Dashboard</a></li>
+                    <li><a href="/logout" class="btn btn-outline"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                {% else %}
+                    <li><a href="/login" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        <i class="fas fa-check-circle"></i> {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content -->
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p class="footer-text">
+            <i class="fas fa-code"></i> DecoDify 2025 - Simulasi Kriptografi
+        </p>
+    </footer>
+
+    <script>
+        function toggleMobileMenu() {
+            const menu = document.getElementById('navbarMenu');
+            menu.classList.toggle('active');
+        }
+
+        // Auto hide flash messages
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                alert.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => alert.remove(), 300);
+            });
+        }, 5000);
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
