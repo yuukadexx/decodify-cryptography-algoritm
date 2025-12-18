@@ -14,8 +14,8 @@
         }
 
         :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
+            --primary: #166bc6;
+            --primary-dark: #166bc6;
             --secondary: #ec4899;
             --success: #10b981;
             --danger: #ef4444;
@@ -249,10 +249,7 @@
     <!-- Navbar -->
     <nav class="navbar">
         <div class="navbar-container">
-            <a href="/" class="navbar-brand">
-                <i class="fas fa-shield-halved"></i> DecoDify
-            </a>
-            
+            <a href="/" class="navbar-brand"><i class="fas fa-shield-halved"></i> DecoDify</a>
             <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
                 <i class="fas fa-bars"></i>
             </button>
@@ -265,7 +262,7 @@
                 
                 {% if current_user.is_authenticated %}
                     <li><a href="/dashboard"><i class="fas fa-gauge"></i> Dashboard</a></li>
-                    <li><a href="/logout" class="btn btn-outline"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                    <li><a href="{{ url_for('logout', token=logout_token) }}" class="btn btn-danger">Logout</a></li>
                 {% else %}
                     <li><a href="/login" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> Login</a></li>
                 {% endif %}

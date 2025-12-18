@@ -1,16 +1,21 @@
-from flask import Flask, render_template, redirect, url_for, flash, request
+from flask import Flask, render_template, redirect, url_for, flash, request, session, abort
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
+from functools import wraps
 import os
+import secrets
 
 # ini tuh bagian inisialisasi aplikasi yaa
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your-secret-key-change-this-in-production'
+app.config['SECRET_KEY'] = secrets.token_hex(32)  # Generate secure secret key
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///crypto_users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['PERMANENT_SESSION_LIFETIME'] = 1800  # 30 menit
 
 # nah kalo yang ini inisialisasi database tetap kita pake Sqlite yaa biar sederhana euy
 db = SQLAlchemy(app)
@@ -19,6 +24,8 @@ db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+login_manager.login_message = 'Anda harus login terlebih dahulu untuk mengakses halaman ini.'
+login_manager.login_message_category = 'warning'
 
 # yang ini buat hasher password pake Argon2 requirements bapak bayu pamungkas
 ph = PasswordHasher()
@@ -48,10 +55,74 @@ class User(UserMixin, db.Model):
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+# Decorator khusus untuk mencegah akses langsung lewat URL
+def prevent_direct_access(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # Cek apakah request berasal dari dalam aplikasi (referrer check)
+        if not current_user.is_authenticated:
+            flash('Anda harus login terlebih dahulu!', 'danger')
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+# Decorator untuk logout yang aman
+def secure_logout_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated:
+            flash('Anda sudah logout.', 'info')
+            return redirect(url_for('index'))
+        
+        # Cek apakah ada CSRF token atau request method POST
+        if request.method == 'GET':
+            # Untuk logout via GET, pastikan ada token di session
+            if 'logout_token' not in session:
+                session['logout_token'] = secrets.token_urlsafe(32)
+            
+            # Validasi token
+            token = request.args.get('token')
+            if token != session.get('logout_token'):
+                flash('Akses tidak valid. Gunakan tombol logout yang disediakan.', 'danger')
+                return redirect(url_for('dashboard'))
+        
+        return f(*args, **kwargs)
+    return decorated_function
+
+# Middleware untuk proteksi tambahan
+@app.before_request
+def security_headers():
+    # Proteksi tambahan untuk halaman yang memerlukan login
+    protected_routes = [
+        'substitution', 'transposition', 'playfair', 'hill', 'rsa', 'hash_func',
+        'api_substitution', 'api_railfence', 'api_columnar', 'api_route',
+        'api_playfair', 'api_playfair_matrix', 'api_hill', 'api_rsa_generate',
+        'api_rsa_encrypt', 'api_rsa_decrypt', 'api_hash_generate', 
+        'api_hash_compare', 'api_password_strength'
+    ]
+    
+    # Cek apakah endpoint yang diakses memerlukan login
+    if request.endpoint in protected_routes:
+        if not current_user.is_authenticated:
+            if request.is_json or request.path.startswith('/api/'):
+                return {'error': 'Unauthorized. Login required.'}, 401
+            flash('Anda harus login terlebih dahulu!', 'danger')
+            return redirect(url_for('login'))
+
+@app.after_request
+def add_security_headers(response):
+    # Tambahkan security headers
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    return response
+
 # ini routes buat aplikasi webnya ya gaes
 
 @app.route('/')
 def index():
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard'))
     return render_template('index.html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -109,25 +180,37 @@ def login():
         
         if user and user.check_password(password):
             login_user(user)
+            session.permanent = True
+            # Generate logout token untuk user ini
+            session['logout_token'] = secrets.token_urlsafe(32)
             flash('Login berhasil!', 'success')
             next_page = request.args.get('next')
-            return redirect(next_page) if next_page else redirect(url_for('dashboard'))
+            # Validasi next_page untuk mencegah open redirect
+            if next_page and next_page.startswith('/'):
+                return redirect(next_page)
+            return redirect(url_for('dashboard'))
         else:
             flash('Username atau password salah!', 'danger')
     
     return render_template('login.html')
 
 @app.route('/logout')
-@login_required
+@secure_logout_required
 def logout():
+    # Hapus token logout dari session
+    session.pop('logout_token', None)
     logout_user()
+    session.clear()
     flash('Anda telah logout.', 'info')
     return redirect(url_for('index'))
 
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('dashboard.html', username=current_user.username)
+    # Generate atau ambil logout token untuk ditampilkan di dashboard
+    if 'logout_token' not in session:
+        session['logout_token'] = secrets.token_urlsafe(32)
+    return render_template('dashboard.html', username=current_user.username, logout_token=session['logout_token'])
 
 # nah ie routs kanggo fitur-fitur cryptography na
 
@@ -444,6 +527,22 @@ def api_password_strength():
     result = password_strength_check(password)
     
     return result
+
+# Error handlers untuk keamanan tambahan
+@app.errorhandler(401)
+def unauthorized(e):
+    flash('Anda tidak memiliki akses. Silakan login terlebih dahulu.', 'danger')
+    return redirect(url_for('login'))
+
+@app.errorhandler(403)
+def forbidden(e):
+    flash('Akses ditolak.', 'danger')
+    return redirect(url_for('index'))
+
+@app.errorhandler(404)
+def not_found(e):
+    flash('Halaman tidak ditemukan.', 'warning')
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
     with app.app_context():
