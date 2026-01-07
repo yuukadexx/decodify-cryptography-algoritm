@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, flash, request, session, abort
+from flask import Flask, render_template, redirect, url_for, flash, request, session, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -7,30 +7,36 @@ from argon2.exceptions import VerifyMismatchError
 from functools import wraps
 import os
 import secrets
+import bcrypt
+from config import DevelopmentConfig, ProductionConfig
+
 
 # ini tuh bagian inisialisasi aplikasi yaa
 app = Flask(__name__)
-app.config['SECRET_KEY'] = secrets.token_hex(32)  # Generate secure secret key
+app.config['SECRET_KEY'] = secrets.token_hex(32)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///crypto_users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-app.config['PERMANENT_SESSION_LIFETIME'] = 1800  # 30 menit
+app.config['PERMANENT_SESSION_LIFETIME'] = 1800
 
-# nah kalo yang ini inisialisasi database tetap kita pake Sqlite yaa biar sederhana euy
 db = SQLAlchemy(app)
 
-# nah ini inisialisasi login manager buat ngatur sesi user
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 login_manager.login_message = 'Anda harus login terlebih dahulu untuk mengakses halaman ini.'
 login_manager.login_message_category = 'warning'
 
-# yang ini buat hasher password pake Argon2 requirements bapak bayu pamungkas
-ph = PasswordHasher()
+# Argon2 hasher 
+ph = PasswordHasher(
+    time_cost=2,        # Iterasi
+    memory_cost=65536,  # Memory dalam KB (64 MB)
+    parallelism=4,      # Thread paralel
+    hash_len=32,        # Panjang hash output
+    salt_len=16         # Panjang salt
+)
 
-# ini model user buat database disimpan di Sqlite disini aja lah
 from flask_login import UserMixin
 
 class User(UserMixin, db.Model):
@@ -55,18 +61,6 @@ class User(UserMixin, db.Model):
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# Decorator khusus untuk mencegah akses langsung lewat URL
-def prevent_direct_access(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        # Cek apakah request berasal dari dalam aplikasi (referrer check)
-        if not current_user.is_authenticated:
-            flash('Anda harus login terlebih dahulu!', 'danger')
-            return redirect(url_for('login'))
-        return f(*args, **kwargs)
-    return decorated_function
-
-# Decorator untuk logout yang aman
 def secure_logout_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -74,13 +68,10 @@ def secure_logout_required(f):
             flash('Anda sudah logout.', 'info')
             return redirect(url_for('index'))
         
-        # Cek apakah ada CSRF token atau request method POST
         if request.method == 'GET':
-            # Untuk logout via GET, pastikan ada token di session
             if 'logout_token' not in session:
                 session['logout_token'] = secrets.token_urlsafe(32)
             
-            # Validasi token
             token = request.args.get('token')
             if token != session.get('logout_token'):
                 flash('Akses tidak valid. Gunakan tombol logout yang disediakan.', 'danger')
@@ -89,19 +80,19 @@ def secure_logout_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-# Middleware untuk proteksi tambahan
 @app.before_request
 def security_headers():
-    # Proteksi tambahan untuk halaman yang memerlukan login
     protected_routes = [
         'substitution', 'transposition', 'playfair', 'hill', 'rsa', 'hash_func',
+        'aes_page', 'des_page', 'triple_des_page', 'blowfish_page',
         'api_substitution', 'api_railfence', 'api_columnar', 'api_route',
         'api_playfair', 'api_playfair_matrix', 'api_hill', 'api_rsa_generate',
         'api_rsa_encrypt', 'api_rsa_decrypt', 'api_hash_generate', 
-        'api_hash_compare', 'api_password_strength'
+        'api_hash_compare', 'api_password_strength', 'api_bcrypt_hash',
+        'api_argon2_hash', 'api_hash_compare_algos', 'api_aes', 'api_des',
+        'api_triple_des', 'api_blowfish'
     ]
     
-    # Cek apakah endpoint yang diakses memerlukan login
     if request.endpoint in protected_routes:
         if not current_user.is_authenticated:
             if request.is_json or request.path.startswith('/api/'):
@@ -111,13 +102,10 @@ def security_headers():
 
 @app.after_request
 def add_security_headers(response):
-    # Tambahkan security headers
     response.headers['X-Content-Type-Options'] = 'nosniff'
     response.headers['X-Frame-Options'] = 'DENY'
     response.headers['X-XSS-Protection'] = '1; mode=block'
     return response
-
-# ini routes buat aplikasi webnya ya gaes
 
 @app.route('/')
 def index():
@@ -136,7 +124,6 @@ def register():
         password = request.form.get('password')
         confirm_password = request.form.get('confirm_password')
         
-        # Haus Validasi awokwok:3
         if not username or not email or not password:
             flash('Semua field harus diisi!', 'danger')
             return redirect(url_for('register'))
@@ -145,17 +132,14 @@ def register():
             flash('Password tidak cocok!', 'danger')
             return redirect(url_for('register'))
         
-        # cek username atos aya anu nganggo acan
         if User.query.filter_by(username=username).first():
             flash('Username sudah digunakan!', 'danger')
             return redirect(url_for('register'))
         
-        # sami ieu ge cek email atos aya anu nganggo acan
         if User.query.filter_by(email=email).first():
             flash('Email sudah terdaftar!', 'danger')
             return redirect(url_for('register'))
         
-        # ieu simpen user anyar na database
         new_user = User(username=username, email=email)
         new_user.set_password(password)
         
@@ -181,11 +165,9 @@ def login():
         if user and user.check_password(password):
             login_user(user)
             session.permanent = True
-            # Generate logout token untuk user ini
             session['logout_token'] = secrets.token_urlsafe(32)
             flash('Login berhasil!', 'success')
             next_page = request.args.get('next')
-            # Validasi next_page untuk mencegah open redirect
             if next_page and next_page.startswith('/'):
                 return redirect(next_page)
             return redirect(url_for('dashboard'))
@@ -197,7 +179,6 @@ def login():
 @app.route('/logout')
 @secure_logout_required
 def logout():
-    # Hapus token logout dari session
     session.pop('logout_token', None)
     logout_user()
     session.clear()
@@ -207,14 +188,11 @@ def logout():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    # Generate atau ambil logout token untuk ditampilkan di dashboard
     if 'logout_token' not in session:
         session['logout_token'] = secrets.token_urlsafe(32)
     return render_template('dashboard.html', username=current_user.username, logout_token=session['logout_token'])
 
-# nah ie routs kanggo fitur-fitur cryptography na
-
-# nu ieu fitur dasar anu teu butuh login
+# Fitur Basic (Free)
 @app.route('/caesar')
 def caesar():
     return render_template('caesar.html')
@@ -227,7 +205,7 @@ def vigenere():
 def bruteforce():
     return render_template('bruteforce.html')
 
-# tahh mun ieu fitur anu butuh login
+# Fitur Premium (Login Required)
 @app.route('/substitution')
 @login_required
 def substitution():
@@ -258,8 +236,28 @@ def rsa():
 def hash_func():
     return render_template('hash.html')
 
-# di handap ieu API na gaes, nu teu butuh login heula
+# FITUR PREMIUM BARU - Modern Encryption
+@app.route('/aes')
+@login_required
+def aes_page():
+    return render_template('aes.html')
 
+@app.route('/des')
+@login_required
+def des_page():
+    return render_template('des.html')
+
+@app.route('/triple-des')
+@login_required
+def triple_des_page():
+    return render_template('triple_des.html')
+
+@app.route('/blowfish')
+@login_required
+def blowfish_page():
+    return render_template('blowfish.html')
+
+# API Endpoints - Basic (Free)
 @app.route('/api/caesar', methods=['POST'])
 def api_caesar():
     from utils.caesar import caesar_encrypt, caesar_decrypt
@@ -303,8 +301,7 @@ def api_bruteforce():
     
     return {'results': results}
 
-# tah mun anu ieu fitur anu kedah login heula
-
+# API Endpoints - Premium (Login Required)
 @app.route('/api/substitution', methods=['POST'])
 @login_required
 def api_substitution():
@@ -325,7 +322,6 @@ def api_substitution():
         result = substitution_decrypt(text, key_dict)
         return {'result': result}
 
-
 @app.route('/api/transposition/railfence', methods=['POST'])
 @login_required
 def api_railfence():
@@ -343,7 +339,6 @@ def api_railfence():
     
     return {'result': result}
 
-
 @app.route('/api/transposition/columnar', methods=['POST'])
 @login_required
 def api_columnar():
@@ -360,7 +355,6 @@ def api_columnar():
         result = columnar_transposition_decrypt(text, key)
     
     return {'result': result}
-
 
 @app.route('/api/transposition/route', methods=['POST'])
 @login_required
@@ -380,7 +374,6 @@ def api_route():
     
     return {'result': result}
 
-
 @app.route('/api/playfair', methods=['POST'])
 @login_required
 def api_playfair():
@@ -390,14 +383,18 @@ def api_playfair():
     text = data.get('text', '')
     key = data.get('key', '')
     mode = data.get('mode', 'encrypt')
+    show_matrix = data.get('show_matrix', False)  # Toggle untuk show/hide matrix
     
     if mode == 'encrypt':
         result = playfair_encrypt(text, key)
+        response = {'result': result}
+        if show_matrix:
+            from utils.playfair import display_playfair_matrix
+            response['matrix'] = display_playfair_matrix(key)
+        return response
     else:
         result = playfair_decrypt(text, key)
-    
-    return {'result': result}
-
+        return {'result': result}
 
 @app.route('/api/playfair/matrix', methods=['POST'])
 @login_required
@@ -410,7 +407,6 @@ def api_playfair_matrix():
     matrix = display_playfair_matrix(key)
     
     return {'matrix': matrix}
-
 
 @app.route('/api/hill', methods=['POST'])
 @login_required
@@ -426,7 +422,6 @@ def api_hill():
     try:
         key_matrix = np.array(key_matrix_data)
         
-        # ieu validasi matriks konci nya barudak
         valid, message = is_valid_key_matrix(key_matrix)
         if not valid:
             return {'error': message}, 400
@@ -442,7 +437,6 @@ def api_hill():
     except Exception as e:
         return {'error': str(e)}, 400
 
-
 @app.route('/api/rsa/generate', methods=['POST'])
 @login_required
 def api_rsa_generate():
@@ -454,7 +448,6 @@ def api_rsa_generate():
         'public_key': public_key,
         'private_key': private_key
     }
-
 
 @app.route('/api/rsa/encrypt', methods=['POST'])
 @login_required
@@ -473,7 +466,6 @@ def api_rsa_encrypt():
         'ciphertext_string': ciphertext_string
     }
 
-
 @app.route('/api/rsa/decrypt', methods=['POST'])
 @login_required
 def api_rsa_decrypt():
@@ -487,7 +479,7 @@ def api_rsa_decrypt():
     
     return {'plaintext': plaintext}
 
-
+# Hash API - Bcrypt & Argon2
 @app.route('/api/hash/generate', methods=['POST'])
 @login_required
 def api_hash_generate():
@@ -500,6 +492,76 @@ def api_hash_generate():
     
     return {'hashes': hashes}
 
+@app.route('/api/hash/bcrypt', methods=['POST'])
+@login_required
+def api_bcrypt_hash():
+    data = request.get_json()
+    password = data.get('password', '')
+    
+    # Hash dengan bcrypt
+    salt = bcrypt.gensalt(rounds=12)
+    hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
+    
+    return {
+        'algorithm': 'bcrypt',
+        'hash': hashed.decode('utf-8'),
+        'rounds': 12,
+        'info': 'Bcrypt menggunakan cost factor (rounds) untuk mengatur kompleksitas'
+    }
+
+@app.route('/api/hash/argon2', methods=['POST'])
+@login_required
+def api_argon2_hash():
+    data = request.get_json()
+    password = data.get('password', '')
+    
+    # Hash dengan argon2 dan tampilkan parameter
+    hashed = ph.hash(password)
+    
+    return {
+        'algorithm': 'argon2id',
+        'hash': hashed,
+        'parameters': {
+            'time_cost': ph.time_cost,
+            'memory_cost': f'{ph.memory_cost} KB ({ph.memory_cost/1024:.1f} MB)',
+            'parallelism': ph.parallelism,
+            'hash_length': ph.hash_len,
+            'salt_length': ph.salt_len
+        },
+        'info': 'Argon2 adalah pemenang Password Hashing Competition (2015)'
+    }
+
+@app.route('/api/hash/compare-algos', methods=['POST'])
+@login_required
+def api_hash_compare_algos():
+    data = request.get_json()
+    password = data.get('password', '')
+    
+    import time
+    
+    # Test Bcrypt
+    start = time.time()
+    bcrypt_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(rounds=12))
+    bcrypt_time = time.time() - start
+    
+    # Test Argon2
+    start = time.time()
+    argon2_hash = ph.hash(password)
+    argon2_time = time.time() - start
+    
+    return {
+        'bcrypt': {
+            'hash': bcrypt_hash.decode('utf-8'),
+            'time': f'{bcrypt_time:.4f} seconds',
+            'rounds': 12
+        },
+        'argon2': {
+            'hash': argon2_hash,
+            'time': f'{argon2_time:.4f} seconds',
+            'params': f'time={ph.time_cost}, memory={ph.memory_cost}KB, parallel={ph.parallelism}'
+        },
+        'recommendation': 'Argon2 lebih modern dan lebih aman untuk aplikasi baru'
+    }
 
 @app.route('/api/hash/compare', methods=['POST'])
 @login_required
@@ -515,7 +577,6 @@ def api_hash_compare():
     
     return result
 
-
 @app.route('/api/hash/password-strength', methods=['POST'])
 @login_required
 def api_password_strength():
@@ -528,7 +589,92 @@ def api_password_strength():
     
     return result
 
-# Error handlers untuk keamanan tambahan
+# MODERN ENCRYPTION APIs - Premium Features
+@app.route('/api/aes', methods=['POST'])
+@login_required
+def api_aes():
+    from utils.modern_crypto import aes_encrypt, aes_decrypt
+    
+    data = request.get_json()
+    text = data.get('text', '')
+    key = data.get('key', '')
+    mode = data.get('mode', 'encrypt')
+    
+    try:
+        if mode == 'encrypt':
+            result, iv = aes_encrypt(text, key)
+            return {'result': result, 'iv': iv}
+        else:
+            iv = data.get('iv', '')
+            result = aes_decrypt(text, key, iv)
+            return {'result': result}
+    except Exception as e:
+        return {'error': str(e)}, 400
+
+@app.route('/api/des', methods=['POST'])
+@login_required
+def api_des():
+    from utils.modern_crypto import des_encrypt, des_decrypt
+    
+    data = request.get_json()
+    text = data.get('text', '')
+    key = data.get('key', '')
+    mode = data.get('mode', 'encrypt')
+    
+    try:
+        if mode == 'encrypt':
+            result, iv = des_encrypt(text, key)
+            return {'result': result, 'iv': iv}
+        else:
+            iv = data.get('iv', '')
+            result = des_decrypt(text, key, iv)
+            return {'result': result}
+    except Exception as e:
+        return {'error': str(e)}, 400
+
+@app.route('/api/triple-des', methods=['POST'])
+@login_required
+def api_triple_des():
+    from utils.modern_crypto import triple_des_encrypt, triple_des_decrypt
+    
+    data = request.get_json()
+    text = data.get('text', '')
+    key = data.get('key', '')
+    mode = data.get('mode', 'encrypt')
+    
+    try:
+        if mode == 'encrypt':
+            result, iv = triple_des_encrypt(text, key)
+            return {'result': result, 'iv': iv}
+        else:
+            iv = data.get('iv', '')
+            result = triple_des_decrypt(text, key, iv)
+            return {'result': result}
+    except Exception as e:
+        return {'error': str(e)}, 400
+
+@app.route('/api/blowfish', methods=['POST'])
+@login_required
+def api_blowfish():
+    from utils.modern_crypto import blowfish_encrypt, blowfish_decrypt
+    
+    data = request.get_json()
+    text = data.get('text', '')
+    key = data.get('key', '')
+    mode = data.get('mode', 'encrypt')
+    
+    try:
+        if mode == 'encrypt':
+            result, iv = blowfish_encrypt(text, key)
+            return {'result': result, 'iv': iv}
+        else:
+            iv = data.get('iv', '')
+            result = blowfish_decrypt(text, key, iv)
+            return {'result': result}
+    except Exception as e:
+        return {'error': str(e)}, 400
+
+# Error handlers
 @app.errorhandler(401)
 def unauthorized(e):
     flash('Anda tidak memiliki akses. Silakan login terlebih dahulu.', 'danger')
@@ -546,5 +692,5 @@ def not_found(e):
 
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()  # nah upami ieu kanggo ngadamel database na mun can aya
+        db.create_all()
     app.run(debug=True)
