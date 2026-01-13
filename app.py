@@ -68,15 +68,19 @@ def secure_logout_required(f):
             flash('Anda sudah logout.', 'info')
             return redirect(url_for('index'))
         
-        if request.method == 'GET':
-            if 'logout_token' not in session:
-                session['logout_token'] = secrets.token_urlsafe(32)
-            
-            token = request.args.get('token')
-            if token != session.get('logout_token'):
-                flash('Akses tidak valid. Gunakan tombol logout yang disediakan.', 'danger')
-                return redirect(url_for('dashboard'))
+        # Hanya izinkan POST untuk melakukan logout dan validasi token sekali-pakai
+        if request.method != 'POST':
+            flash('Gunakan tombol logout (POST).', 'warning')
+            return redirect(url_for('dashboard'))
         
+        token = request.form.get('token')
+        if not token or token != session.get('logout_token'):
+            flash('Akses tidak valid. Gunakan tombol logout yang disediakan.', 'danger')
+            return redirect(url_for('dashboard'))
+        
+        # Token sekali-pakai: hapus setelah dipakai
+        session.pop('logout_token', None)
+
         return f(*args, **kwargs)
     return decorated_function
 
@@ -176,10 +180,9 @@ def login():
     
     return render_template('login.html')
 
-@app.route('/logout')
+@app.route('/logout', methods=['POST'])
 @secure_logout_required
 def logout():
-    session.pop('logout_token', None)
     logout_user()
     session.clear()
     flash('Anda telah logout.', 'info')

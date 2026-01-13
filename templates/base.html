@@ -262,7 +262,12 @@
                 
                 {% if current_user.is_authenticated %}
                     <li><a href="/dashboard"><i class="fas fa-gauge"></i> Dashboard</a></li>
-                    <li><a href="{{ url_for('logout', token=logout_token) }}" class="btn btn-danger">Logout</a></li>
+                    <li>
+                        <form action="{{ url_for('logout') }}" method="post" style="display:inline">
+                          <input type="hidden" name="token" value="{{ logout_token }}">
+                          <button type="submit" class="btn btn-link">Logout</button>
+                        </form>
+                    </li>
                 {% else %}
                     <li><a href="/login" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> Login</a></li>
                 {% endif %}

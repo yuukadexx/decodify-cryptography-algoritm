@@ -4,274 +4,277 @@
 
 {% block extra_css %}
 <style>
-    .dashboard-header {
+    .dashboard-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .welcome-section {
         text-align: center;
         margin-bottom: 3rem;
-        padding: 2rem;
-        background: rgba(99, 102, 241, 0.1);
-        border-radius: 16px;
-        border: 1px solid rgba(99, 102, 241, 0.3);
     }
 
-    .dashboard-title {
-        font-size: 2.5rem;
+    .welcome-title {
+        font-size: 3rem;
         font-weight: 800;
-        margin-bottom: 0.5rem;
-        --webkit-background-clip: text;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
 
-    .dashboard-subtitle {
+    .welcome-desc {
         color: var(--text-muted);
-        font-size: 1.1rem;
+        font-size: 1.2rem;
     }
 
-    .features-section {
-        margin-bottom: 3rem;
-    }
-
-    .section-header {
-        font-size: 1.5rem;
+    .section-title {
+        font-size: 1.8rem;
         font-weight: 700;
-        margin-bottom: 1.5rem;
+        margin: 2rem 0 1.5rem 0;
         color: var(--text);
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.75rem;
     }
 
-    .features-grid {
+    .section-badge {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    .cipher-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         gap: 1.5rem;
+        margin-bottom: 3rem;
     }
 
-    .feature-card {
+    .cipher-card {
         background: rgba(30, 41, 59, 0.5);
         backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
         padding: 1.5rem;
-        text-decoration: none;
-        color: inherit;
         transition: all 0.3s;
         cursor: pointer;
+        text-decoration: none;
+        color: inherit;
+        display: block;
     }
 
-    .feature-card:hover {
+    .cipher-card:hover {
         border-color: var(--primary);
         transform: translateY(-5px);
         box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
     }
 
-    .feature-card-header {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
+    .cipher-icon {
+        font-size: 2.5rem;
         margin-bottom: 1rem;
-    }
-
-    .feature-icon {
-        width: 50px;
-        height: 50px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
         background: linear-gradient(135deg, var(--primary), var(--secondary));
-        border-radius: 12px;
-        font-size: 1.5rem;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
 
-    .feature-title {
-        font-size: 1.25rem;
+    .cipher-name {
+        font-size: 1.3rem;
         font-weight: 700;
+        margin-bottom: 0.5rem;
     }
 
-    .feature-desc {
+    .cipher-desc {
         color: var(--text-muted);
         font-size: 0.9rem;
         line-height: 1.5;
     }
 
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 3rem;
-    }
-
-    .stat-card {
-        background: rgba(30, 41, 59, 0.5);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
-        padding: 1.5rem;
-        text-align: center;
-    }
-
-    .stat-icon {
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .stat-value {
-        font-size: 2rem;
+    .new-badge {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 10px;
+        font-size: 0.7rem;
         font-weight: 700;
-        margin-bottom: 0.25rem;
+        margin-left: 0.5rem;
     }
 
-    .stat-label {
-        color: var(--text-muted);
-        font-size: 0.9rem;
+    .free-badge {
+        background: rgba(99, 102, 241, 0.2);
+        color: var(--primary);
+        padding: 0.25rem 0.5rem;
+        border-radius: 10px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        float: right;
+    }
+
+    .premium-badge {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 10px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        float: right;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="dashboard-header">
-    <h1 class="dashboard-title">
-        <i class="fas fa-gauge"></i> Dashboard
-    </h1>
-    <p class="dashboard-subtitle">
-        Selamat datang, <strong>{{ username }}</strong>! Akses semua fitur premium di sini.
-    </p>
-</div>
+<div class="dashboard-container">
+    <div class="welcome-section">
+        <h1 class="welcome-title">
+            <i class="fas fa-shield-halved"></i> Welcome, {{ username }}!
+        </h1>
+        <p class="welcome-desc">
+            Pilih cipher algorithm untuk mulai enkripsi dan dekripsi
+        </p>
+    </div>
 
-<div class="stats-grid">
-    <div class="stat-card">
-        <div class="stat-icon">🔓</div>
-        <div class="stat-value">10</div>
-        <div class="stat-label">Algoritma Tersedia</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon">👑</div>
-        <div class="stat-value">Premium</div>
-        <div class="stat-label">Status Akun</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon">🚀</div>
-        <div class="stat-value">Unlimited</div>
-        <div class="stat-label">Akses Fitur</div>
-    </div>
-</div>
-
-<div class="features-section">
-    <h2 class="section-header">
-        <i class="fas fa-unlock"></i> Fitur Gratis
+    <!-- FREE CIPHERS -->
+    <h2 class="section-title">
+        <i class="fas fa-unlock"></i> Free Ciphers
     </h2>
-    <div class="features-grid">
-        <a href="/caesar" class="feature-card">
-            <div class="feature-card-header">
-                <div class="feature-icon">
-                    <i class="fas fa-lock"></i>
-                </div>
-                <h3 class="feature-title">Caesar Cipher</h3>
+    <div class="cipher-grid">
+        <a href="/caesar" class="cipher-card">
+            <span class="free-badge">FREE</span>
+            <div class="cipher-icon">
+                <i class="fas fa-rotate"></i>
             </div>
-            <p class="feature-desc">
-                Enkripsi klasik dengan shift alphabet
-            </p>
+            <div class="cipher-name">Caesar Cipher</div>
+            <div class="cipher-desc">Shift cipher klasik untuk enkripsi substitusi sederhana</div>
         </a>
 
-        <a href="/vigenere" class="feature-card">
-            <div class="feature-card-header">
-                <div class="feature-icon">
-                    <i class="fas fa-key"></i>
-                </div>
-                <h3 class="feature-title">Vigenere Cipher</h3>
+        <a href="/vigenere" class="cipher-card">
+            <span class="free-badge">FREE</span>
+            <div class="cipher-icon">
+                <i class="fas fa-keyboard"></i>
             </div>
-            <p class="feature-desc">
-                Polyalphabetic cipher dengan keyword
-            </p>
+            <div class="cipher-name">Vigenere Cipher</div>
+            <div class="cipher-desc">Polyalphabetic substitution dengan keyword</div>
         </a>
 
-        <a href="/bruteforce" class="feature-card">
-            <div class="feature-card-header">
-                <div class="feature-icon">
-                    <i class="fas fa-hammer"></i>
-                </div>
-                <h3 class="feature-title">Bruteforce</h3>
+        <a href="/bruteforce" class="cipher-card">
+            <span class="free-badge">FREE</span>
+            <div class="cipher-icon">
+                <i class="fas fa-hammer"></i>
             </div>
-            <p class="feature-desc">
-                Coba semua kemungkinan untuk crack cipher
-            </p>
+            <div class="cipher-name">Brute Force Attack</div>
+            <div class="cipher-desc">Crack Caesar cipher dengan mencoba semua kemungkinan</div>
         </a>
     </div>
-</div>
 
-<div class="features-section">
-    <h2 class="section-header">
-        <i class="fas fa-crown"></i> Fitur Premium (Anda Sudah Login!)
+    <!-- PREMIUM CIPHERS - CLASSIC -->
+    <h2 class="section-title">
+        <i class="fas fa-crown"></i> Premium - Classic Ciphers
+        <span class="section-badge">LOGIN REQUIRED</span>
     </h2>
-    <div class="features-grid">
-        <a href="/substitution" class="feature-card">
-            <div class="feature-card-header">
-                <div class="feature-icon">
-                    <i class="fas fa-shuffle"></i>
-                </div>
-                <h3 class="feature-title">Substitution Cipher</h3>
+    <div class="cipher-grid">
+        <a href="/substitution" class="cipher-card">
+            <span class="premium-badge"><i class="fas fa-crown"></i> PREMIUM</span>
+            <div class="cipher-icon">
+                <i class="fas fa-exchange-alt"></i>
             </div>
-            <p class="feature-desc">
-                Substitusi alphabet dengan custom mapping
-            </p>
+            <div class="cipher-name">Substitution Cipher</div>
+            <div class="cipher-desc">Substitusi huruf dengan keyword custom</div>
         </a>
 
-        <a href="/transposition" class="feature-card">
-            <div class="feature-card-header">
-                <div class="feature-icon">
-                    <i class="fas fa-arrows-rotate"></i>
-                </div>
-                <h3 class="feature-title">Transposition</h3>
+        <a href="/transposition" class="cipher-card">
+            <span class="premium-badge"><i class="fas fa-crown"></i> PREMIUM</span>
+            <div class="cipher-icon">
+                <i class="fas fa-shuffle"></i>
             </div>
-            <p class="feature-desc">
-                Rail Fence, Columnar, Route cipher
-            </p>
+            <div class="cipher-name">Transposition Cipher</div>
+            <div class="cipher-desc">Rail Fence, Columnar, Route Cipher</div>
         </a>
 
-        <a href="/playfair" class="feature-card">
-            <div class="feature-card-header">
-                <div class="feature-icon">
-                    <i class="fas fa-table-cells"></i>
-                </div>
-                <h3 class="feature-title">Playfair Cipher</h3>
+        <a href="/playfair" class="cipher-card">
+            <span class="premium-badge"><i class="fas fa-crown"></i> PREMIUM</span>
+            <div class="cipher-icon">
+                <i class="fas fa-table-cells"></i>
             </div>
-            <p class="feature-desc">
-                Digraph encryption dengan matriks 5x5
-            </p>
+            <div class="cipher-name">Playfair Cipher</div>
+            <div class="cipher-desc">Enkripsi digraph dengan matriks 5x5 (Key Hidden)</div>
         </a>
 
-        <a href="/hill" class="feature-card">
-            <div class="feature-card-header">
-                <div class="feature-icon">
-                    <i class="fas fa-mountain"></i>
-                </div>
-                <h3 class="feature-title">Hill Cipher</h3>
+        <a href="/hill" class="cipher-card">
+            <span class="premium-badge"><i class="fas fa-crown"></i> PREMIUM</span>
+            <div class="cipher-icon">
+                <i class="fa-solid fa-table-cells"></i>
             </div>
-            <p class="feature-desc">
-                Matriks aljabar linear encryption
-            </p>
+            <div class="cipher-name">Hill Cipher</div>
+            <div class="cipher-desc">Matrix multiplication cipher dengan linear algebra</div>
         </a>
 
-        <a href="/rsa" class="feature-card">
-            <div class="feature-card-header">
-                <div class="feature-icon">
-                    <i class="fas fa-shield"></i>
-                </div>
-                <h3 class="feature-title">RSA Encryption</h3>
+        <a href="/rsa" class="cipher-card">
+            <span class="premium-badge"><i class="fas fa-crown"></i> PREMIUM</span>
+            <div class="cipher-icon">
+                <i class="fas fa-key"></i>
             </div>
-            <p class="feature-desc">
-                Public key cryptography modern
-            </p>
+            <div class="cipher-name">RSA Encryption</div>
+            <div class="cipher-desc">Public-key cryptography untuk enkripsi asimetris</div>
         </a>
 
-        <a href="/hash" class="feature-card">
-            <div class="feature-card-header">
-                <div class="feature-icon">
-                    <i class="fas fa-hashtag"></i>
-                </div>
-                <h3 class="feature-title">Hash Functions</h3>
+        <a href="/hash" class="cipher-card">
+            <span class="premium-badge"><i class="fas fa-crown"></i> PREMIUM</span>
+            <div class="cipher-icon">
+                <i class="fas fa-hashtag"></i>
             </div>
-            <p class="feature-desc">
-                MD5, SHA-256, SHA-512, BLAKE2
-            </p>
+            <div class="cipher-name">Hash Functions</div>
+            <div class="cipher-desc">MD5, SHA-256, Bcrypt, Argon2 & Password Strength</div>
+        </a>
+    </div>
+
+    <!-- PREMIUM CIPHERS - MODERN ENCRYPTION -->
+    <h2 class="section-title">
+        <i class="fas fa-rocket"></i> Premium - Modern Encryption
+        <span class="section-badge">NEW FEATURES</span>
+    </h2>
+    <div class="cipher-grid">
+        <a href="/aes" class="cipher-card">
+            <span class="premium-badge"><i class="fas fa-crown"></i> PREMIUM</span>
+            <span class="new-badge">NEW</span>
+            <div class="cipher-icon">
+                <i class="fas fa-shield-halved"></i>
+            </div>
+            <div class="cipher-name">AES Encryption</div>
+            <div class="cipher-desc">Advanced Encryption Standard - Industry standard security</div>
+        </a>
+
+        <a href="/des" class="cipher-card">
+            <span class="premium-badge"><i class="fas fa-crown"></i> PREMIUM</span>
+            <span class="new-badge">NEW</span>
+            <div class="cipher-icon">
+                <i class="fas fa-triangle-exclamation"></i>
+            </div>
+            <div class="cipher-name">DES Encryption</div>
+            <div class="cipher-desc">Data Encryption Standard - Legacy algorithm (untuk pembelajaran)</div>
+        </a>
+
+        <a href="/triple-des" class="cipher-card">
+            <span class="premium-badge"><i class="fas fa-crown"></i> PREMIUM</span>
+            <span class="new-badge">NEW</span>
+            <div class="cipher-icon">
+                <i class="fas fa-layer-group"></i>
+            </div>
+            <div class="cipher-name">Triple DES (3DES)</div>
+            <div class="cipher-desc">3x DES security - Masih digunakan di sistem ATM & payment</div>
+        </a>
+
+        <a href="/blowfish" class="cipher-card">
+            <span class="premium-badge"><i class="fas fa-crown"></i> PREMIUM</span>
+            <span class="new-badge">NEW</span>
+            <div class="cipher-icon">
+                <i class="fas fa-fish"></i>
+            </div>
+            <div class="cipher-name">Blowfish Encryption</div>
+            <div class="cipher-desc">Fast block cipher dengan flexible key size (32-448 bit)</div>
         </a>
     </div>
 </div>
