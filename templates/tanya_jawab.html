@@ -1,0 +1,2089 @@
+{% extends "base.html" %}
+{% block title %}Tanya Jawab - DecoDify{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #8c8dac;
+        --secondary: #8b5cf6;
+        --accent: #10b981;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+        --dark: #1e293b;
+        --darker: #0f172a;
+        --text: #f1f5f9;
+        --text-muted: #94a3b8;
+        --card-bg: rgba(30, 41, 59, 0.7);
+        --glass: rgba(255, 255, 255, 0.05);
+        --premium-gold: linear-gradient(135deg, #f59e0b, #d97706, #b45309);
+    }
+
+    /* Main Container */
+    .tanya-jawab-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 1rem;
+    }
+
+    /* Header */
+    .tj-header {
+        background: linear-gradient(135deg, 
+            rgba(99, 102, 241, 0.15), 
+            rgba(139, 92, 246, 0.15));
+        border: 1px solid var(--glass);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .tj-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(
+            circle at 30% 30%,
+            rgba(99, 102, 241, 0.1) 0%,
+            transparent 50%
+        );
+        animation: float 20s infinite linear;
+    }
+
+    .tj-header-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .tj-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    /* Main Layout */
+    .tj-main-layout {
+        display: grid;
+        grid-template-columns: 1fr 350px;
+        gap: 2rem;
+        min-height: 70vh;
+    }
+
+    @media (max-width: 1024px) {
+        .tj-main-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Chatbot Container */
+    .chatbot-container {
+        background: var(--card-bg);
+        border-radius: 20px;
+        border: 1px solid var(--glass);
+        height: 600px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Chatbot Header */
+    .chatbot-header {
+        background: linear-gradient(135deg, var(--secondary), var(--primary));
+        color: white;
+        padding: 1.2rem 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        position: relative;
+    }
+
+    .chatbot-header h3 {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 1.3rem;
+    }
+
+    .bot-status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .status-dot {
+        width: 10px;
+        height: 10px;
+        background: #10b981;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    /* Chatbot Body */
+    .chatbot-body {
+        flex: 1;
+        padding: 1.5rem;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        background: linear-gradient(180deg, 
+            rgba(15, 23, 42, 0.8) 0%,
+            rgba(30, 41, 59, 0.6) 100%);
+    }
+
+    /* Message Styles */
+    .message {
+        max-width: 80%;
+        padding: 1rem 1.2rem;
+        border-radius: 18px;
+        animation: fadeIn 0.4s ease;
+        position: relative;
+        line-height: 1.6;
+    }
+
+    .user-message {
+        background: linear-gradient(135deg, var(--secondary), #7c3aed);
+        color: white;
+        align-self: flex-end;
+        border-bottom-right-radius: 5px;
+        box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+    }
+
+    .bot-message {
+        background: linear-gradient(135deg, 
+            rgba(30, 41, 59, 0.9), 
+            rgba(15, 23, 42, 0.9));
+        color: var(--text);
+        align-self: flex-start;
+        border-bottom-left-radius: 5px;
+        border: 1px solid rgba(139, 92, 246, 0.2);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .message-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+
+    .message-time {
+        font-size: 0.75rem;
+        opacity: 0.7;
+        margin-left: auto;
+    }
+
+    /* Chatbot Footer */
+    .chatbot-footer {
+        padding: 1.2rem;
+        border-top: 1px solid var(--glass);
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    /* Quick Questions */
+    .quick-questions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+        margin-bottom: 1.2rem;
+    }
+
+    .quick-question-btn {
+        padding: 0.6rem 1.2rem;
+        background: linear-gradient(135deg, 
+            rgba(139, 92, 246, 0.15), 
+            rgba(99, 102, 241, 0.1));
+        color: var(--secondary);
+        border: 1px solid rgba(139, 92, 246, 0.3);
+        border-radius: 12px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .quick-question-btn:hover {
+        background: linear-gradient(135deg, 
+            rgba(139, 92, 246, 0.25), 
+            rgba(99, 102, 241, 0.2));
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(139, 92, 246, 0.2);
+    }
+
+    /* Chat Input */
+    .chat-input-container {
+        display: flex;
+        gap: 12px;
+        position: relative;
+    }
+
+    .chat-input {
+        flex: 1;
+        padding: 1rem 1.2rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass);
+        border-radius: 14px;
+        color: var(--text);
+        font-size: 1rem;
+        font-family: inherit;
+        transition: all 0.3s ease;
+        resize: none;
+        min-height: 50px;
+        max-height: 100px;
+    }
+
+    .chat-input:focus {
+        outline: none;
+        border-color: var(--secondary);
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .chat-input::placeholder {
+        color: var(--text-muted);
+    }
+
+    .send-button {
+        padding: 0 1.8rem;
+        background: linear-gradient(135deg, var(--secondary), var(--primary));
+        color: white;
+        border: none;
+        border-radius: 14px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        white-space: nowrap;
+    }
+
+    .send-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+        background: linear-gradient(135deg, #7c3aed, var(--secondary));
+    }
+
+    /* Sidebar */
+    .tj-sidebar {
+        background: linear-gradient(180deg, 
+            rgba(30, 41, 59, 0.95) 0%,
+            rgba(15, 23, 42, 0.98) 100%);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(139, 92, 246, 0.2);
+        border-radius: 20px;
+        padding: 1.5rem;
+        height: fit-content;
+        position: sticky;
+        top: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .sidebar-section {
+        margin-bottom: 2rem;
+    }
+
+    .sidebar-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .sidebar-title {
+        color: var(--text);
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 600;
+    }
+
+    /* FAQ List */
+    .faq-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+
+    .faq-item {
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+        padding: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .faq-item:hover {
+        background: rgba(255, 255, 255, 0.05);
+        transform: translateX(5px);
+        border-color: rgba(139, 92, 246, 0.3);
+    }
+
+    .faq-question {
+        color: var(--text);
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.95rem;
+    }
+
+    .faq-answer {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        line-height: 1.5;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.4s ease;
+        margin-top: 0;
+    }
+
+    .faq-item.active .faq-answer {
+        max-height: 300px;
+        margin-top: 0.8rem;
+    }
+
+    /* Bot Typing Indicator */
+    .typing-indicator {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 1rem 1.2rem;
+        background: linear-gradient(135deg, 
+            rgba(30, 41, 59, 0.9), 
+            rgba(15, 23, 42, 0.9));
+        border-radius: 18px;
+        align-self: flex-start;
+        width: fit-content;
+        border: 1px solid rgba(139, 92, 246, 0.2);
+    }
+
+    .typing-dot {
+        width: 10px;
+        height: 10px;
+        background: var(--secondary);
+        border-radius: 50%;
+        animation: typingBounce 1.4s infinite;
+    }
+
+    .typing-dot:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .typing-dot:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+
+    @keyframes typingBounce {
+        0%, 60%, 100% {
+            transform: translateY(0);
+        }
+        30% {
+            transform: translateY(-6px);
+        }
+    }
+
+    .typing-text {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        margin-left: 10px;
+    }
+
+    /* Crypto Badges */
+    .crypto-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 0.4rem 0.8rem;
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--accent);
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        margin: 5px 5px 0 0;
+    }
+
+    .crypto-badge.purple {
+        background: rgba(139, 92, 246, 0.1);
+        color: var(--secondary);
+        border-color: rgba(139, 92, 246, 0.2);
+    }
+
+    .crypto-badge.orange {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--warning);
+        border-color: rgba(245, 158, 11, 0.2);
+    }
+
+    /* Topic Suggestions */
+    .topic-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.8rem;
+    }
+
+    .topic-item {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .topic-item:hover {
+        background: rgba(255, 255, 255, 0.05);
+        transform: translateY(-3px);
+        border-color: rgba(139, 92, 246, 0.3);
+    }
+
+    .topic-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: rgba(139, 92, 246, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--secondary);
+        font-size: 1.2rem;
+    }
+
+    .topic-name {
+        color: var(--text);
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    /* Code Blocks in Messages */
+    .code-block {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 8px;
+        padding: 1rem;
+        margin: 0.8rem 0;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        overflow-x: auto;
+        position: relative;
+    }
+
+    .code-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        color: var(--text-muted);
+        font-size: 0.8rem;
+    }
+
+    .copy-code {
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        color: var(--text);
+        padding: 0.3rem 0.8rem;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        transition: all 0.3s ease;
+    }
+
+    .copy-code:hover {
+        background: rgba(139, 92, 246, 0.3);
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+        from { 
+            opacity: 0; 
+            transform: translateY(10px); 
+        }
+        to { 
+            opacity: 1; 
+            transform: translateY(0); 
+        }
+    }
+
+    @keyframes float {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Custom Scrollbar */
+    .chatbot-body::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .chatbot-body::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 4px;
+    }
+
+    .chatbot-body::-webkit-scrollbar-thumb {
+        background: var(--primary);
+        border-radius: 4px;
+    }
+
+    .chatbot-body::-webkit-scrollbar-thumb:hover {
+        background: var(--secondary);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .tj-title {
+            font-size: 2rem;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .tj-header {
+            padding: 1.5rem;
+        }
+        
+        .chatbot-container {
+            height: 500px;
+        }
+        
+        .quick-questions {
+            justify-content: center;
+        }
+        
+        .topic-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .message {
+            max-width: 90%;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .tj-title {
+            font-size: 1.7rem;
+        }
+        
+        .chatbot-header h3 {
+            font-size: 1.1rem;
+        }
+        
+        .quick-question-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+        
+        .chat-input {
+            padding: 0.8rem 1rem;
+        }
+        
+        .send-button {
+            padding: 0 1.5rem;
+        }
+    }
+
+    /* Statistics */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .stat-item {
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+        padding: 1rem;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--secondary);
+        margin-bottom: 0.3rem;
+    }
+
+    .stat-label {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="tanya-jawab-container">
+    <!-- Header -->
+    <div class="tj-header">
+        <div class="tj-header-content">
+            <h1 class="tj-title">
+                <i class="fas fa-robot"></i>
+                Tanya Jawab Kriptografi
+                <i class="fas fa-shield-alt"></i>
+            </h1>
+            <p style="color: var(--text-muted); font-size: 1.1rem; max-width: 600px; margin: 0 auto;">
+                Chatbot ahli kriptografi yang siap membantu Anda memahami konsep, algoritma, dan implementasi keamanan sistem
+            </p>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalQuestions">0</div>
+                    <div class="stat-label">Pertanyaan Terjawab</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="activeUsers">1</div>
+                    <div class="stat-label">Pengguna Aktif</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">15+</div>
+                    <div class="stat-label">Topik Kriptografi</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">24/7</div>
+                    <div class="stat-label">Ketersediaan</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="tj-main-layout">
+        <!-- Chatbot Main Area -->
+        <div class="chatbot-container">
+            <!-- Chatbot Header -->
+            <div class="chatbot-header">
+                <h3>
+                    <i class="fas fa-robot"></i>
+                    Dify Bot - Asisten Kriptografi
+                </h3>
+                <div class="bot-status">
+                    <div class="status-dot"></div>
+                    <span>Online</span>
+                </div>
+            </div>
+
+            <!-- Chatbot Body -->
+            <div class="chatbot-body" id="chatBody">
+                <!-- Welcome Message -->
+                <div class="message bot-message">
+                    <div class="message-header">
+                        <i class="fas fa-robot"></i>
+                        Dify Bot
+                        <span class="message-time" id="welcomeTime"></span>
+                    </div>
+                    <p>👋 Selamat datang di <strong>Dify Bot - Asisten Kriptografi</strong>!</p>
+                    <p>Saya siap membantu Anda memahami berbagai konsep dalam mata kuliah kriptografi dan keamanan sistem. Dari dasar-dasar enkripsi hingga implementasi praktis.</p>
+                    
+                    <div style="margin-top: 1rem;">
+                        <span class="crypto-badge">🔐 Enkripsi</span>
+                        <span class="crypto-badge purple">🗝️ Kunci</span>
+                        <span class="crypto-badge orange">🔗 Hash</span>
+                        <span class="crypto-badge">⚛️ Post-Quantum</span>
+                    </div>
+
+                    <p style="margin-top: 1rem;">Coba tanyakan tentang:</p>
+                    <div class="quick-questions" style="margin-top: 0.5rem;">
+                        <button class="quick-question-btn" onclick="askQuestion('Jelaskan konsep dasar kriptografi dan mengapa penting dalam keamanan informasi modern')">
+                            <i class="fas fa-book"></i>
+                            Dasar Kriptografi
+                        </button>
+                        <button class="quick-question-btn" onclick="askQuestion('Bagaimana cara kerja algoritma RSA dan mengapa dianggap aman untuk keamanan data?')">
+                            <i class="fas fa-key"></i>
+                            Algoritma RSA
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chatbot Footer -->
+            <div class="chatbot-footer">
+                <!-- Quick Questions -->
+                <div class="quick-questions">
+                    <button class="quick-question-btn" onclick="askQuestion('Apa perbedaan antara enkripsi simetris dan asimetris, serta kapan masing-masing digunakan?')">
+                        <i class="fas fa-balance-scale"></i>
+                        Simetris vs Asimetris
+                    </button>
+                    <button class="quick-question-btn" onclick="askQuestion('Apa itu fungsi hash kriptografi dan bagaimana cara kerjanya dalam mengamankan password?')">
+                        <i class="fas fa-fingerprint"></i>
+                        Fungsi Hash
+                    </button>
+                    <button class="quick-question-btn" onclick="askQuestion('Jelaskan peran kriptografi dalam keamanan jaringan dan komunikasi digital')">
+                        <i class="fas fa-network-wired"></i>
+                        Keamanan Jaringan
+                    </button>
+                </div>
+
+                <!-- Chat Input -->
+                <div class="chat-input-container">
+                    <textarea 
+                        class="chat-input" 
+                        id="chatInput" 
+                        placeholder="Tanyakan tentang kriptografi, keamanan, atau algoritma..."
+                        rows="1"
+                        oninput="autoResize(this)"
+                        onkeypress="handleChatKeyPress(event)"
+                    ></textarea>
+                    <button class="send-button" onclick="sendMessage()">
+                        <i class="fas fa-paper-plane"></i>
+                        Kirim
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="tj-sidebar">
+            <!-- Topik Populer -->
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">
+                    <i class="fas fa-fire"></i>
+                    Topik Populer
+                </h3>
+                <div class="topic-grid">
+                    <div class="topic-item" onclick="askQuestion('Jelaskan konsep dasar kriptografi dan tujuannya')">
+                        <div class="topic-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="topic-name">Dasar Kriptografi</div>
+                    </div>
+                    <div class="topic-item" onclick="askQuestion('Apa itu algoritma AES dan bagaimana cara kerjanya?')">
+                        <div class="topic-icon">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <div class="topic-name">Algoritma AES</div>
+                    </div>
+                    <div class="topic-item" onclick="askQuestion('Bagaimana fungsi hash digunakan dalam blockchain?')">
+                        <div class="topic-icon">
+                            <i class="fas fa-link"></i>
+                        </div>
+                        <div class="topic-name">Blockchain</div>
+                    </div>
+                    <div class="topic-item" onclick="askQuestion('Apa itu kriptografi post-quantum dan mengapa penting?')">
+                        <div class="topic-icon">
+                            <i class="fas fa-atom"></i>
+                        </div>
+                        <div class="topic-name">Post-Quantum</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAQ -->
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">
+                    <i class="fas fa-question-circle"></i>
+                    FAQ Kriptografi
+                </h3>
+                <div class="faq-list">
+                    <div class="faq-item" onclick="toggleFAQ(this)">
+                        <div class="faq-question">
+                            <i class="fas fa-key"></i>
+                            Apa itu Enkripsi?
+                        </div>
+                        <div class="faq-answer">
+                            Proses mengubah plaintext menjadi ciphertext menggunakan algoritma dan kunci. Tujuannya untuk menjaga kerahasiaan data.
+                        </div>
+                    </div>
+                    <div class="faq-item" onclick="toggleFAQ(this)">
+                        <div class="faq-question">
+                            <i class="fas fa-user-secret"></i>
+                            RSA vs AES?
+                        </div>
+                        <div class="faq-answer">
+                            RSA (asimetris) untuk pertukaran kunci, AES (simetris) untuk enkripsi data. RSA lebih lambat tapi aman untuk distribusi kunci.
+                        </div>
+                    </div>
+                    <div class="faq-item" onclick="toggleFAQ(this)">
+                        <div class="faq-question">
+                            <i class="fas fa-fingerprint"></i>
+                            Apa itu Hash?
+                        </div>
+                        <div class="faq-answer">
+                            Fungsi satu-arah yang mengubah input menjadi output tetap. Digunakan untuk verifikasi integritas dan password hashing.
+                        </div>
+                    </div>
+                    <div class="faq-item" onclick="toggleFAQ(this)">
+                        <div class="faq-question">
+                            <i class="fas fa-shield-alt"></i>
+                            Keamanan Kunci?
+                        </div>
+                        <div class="faq-answer">
+                            Panjang kunci minimum 2048-bit untuk RSA, 256-bit untuk AES. Rotasi kunci setiap 1-2 tahun dan simpan di tempat aman.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tips -->
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">
+                    <i class="fas fa-lightbulb"></i>
+                    Tips Belajar
+                </h3>
+                <div style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">
+                    <p>✅ Mulai dari konsep dasar</p>
+                    <p>✅ Praktik dengan contoh nyata</p>
+                    <p>✅ Pahami matematika dasar</p>
+                    <p>✅ Ikuti perkembangan terbaru</p>
+                    <p>✅ Gunakan tools praktikum</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chatbot JavaScript -->
+<script>
+    // Database Pertanyaan & Jawaban Kriptografi
+    const cryptographyDB = {
+        // ==================== DASAR KRIPTOGRAFI ====================
+        'konsep dasar kriptografi': {
+            answer: `📚 **KONSEP DASAR KRIPTOGRAFI**
+
+**Definisi:**
+Kriptografi (cryptography) berasal dari bahasa Yunani: "kryptos" (tersembunyi) + "graphein" (menulis). Merupakan ilmu dan seni mengamankan informasi dengan mengubahnya menjadi bentuk yang tidak dapat dibaca tanpa kunci yang tepat.
+
+**Tujuan Utama:**
+1. **Kerahasiaan (Confidentiality)** - Hanya pihak berwenang yang dapat membaca
+2. **Integritas (Integrity)** - Data tidak berubah selama transmisi
+3. **Autentikasi (Authentication)** - Memverifikasi identitas pengguna
+4. **Non-repudiasi (Non-repudiation)** - Pengirim tidak bisa menyangkal pengiriman
+
+**Komponen Penting:**
+• **Plaintext** - Pesan asli
+• **Ciphertext** - Pesan terenkripsi  
+• **Algoritma** - Metode enkripsi/dekripsi
+• **Kunci (Key)** - Rahasia untuk transformasi
+
+**Contoh Aplikasi Nyata:**
+• HTTPS (SSL/TLS) untuk browsing aman
+• VPN untuk koneksi privat
+• Digital signatures untuk dokumen
+• Password hashing untuk autentikasi
+
+**Statistik Penting (2024):**
+• 95% organisasi menggunakan kriptografi
+• Market size: $2.5 miliar (tumbuh 15%/tahun)
+• 80% serangan dapat dicegah dengan kriptografi tepat`,
+            followUp: ['enkripsi simetris asimetris', 'fungsi hash', 'algoritma populer'],
+            tags: ['dasar', 'konsep', 'teori']
+        },
+
+        'mengapa penting dalam keamanan informasi': {
+            answer: `🛡️ **PENTINGNYA KRIPTOGRAFI DALAM KEAMANAN INFORMASI**
+
+**1. Perlindungan Data Sensitif:**
+• Data finansial (kartu kredit, transaksi bank)
+• Informasi medis (rekam kesehatan)
+• Data pribadi (KTP, password, email)
+• Rahasia dagang dan intelektual
+
+**2. Keamanan Komunikasi Digital:**
+• Email terenkripsi (PGP/GPG)
+• Pesan instan (WhatsApp, Signal)
+• Video conference (Zoom, Teams)
+• Transaksi online (e-commerce)
+
+**3. Kepatuhan Regulasi:**
+• **GDPR** (General Data Protection Regulation) - UE
+• **HIPAA** (Health Insurance Portability) - AS  
+• **PCI DSS** (Payment Card Industry)
+• **UU PDP** (Perlindungan Data Pribadi) - Indonesia
+
+**4. Ancaman yang Diatasi:**
+• **Man-in-the-Middle** - Penyadapan komunikasi
+• **Data Breach** - Kebocoran data
+• **Identity Theft** - Pencurian identitas
+• **Tampering** - Perubahan data tidak sah
+
+**5. Dampak Tanpa Kriptografi:**
+• Kerugian finansial miliaran dolar
+• Kehilangan kepercayaan pelanggan
+• Sanksi hukum dan denda besar
+• Kerusakan reputasi permanen
+
+**Case Study:**
+• Equifax 2017: 147 juta data bocor, kerugian $1.4 miliar
+• Yahoo 2013: 3 miliar akun diretas
+• Marriott 2018: 500 juta data tamu terekspos`,
+            followUp: ['regulasi keamanan', 'case study', 'best practices'],
+            tags: ['keamanan', 'regulasi', 'praktik']
+        },
+
+        // ==================== ALGORITMA ====================
+        'algoritma rsa': {
+            answer: `🔢 **ALGORITMA RSA - RIVEST-SHAMIR-ADLEMAN**
+
+**Sejarah:**
+Dikembangkan 1977 oleh Ron Rivest, Adi Shamir, dan Leonard Adleman di MIT. Merupakan algoritma asimetris pertama yang praktis.
+
+**Cara Kerja Matematis:**
+1. **Pilih dua bilangan prima besar:** p dan q
+2. **Hitung n = p × q** (modulus public/private)
+3. **Hitung φ(n) = (p-1)(q-1)** (totient function)
+4. **Pilih e** (public exponent) dimana 1 < e < φ(n) dan gcd(e, φ(n)) = 1
+5. **Hitung d** (private exponent) dengan e × d ≡ 1 mod φ(n)
+
+**Proses Enkripsi/Deskripsi:**
+• **Enkripsi:** C = M^e mod n
+• **Dekripsi:** M = C^d mod n
+
+**Keamanan RSA:**
+• Berdasarkan **kesulitan faktorisasi bilangan prima besar**
+• RSA-2048 memiliki 617 digit desimal
+• Butuh superkomputer **300 triliun tahun** untuk memecah
+• Rentan terhadap **serangan kuantum** (Shor's Algorithm)
+
+**Ukuran Kunci yang Direkomendasikan:**
+• 2024: **2048-bit** minimal
+• 2030: **3072-bit** direkomendasikan  
+• Sangat sensitif: **4096-bit**
+
+\`\`\`python
+# Contoh implementasi sederhana RSA
+import rsa
+
+# Generate keys
+(public_key, private_key) = rsa.newkeys(2048)
+
+# Encrypt
+message = "Data rahasia".encode('utf8')
+crypto = rsa.encrypt(message, public_key)
+
+# Decrypt  
+decrypted = rsa.decrypt(crypto, private_key)
+print(decrypted.decode('utf8'))
+\`\`\`
+
+**Implementasi:**
+• SSL/TLS certificates
+• Digital signatures
+• PGP/GPG email encryption
+• SSH authentication`,
+            followUp: ['keamanan rsa', 'quantum threat', 'alternatif rsa'],
+            tags: ['algoritma', 'asimetris', 'matematika']
+        },
+
+        'enkripsi simetris asimetris': {
+            answer: `⚖️ **PERBANDINGAN KRIPTOGRAFI SIMETRIS vs ASIMETRIS**
+
+**KRIPTOGRAFI SIMETRIS:**
+• **Kunci:** Sama untuk enkripsi & dekripsi
+• **Kecepatan:** Sangat cepat (100-1000x asimetris)
+• **Penggunaan:** Enkripsi data dalam jumlah besar
+• **Contoh:** AES, DES, 3DES, Blowfish, ChaCha20
+• **Keamanan:** Bergantung pada kerahasiaan kunci
+• **Kerentanan:** Distribusi kunci yang aman
+
+**KRIPTOGRAFI ASIMETRIS:**
+• **Kunci:** Pasangan kunci (public & private)
+• **Kecepatan:** Lebih lambat
+• **Penggunaan:** Pertukaran kunci, digital signatures
+• **Contoh:** RSA, ECC, ElGamal, Diffie-Hellman
+• **Keamanan:** Berdasarkan masalah matematis
+• **Keunggulan:** Distribusi kunci yang aman
+
+**PERBANDINGAN DETAIL:**
+
+| Aspek | Simetris | Asimetris |
+|-------|----------|-----------|
+| Jumlah Kunci | 1 | 2 (public & private) |
+| Kecepatan | Sangat Cepat (GB/detik) | Lambat (KB/detik) |
+| Penggunaan | Data enkripsi | Key exchange, signatures |
+| Contoh | AES-256 | RSA-2048 |
+| Keamanan | Key secrecy | Mathematical hardness |
+
+**BEST PRACTICE (Hybrid Approach):**
+1. Gunakan **asimetris** untuk pertukaran kunci rahasia
+2. Gunakan **simetris** untuk enkripsi data sesi
+3. Contoh: TLS menggunakan RSA untuk key exchange, AES untuk data
+
+\`\`\`python
+# Contoh hybrid cryptography
+from cryptography.hazmat.primitives.asymmetric import rsa, padding
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+import os
+
+# 1. Generate RSA keys (asymmetric)
+private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+public_key = private_key.public_key()
+
+# 2. Generate AES key (symmetric)
+aes_key = os.urandom(32)  # 256-bit key
+
+# 3. Encrypt AES key with RSA
+encrypted_aes_key = public_key.encrypt(
+    aes_key,
+    padding.OAEP(
+        mgf=padding.MGF1(algorithm=hashes.SHA256()),
+        algorithm=hashes.SHA256(),
+        label=None
+    )
+)
+
+# 4. Use AES for data encryption
+cipher = Cipher(algorithms.AES(aes_key), modes.GCM(os.urandom(12)))
+encryptor = cipher.encryptor()
+encrypted_data = encryptor.update(b"Secret data") + encryptor.finalize()
+\`\`\``,
+            followUp: ['aes encryption', 'hybrid approach', 'performance comparison'],
+            tags: ['perbandingan', 'algoritma', 'praktik']
+        },
+
+        // ==================== FUNGSI HASH ====================
+        'fungsi hash kriptografi': {
+            answer: `🔗 **FUNGSI HASH KRIPTOGRAFI**
+
+**Definisi:**
+Fungsi matematika satu-arah yang memetakan data berukuran berapa pun ke nilai berukuran tetap (biasanya 256/512 bit). Tidak dapat dibalik (irreversible).
+
+**Karakteristik:**
+1. **Deterministik** - Input sama → output sama
+2. **Komputasi Cepat** - Hash dapat dihitung cepat
+3. **Pre-image Resistance** - Sulit cari input dari hash
+4. **Small Changes, Big Difference** - Avalanche effect
+5. **Collision Resistant** - Sulit cari dua input dengan hash sama
+
+**ALGORITMA POPULER:**
+
+**1. SHA-2 Family (NIST Standard):**
+• **SHA-256** - 256-bit output, paling banyak digunakan
+• **SHA-512** - 512-bit output, lebih aman
+• Kecepatan: ~200 MB/detik
+• Aplikasi: Bitcoin, TLS, Git
+
+**2. SHA-3 (Keccak):**
+• Desain berbeda dari SHA-2
+• Tahan terhadap serangan teoretis
+• Aplikasi: Blockchain, IoT security
+
+**3. Password Hashing Functions:**
+• **Bcrypt** - Adaptive hashing, slow by design
+• **Argon2** - Memory-hard, pemenang PHC 2015
+• **PBKDF2** - Key derivation function
+
+**PERBANDINGAN:**
+
+| Algorithm | Output Size | Security | Speed | Use Case |
+|-----------|-------------|----------|-------|----------|
+| SHA-256 | 256-bit | High | Fast | General purpose |
+| SHA-512 | 512-bit | Very High | Fast | High security |
+| Bcrypt | 184-bit | High | Slow | Password storage |
+| Argon2 | Variable | Very High | Configurable | Password/KDF |
+
+**CONTOH APLIKASI:**
+
+**1. Password Storage:**
+\`\`\`python
+import bcrypt
+import hashlib
+
+# NEVER store passwords like this:
+# database[username] = password
+
+# CORRECT way with bcrypt:
+password = "user_password123"
+salt = bcrypt.gensalt(rounds=12)  # 2^12 iterations
+hashed = bcrypt.hashpw(password.encode(), salt)
+
+# Verification:
+input_password = "user_password123"
+if bcrypt.checkpw(input_password.encode(), hashed):
+    print("Password correct!")
+\`\`\`
+
+**2. Data Integrity Verification:**
+\`\`\`python
+import hashlib
+
+def calculate_file_hash(filepath):
+    sha256_hash = hashlib.sha256()
+    with open(filepath, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
+
+# Compare hashes to verify file integrity
+original_hash = "a1b2c3..."
+current_hash = calculate_file_hash("document.pdf")
+if original_hash == current_hash:
+    print("File is authentic!")
+\`\`\`
+
+**3. Digital Signatures (Simplified):**
+\`\`\`python
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
+
+# Sign a document
+message = b"Important contract"
+signature = private_key.sign(
+    message,
+    padding.PSS(
+        mgf=padding.MGF1(hashes.SHA256()),
+        salt_length=padding.PSS.MAX_LENGTH
+    ),
+    hashes.SHA256()
+)
+
+# Verify signature
+try:
+    public_key.verify(
+        signature,
+        message,
+        padding.PSS(
+            mgf=padding.MGF1(hashes.SHA256()),
+            salt_length=padding.PSS.MAX_LENGTH
+        ),
+        hashes.SHA256()
+    )
+    print("Signature valid!")
+except:
+    print("Signature invalid!")
+\`\`\`
+
+**KEAMANAN HASH:**
+• **MD5** - Broken, jangan digunakan
+• **SHA-1** - Deprecated sejak 2017
+• **SHA-256** - Aman untuk 10-20 tahun ke depan
+• **SHA-512** - Aman untuk 20-30 tahun ke depan
+
+**STATISTIK:**
+• Brute force SHA-256: 2^128 operasi
+• Waktu: 10^26 tahun dengan komputer saat ini
+• Quantum computer threat: Grover's algorithm`,
+            followUp: ['password hashing', 'collision attack', 'sha256 vs sha3'],
+            tags: ['hash', 'password', 'security']
+        },
+
+        'cara kerjanya dalam mengamankan password': {
+            answer: `🔐 **PASSWORD HASHING & KEAMANAN**
+
+**PROBLEM TRADISIONAL:**
+• Password disimpan plaintext → risiko tinggi
+• Enkripsi two-way → bisa di-decrypt
+• Hash tanpa salt → vulnerable to rainbow tables
+
+**SOLUTION MODERN:**
+\`\`\`
+Password + Salt → Hash Function → Stored Hash
+              ↓
+          (Unique per user)
+\`\`\`
+
+**COMPONENTS:**
+
+**1. Salt:**
+• Random data unique per password
+• Length: minimum 16 bytes (128-bit)
+• Purpose: Prevent rainbow table attacks
+• Storage: Store with hash (usually concatenated)
+
+**2. Hash Function Requirements:**
+• **Slow by design** - Resist brute force
+• **Memory hard** - Resist GPU/ASIC attacks
+• **Adaptive** - Can increase iterations over time
+
+**3. Work Factor (Iterations):**
+• Bcrypt: cost factor (2^cost iterations)
+• PBKDF2: iteration count (100,000+)
+• Argon2: time, memory, parallelism parameters
+
+**IMPLEMENTATION EXAMPLE:**
+\`\`\`python
+import argon2
+
+# Argon2 parameters (tuned for 2024 security)
+hasher = argon2.PasswordHasher(
+    time_cost=3,          # 3 iterations
+    memory_cost=65536,    # 64MB memory
+    parallelism=4,        # 4 threads
+    hash_len=32,          # 32 bytes output
+    salt_len=16           # 16 bytes salt
+)
+
+# Hash a password
+password = "MySecurePass123!"
+hash = hasher.hash(password)
+# Format: $argon2id$v=19$m=65536,t=3,p=4$c29tZXNhbHQ$RdescudvJCsgt3ub+b+dWRWJTmaaJObG
+
+# Verify password
+try:
+    hasher.verify(hash, "MySecurePass123!")
+    print("Password correct!")
+except:
+    print("Password incorrect!")
+\`\`\`
+
+**SECURITY CONSIDERATIONS:**
+
+**1. Password Policy:**
+• Minimum 12 characters
+• Mix: uppercase, lowercase, numbers, symbols
+• No dictionary words
+• No personal information
+• Change every 90 days
+
+**2. Storage Guidelines:**
+• Never store plaintext passwords
+• Use dedicated password hashing functions
+• Unique salt per password
+• Regular security audits
+
+**3. Attack Prevention:**
+• **Brute Force:** Slow hashing algorithms
+• **Rainbow Tables:** Unique salts
+• **Timing Attacks:** Constant-time comparison
+• **Database Leaks:** Password hashing + pepper
+
+**STATISTICS:**
+• 80% of breaches involve stolen credentials
+• Average user has 8 duplicate passwords
+• 2FA reduces account takeover by 99.9%
+• Proper hashing prevents 95% of password attacks`,
+            followUp: ['brute force protection', '2fa', 'password policies'],
+            tags: ['password', 'hashing', 'security']
+        },
+
+        // ==================== KEAMANAN JARINGAN ====================
+        'peran kriptografi dalam keamanan jaringan': {
+            answer: `🌐 **KRIPTOGRAFI DALAM KEAMANAN JARINGAN**
+
+**LAYER OSI & PROTOKOL KRIPTOGRAFI:**
+
+**1. Application Layer (Layer 7):**
+• **HTTPS/TLS** - Web security
+• **SSH** - Secure remote access
+• **SFTP/SCP** - Secure file transfer
+• **PGP/GPG** - Email encryption
+
+**2. Transport Layer (Layer 4):**
+• **TLS/SSL** - End-to-end encryption
+• **DTLS** - Datagram TLS for UDP
+• **WireGuard** - Modern VPN protocol
+
+**3. Network Layer (Layer 3):**
+• **IPsec** - VPN at network layer
+• **IKEv2** - Key exchange for IPsec
+
+**DETAILED PROTOCOL ANALYSIS:**
+
+**A. TLS 1.3 (Modern Standard):**
+\`\`\`
+TLS Handshake:
+1. Client Hello (supported ciphers)
+2. Server Hello (chosen cipher + certificate)
+3. Key Exchange (ECDHE or DHE)
+4. Authentication (RSA or ECDSA)
+5. Finished (encrypted communication)
+\`\`\`
+
+**Key Features:**
+• Forward secrecy mandatory
+• Reduced handshake (1-RTT)
+• Removed insecure ciphers
+• Encrypted server certificate
+
+**B. IPsec VPN:**
+\`\`\`
+Components:
+1. IKE (Internet Key Exchange) - Authentication & key management
+2. ESP (Encapsulating Security Payload) - Encryption
+3. AH (Authentication Header) - Integrity protection
+
+Modes:
+• Transport Mode: Encrypts payload only
+• Tunnel Mode: Encrypts entire IP packet
+\`\`\`
+
+**IMPLEMENTATION EXAMPLE:**
+\`\`\`python
+# TLS client example
+import ssl
+import socket
+
+# Create SSL context
+context = ssl.create_default_context()
+context.check_hostname = True
+context.verify_mode = ssl.CERT_REQUIRED
+
+# Secure connection
+with socket.create_connection(("example.com", 443)) as sock:
+    with context.wrap_socket(sock, server_hostname="example.com") as ssock:
+        # Send HTTPS request
+        ssock.send(b"GET / HTTP/1.1\\r\\nHost: example.com\\r\\n\\r\\n")
+        response = ssock.recv(4096)
+        print(response.decode())
+\`\`\`
+
+**SECURITY STANDARDS & COMPLIANCE:**
+
+**1. NIST Guidelines:**
+• Use TLS 1.2 or higher
+• 2048-bit RSA or 256-bit ECC
+• SHA-256 or better for hashing
+• AES-GCM for encryption
+
+**2. PCI DSS Requirements:**
+• Strong cryptography for card data
+• Regular vulnerability scanning
+• Key management procedures
+• Audit trails for access
+
+**3. Best Practices:**
+• Implement perfect forward secrecy
+• Use HSTS (HTTP Strict Transport Security)
+• Regular certificate renewal
+• Monitor for weak ciphers
+
+**STATISTICS:**
+• 95% of web traffic now uses HTTPS
+• TLS 1.3 adoption: 65% (2024)
+• Average data breach cost: $4.35 million
+• 43% of breaches involve web applications`,
+            followUp: ['tls implementation', 'vpn security', 'network monitoring'],
+            tags: ['jaringan', 'protocol', 'security']
+        },
+
+        // ==================== TOPIK LANJUTAN ====================
+        'blockchain dari sisi kriptografinya': {
+            answer: `⛓️ **KRIPTOGRAFI DALAM BLOCKCHAIN**
+
+**FUNDAMENTAL COMPONENTS:**
+
+**1. Cryptographic Hash Functions:**
+• **SHA-256** (Bitcoin) - 256-bit output
+• **Keccak-256** (Ethereum) - SHA-3 variant
+• **Double SHA-256** - Bitcoin's extra security
+
+**2. Digital Signatures:**
+• **ECDSA** (Elliptic Curve Digital Signature Algorithm)
+• Curve: **secp256k1** (Bitcoin, Ethereum)
+• Private key → Public key → Address
+
+**3. Merkle Trees:**
+• Efficient data structure for verification
+• Root hash represents all transactions
+• Light clients verify without full data
+
+**BITCOIN EXAMPLE:**
+\`\`\`
+Transaction Structure:
+1. Version
+2. Inputs (previous TX + signature)
+3. Outputs (address + amount)
+4. Locktime
+
+Address Generation:
+Private Key → ECDSA → Public Key 
+→ SHA-256 → RIPEMD-160 
+→ Base58Check → Bitcoin Address
+\`\`\`
+
+**SMART CONTRACT SECURITY:**
+\`\`\`solidity
+// Ethereum smart contract with security considerations
+pragma solidity ^0.8.0;
+
+contract SecureVault {
+    address private owner;
+    mapping(address => uint256) private balances;
+    
+    constructor() {
+        owner = msg.sender;
+    }
+    
+    // Re-entrancy guard
+    bool private locked;
+    modifier noReentrancy() {
+        require(!locked, "No reentrancy");
+        locked = true;
+        _;
+        locked = false;
+    }
+    
+    function withdraw(uint256 amount) public noReentrancy {
+        require(balances[msg.sender] >= amount, "Insufficient balance");
+        require(address(this).balance >= amount, "Contract insufficient funds");
+        
+        balances[msg.sender] -= amount;
+        (bool success, ) = msg.sender.call{value: amount}("");
+        require(success, "Transfer failed");
+    }
+}
+\`\`\`
+
+**CONSENSUS ALGORITHMS:**
+
+**1. Proof of Work (Bitcoin):**
+• Find nonce where hash(block + nonce) < target
+• Difficulty adjusts every 2016 blocks
+• Energy intensive but secure
+
+**2. Proof of Stake (Ethereum 2.0):**
+• Validators stake ETH
+• Random selection for block proposal
+• Slashing for malicious behavior
+
+**SECURITY CONSIDERATIONS:**
+
+**1. 51% Attack:**
+• Control majority of mining power
+• Can double-spend transactions
+• Prevention: Larger network, ASIC resistance
+
+**2. Quantum Threat:**
+• ECDSA vulnerable to Shor's algorithm
+• Migration to post-quantum cryptography
+• Lamport signatures as potential solution
+
+**3. Privacy Enhancements:**
+• **zk-SNARKs** - Zero-knowledge proofs
+• **Ring Signatures** - Monero's approach
+• **Mimblewimble** - Confidential transactions`,
+            followUp: ['smart contracts', 'consensus algorithms', 'crypto wallets'],
+            tags: ['blockchain', 'cryptocurrency', 'advanced']
+        },
+
+        'kriptografi post quantum': {
+            answer: `⚛️ **KRIPTOGRAFI POST-QUANTUM**
+
+**QUANTUM THREAT ASSESSMENT:**
+
+**Algorithms Broken by Quantum Computers:**
+1. **RSA** - Shor's algorithm (polynomial time)
+2. **ECC** - Shor's algorithm  
+3. **Diffie-Hellman** - Shor's algorithm
+4. **DSA** - Shor's algorithm
+
+**Algorithms Affected (Weakened):**
+1. **Symmetric ciphers** - Grover's algorithm (√N speedup)
+2. **Hash functions** - Grover's algorithm
+
+**NIST POST-QUANTUM STANDARDIZATION:**
+
+**Round 4 Finalists (2024):**
+
+**1. CRYSTALS-Kyber (Key Encapsulation):**
+• **Type:** Lattice-based
+• **Security:** 256-bit post-quantum
+• **Key size:** 800-1,500 bytes
+• **Performance:** Fastest among finalists
+
+**2. CRYSTALS-Dilithium (Digital Signatures):**
+• **Type:** Lattice-based  
+• **Security:** 128-bit+ post-quantum
+• **Signature size:** 2,000-4,000 bytes
+• **Performance:** Efficient verification
+
+**3. Falcon (Digital Signatures):**
+• **Type:** Lattice-based (NTRU)
+• **Security:** 192-bit+ post-quantum
+• **Signature size:** 600-1,200 bytes
+• **Performance:** Small signatures
+
+**4. SPHINCS+ (Digital Signatures):**
+• **Type:** Hash-based
+• **Security:** Conservative security
+• **Signature size:** 8,000-50,000 bytes
+• **Performance:** Slow but quantum-safe
+
+**MIGRATION STRATEGY:**
+
+**1. Hybrid Approach:**
+\`\`\`
+Current: RSA-2048 + AES-256
+Hybrid: RSA-2048 + Kyber-768 + AES-256
+Future: Kyber-1024 + AES-256
+\`\`\`
+
+**2. Timeline:**
+• **2024:** NIST standards finalized
+• **2025-2027:** Library implementation
+• **2028-2030:** Protocol integration
+• **2030+:** Full migration
+
+**IMPLEMENTATION EXAMPLE:**
+\`\`\`python
+# Hybrid encryption example (conceptual)
+from pqcrypto.kem import kyber768
+from cryptography.hazmat.primitives.asymmetric import rsa
+
+# Generate hybrid keys
+class HybridKeyPair:
+    def __init__(self):
+        # Classical RSA
+        self.rsa_private = rsa.generate_private_key(2048)
+        self.rsa_public = self.rsa_private.public_key()
+        
+        # Post-quantum Kyber
+        self.kyber_public, self.kyber_secret = kyber768.generate_keypair()
+    
+    def encrypt(self, message):
+        # Encrypt with both
+        rsa_cipher = self.rsa_public.encrypt(message, padding)
+        kyber_cipher, kyber_key = kyber768.encrypt(self.kyber_public)
+        
+        # Combine
+        return {
+            'rsa': rsa_cipher,
+            'kyber': kyber_cipher,
+            'key': kyber_key
+        }
+\`\`\`
+
+**RESEARCH DIRECTIONS:**
+
+**1. Lattice-based Cryptography:**
+• Learning With Errors (LWE)
+• Ring-LWE
+• Module-LWE
+
+**2. Code-based Cryptography:**
+• McEliece cryptosystem
+• Classic McEliece (NIST candidate)
+• BIKE
+
+**3. Multivariate Cryptography:**
+• Rainbow signature scheme
+• Unbalanced Oil and Vinegar (UOV)
+
+**4. Hash-based Cryptography:**
+• SPHINCS+
+• XMSS (Extended Merkle Signature Scheme)
+
+**INDUSTRY ADOPTION:**
+• Google: Testing in Chrome
+• Cloudflare: Post-quantum TLS
+• AWS: Quantum-safe key management
+• Government: NIST standardization`,
+            followUp: ['quantum timeline', 'migration plan', 'industry adoption'],
+            tags: ['quantum', 'future', 'advanced']
+        },
+
+        // ==================== DEFAULT RESPONSE ====================
+        'default': {
+            answer: `🤖 **DIFY BOT - ASISTEN KRIPTOGRAFI**
+
+Saya belum sepenuhnya memahami pertanyaan Anda. Saya adalah asisten khusus untuk topik **kriptografi dan keamanan sistem**.
+
+**SILAKAN TANYAKAN TENTANG:**
+
+🔐 **Dasar Kriptografi:**
+• Konsep enkripsi dan dekripsi
+• Tujuan kriptografi (CIA triad)
+• Sejarah dan perkembangan
+
+🗝️ **Algoritma & Implementasi:**
+• RSA, AES, ECC, SHA-256
+• Enkripsi simetris vs asimetris
+• Digital signatures dan certificates
+
+🔗 **Fungsi Hash & Password Security:**
+• Password hashing (bcrypt, Argon2)
+• Data integrity verification
+• Cryptographic hash functions
+
+🌐 **Keamanan Jaringan:**
+• TLS/SSL, VPN, SSH
+• Protocol security
+• Network encryption
+
+⛓️ **Blockchain & Cryptocurrency:**
+• Bitcoin/Blockchain cryptography
+• Smart contract security
+• Wallet security
+
+⚛️ **Kriptografi Modern:**
+• Post-quantum cryptography
+• Homomorphic encryption
+• Zero-knowledge proofs
+
+**ATAU KLIK SALAH SATU PERTANYAAN DI BAWAH:**`,
+            followUp: ['konsep dasar kriptografi', 'algoritma rsa', 'fungsi hash kriptografi'],
+            tags: ['help', 'general']
+        }
+    };
+
+    // State management
+    let chatHistory = [];
+    let questionCount = 0;
+    let currentUser = 'Pengguna';
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeChat();
+        updateWelcomeTime();
+        startBotActivity();
+    });
+
+    // Initialize chat interface
+    function initializeChat() {
+        const chatInput = document.getElementById('chatInput');
+        
+        // Set current user
+        currentUser = '{{ username|default("Pengguna") }}';
+        
+        // Auto-resize textarea
+        chatInput.addEventListener('input', function() {
+            autoResize(this);
+        });
+        
+        // Load chat history from localStorage
+        loadChatHistory();
+        
+        // Update stats
+        updateStats();
+    }
+
+    // Auto-resize textarea
+    function autoResize(textarea) {
+        textarea.style.height = 'auto';
+        textarea.style.height = (textarea.scrollHeight) + 'px';
+    }
+
+    // Handle Enter key (Shift+Enter for new line)
+    function handleChatKeyPress(event) {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            sendMessage();
+        }
+    }
+
+    // Send message function
+    function sendMessage() {
+        const chatInput = document.getElementById('chatInput');
+        const message = chatInput.value.trim();
+        
+        if (message) {
+            // Add user message
+            addMessageToChat(message, 'user');
+            chatInput.value = '';
+            chatInput.style.height = 'auto';
+            
+            // Update question count
+            questionCount++;
+            updateStats();
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            // Get bot response after delay
+            setTimeout(() => {
+                removeTypingIndicator();
+                const response = getBotResponse(message);
+                addMessageToChat(response.answer, 'bot');
+                
+                // Add follow-up suggestions
+                if (response.followUp && response.followUp.length > 0) {
+                    addFollowUpSuggestions(response.followUp);
+                }
+                
+                // Save to chat history
+                saveChatToHistory(message, response.answer);
+            }, 1500 + Math.random() * 2000);
+        }
+    }
+
+    // Add message to chat UI
+    function addMessageToChat(text, sender) {
+        const chatBody = document.getElementById('chatBody');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}-message`;
+        
+        const timestamp = getCurrentTime();
+        const messageId = `msg_${Date.now()}`;
+        
+        if (sender === 'bot') {
+            messageDiv.innerHTML = `
+                <div class="message-header">
+                    <i class="fas fa-robot"></i>
+                    Dify Bot
+                    <span class="message-time">${timestamp}</span>
+                </div>
+                <div id="${messageId}">${formatBotResponse(text)}</div>
+            `;
+            
+            // Add copy code functionality
+            setTimeout(() => addCodeCopyButtons(messageId), 100);
+        } else {
+            messageDiv.innerHTML = `
+                <div class="message-header">
+                    <i class="fas fa-user"></i>
+                    ${currentUser}
+                    <span class="message-time">${timestamp}</span>
+                </div>
+                <div>${escapeHtml(text)}</div>
+            `;
+        }
+        
+        chatBody.appendChild(messageDiv);
+        scrollToBottom();
+        
+        // Add to chat history
+        chatHistory.push({
+            id: messageId,
+            sender: sender,
+            text: text,
+            time: timestamp
+        });
+    }
+
+    // Format bot response with markdown-like syntax
+    function formatBotResponse(text) {
+        let formatted = escapeHtml(text);
+        
+        // Convert **bold**
+        formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        
+        // Convert *italic*
+        formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        
+        // Convert code blocks
+        formatted = formatted.replace(/```([\s\S]*?)```/g, function(match, code) {
+            const codeId = `code_${Math.random().toString(36).substr(2, 9)}`;
+            return `
+                <div class="code-block">
+                    <div class="code-header">
+                        <span><i class="fas fa-code"></i> Contoh Kode</span>
+                        <button class="copy-code" onclick="copyToClipboard('${codeId}')">
+                            <i class="fas fa-copy"></i> Salin
+                        </button>
+                    </div>
+                    <pre id="${codeId}">${escapeHtml(code.trim())}</pre>
+                </div>
+            `;
+        });
+        
+        // Convert tables
+        formatted = formatted.replace(/\|([^\n]+)\|/g, function(match, row) {
+            const cells = row.split('|').map(cell => `<td>${cell.trim()}</td>`).join('');
+            return `<table><tr>${cells}</tr></table>`;
+        });
+        
+        // Convert line breaks
+        formatted = formatted.replace(/\n/g, '<br>');
+        
+        // Convert bullet points
+        formatted = formatted.replace(/•\s+(.*?)(?=<br>|$)/g, '<p>• $1</p>');
+        
+        return formatted;
+    }
+
+    // Add copy buttons to code blocks
+    function addCodeCopyButtons(messageId) {
+        const messageDiv = document.getElementById(messageId);
+        if (!messageDiv) return;
+        
+        const codeBlocks = messageDiv.querySelectorAll('.code-block');
+        codeBlocks.forEach(block => {
+            const copyBtn = block.querySelector('.copy-code');
+            const codeId = block.querySelector('pre').id;
+            
+            copyBtn.addEventListener('click', function() {
+                copyToClipboard(codeId);
+                
+                // Show feedback
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<i class="fas fa-check"></i> Tersalin!';
+                copyBtn.style.background = 'rgba(16, 185, 129, 0.3)';
+                
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalText;
+                    copyBtn.style.background = '';
+                }, 2000);
+            });
+        });
+    }
+
+    // Copy to clipboard
+    function copyToClipboard(elementId) {
+        const element = document.getElementById(elementId);
+        if (!element) return;
+        
+        const text = element.textContent;
+        navigator.clipboard.writeText(text).catch(err => {
+            console.error('Failed to copy: ', err);
+        });
+    }
+
+    // Get bot response from database
+    function getBotResponse(userMessage) {
+        const message = userMessage.toLowerCase().trim();
+        
+        // Check for exact matches first
+        for (const [key, response] of Object.entries(cryptographyDB)) {
+            const keywords = key.split(' ');
+            const matches = keywords.filter(keyword => 
+                message.includes(keyword) || 
+                calculateSimilarity(message, keyword) > 0.8
+            );
+            
+            if (matches.length >= Math.max(1, keywords.length * 0.5)) {
+                return response;
+            }
+        }
+        
+        // Check for partial matches
+        for (const [key, response] of Object.entries(cryptographyDB)) {
+            if (message.includes(key) || key.includes(message.substring(0, 20))) {
+                return response;
+            }
+        }
+        
+        // Return default response
+        return cryptographyDB.default;
+    }
+
+    // Calculate string similarity (simple implementation)
+    function calculateSimilarity(str1, str2) {
+        const words1 = str1.split(/\s+/);
+        const words2 = str2.split(/\s+/);
+        
+        let matches = 0;
+        words1.forEach(word1 => {
+            if (words2.some(word2 => 
+                word1.includes(word2) || word2.includes(word1) ||
+                word1.length > 3 && word2.length > 3 && 
+                levenshteinDistance(word1, word2) <= 2
+            )) {
+                matches++;
+            }
+        });
+        
+        return matches / Math.max(words1.length, words2.length);
+    }
+
+    // Levenshtein distance for fuzzy matching
+    function levenshteinDistance(a, b) {
+        const matrix = [];
+        
+        for (let i = 0; i <= b.length; i++) {
+            matrix[i] = [i];
+        }
+        
+        for (let j = 0; j <= a.length; j++) {
+            matrix[0][j] = j;
+        }
+        
+        for (let i = 1; i <= b.length; i++) {
+            for (let j = 1; j <= a.length; j++) {
+                if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                    matrix[i][j] = matrix[i - 1][j - 1];
+                } else {
+                    matrix[i][j] = Math.min(
+                        matrix[i - 1][j - 1] + 1,
+                        matrix[i][j - 1] + 1,
+                        matrix[i - 1][j] + 1
+                    );
+                }
+            }
+        }
+        
+        return matrix[b.length][a.length];
+    }
+
+    // Ask question directly (for quick buttons)
+    function askQuestion(question) {
+        const chatInput = document.getElementById('chatInput');
+        chatInput.value = question;
+        sendMessage();
+    }
+
+    // Show typing indicator
+    function showTypingIndicator() {
+        const chatBody = document.getElementById('chatBody');
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'typing-indicator';
+        typingDiv.id = 'typingIndicator';
+        typingDiv.innerHTML = `
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <span class="typing-text">Dify Bot sedang menulis jawaban...</span>
+        `;
+        chatBody.appendChild(typingDiv);
+        scrollToBottom();
+    }
+
+    // Remove typing indicator
+    function removeTypingIndicator() {
+        const typingIndicator = document.getElementById('typingIndicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+    }
+
+    // Add follow-up suggestions
+    function addFollowUpSuggestions(suggestions) {
+        const chatBody = document.getElementById('chatBody');
+        const suggestionsDiv = document.createElement('div');
+        suggestionsDiv.className = 'quick-questions';
+        suggestionsDiv.style.marginTop = '1rem';
+        suggestionsDiv.style.marginBottom = '0.5rem';
+        
+        suggestions.forEach(suggestion => {
+            const button = document.createElement('button');
+            button.className = 'quick-question-btn';
+            button.innerHTML = `<i class="fas fa-arrow-right"></i> ${suggestion}`;
+            button.onclick = () => askQuestion(suggestion);
+            suggestionsDiv.appendChild(button);
+        });
+        
+        chatBody.appendChild(suggestionsDiv);
+        scrollToBottom();
+    }
+
+    // Toggle FAQ item
+    function toggleFAQ(item) {
+        const isActive = item.classList.contains('active');
+        
+        // Close all other FAQ items
+        document.querySelectorAll('.faq-item.active').forEach(activeItem => {
+            if (activeItem !== item) {
+                activeItem.classList.remove('active');
+            }
+        });
+        
+        // Toggle current item
+        item.classList.toggle('active');
+        
+        // If opening, ask related question
+        if (!isActive) {
+            const question = item.querySelector('.faq-question').textContent.trim();
+            setTimeout(() => askQuestion(question), 300);
+        }
+    }
+
+    // Get current time in HH:MM format
+    function getCurrentTime() {
+        const now = new Date();
+        return now.getHours().toString().padStart(2, '0') + ':' + 
+               now.getMinutes().toString().padStart(2, '0');
+    }
+
+    // Update welcome message time
+    function updateWelcomeTime() {
+        const welcomeTime = document.getElementById('welcomeTime');
+        if (welcomeTime) {
+            welcomeTime.textContent = getCurrentTime();
+        }
+    }
+
+    // Scroll chat to bottom
+    function scrollToBottom() {
+        const chatBody = document.getElementById('chatBody');
+        chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    // Update statistics
+    function updateStats() {
+        document.getElementById('totalQuestions').textContent = questionCount;
+        document.getElementById('activeUsers').textContent = 1; // Could be dynamic
+    }
+
+    // Save chat to history (localStorage)
+    function saveChatToHistory(question, answer) {
+        const history = JSON.parse(localStorage.getItem('cryptoChatHistory') || '[]');
+        history.push({
+            question: question,
+            answer: answer,
+            timestamp: new Date().toISOString()
+        });
+        
+        // Keep only last 100 conversations
+        if (history.length > 100) {
+            history.shift();
+        }
+        
+        localStorage.setItem('cryptoChatHistory', JSON.stringify(history));
+    }
+
+    // Load chat history
+    function loadChatHistory() {
+        const history = JSON.parse(localStorage.getItem('cryptoChatHistory') || '[]');
+        questionCount = history.length;
+        updateStats();
+    }
+
+    // Simulate bot activity
+    function startBotActivity() {
+        setInterval(() => {
+            const statusDot = document.querySelector('.status-dot');
+            if (statusDot) {
+                statusDot.style.animation = 'none';
+                setTimeout(() => {
+                    statusDot.style.animation = 'pulse 2s infinite';
+                }, 10);
+            }
+        }, 10000);
+    }
+
+    // Utility: Escape HTML
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Export chat history
+    function exportChatHistory() {
+        const history = JSON.parse(localStorage.getItem('cryptoChatHistory') || '[]');
+        const blob = new Blob([JSON.stringify(history, null, 2)], {type: 'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `chat-history-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    // Clear chat history
+    function clearChatHistory() {
+        if (confirm('Apakah Anda yakin ingin menghapus riwayat percakapan?')) {
+            localStorage.removeItem('cryptoChatHistory');
+            chatHistory = [];
+            questionCount = 0;
+            updateStats();
+            
+            const chatBody = document.getElementById('chatBody');
+            const messages = chatBody.querySelectorAll('.message');
+            for (let i = 1; i < messages.length; i++) {
+                messages[i].remove();
+            }
+        }
+    }
+</script>
+{% endblock %}

@@ -1,281 +1,4047 @@
 {% extends "base.html" %}
-
-{% block title %}Dashboard - CryptoLab{% endblock %}
+{% block title %}Dashboard - DecoDify{% endblock %}
 
 {% block extra_css %}
 <style>
+    :root {
+        --primary: #8c8dac;
+        --secondary: #8b5cf6;
+        --accent: #10b981;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+        --dark: #1e293b;
+        --darker: #0f172a;
+        --text: #f1f5f9;
+        --text-muted: #94a3b8;
+        --card-bg: rgba(30, 41, 59, 0.7);
+        --glass: rgba(255, 255, 255, 0.05);
+        --premium-gold: linear-gradient(135deg, #f59e0b, #d97706, #b45309);
+        --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --gradient-success: linear-gradient(135deg, #4CAF50, #45a049);
+        --gradient-warning: linear-gradient(135deg, #FFD700, #FFA500);
+        --gradient-danger: linear-gradient(135deg, #FF416C, #FF4B2B);
+        --gradient-legacy: linear-gradient(135deg, #757575, #9e9e9e);
+    }
+
+    /* Global Styles */
     .dashboard-container {
         max-width: 1400px;
         margin: 0 auto;
-        padding: 2rem;
+        padding: 0.5rem;
     }
 
-    .welcome-section {
-        text-align: center;
-        margin-bottom: 3rem;
+    /* Loading Overlay */
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--darker);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        opacity: 1;
+        transition: opacity 0.5s ease;
+    }
+
+    .loading-overlay.hidden {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .loader {
+        width: 50px;
+        height: 50px;
+        border: 3px solid var(--glass);
+        border-top: 3px solid var(--secondary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Main Layout */
+    .dashboard-layout {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 1.5rem;
+        min-height: calc(100vh - 2rem);
+        align-items: start; 
+    }
+
+    @media (max-width: 1024px) {
+        .dashboard-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+/* Sidebar Navigation - IMPROVED */
+.dashboard-sidebar {
+    background: linear-gradient(180deg, 
+        rgba(30, 41, 59, 0.95) 0%,
+        rgba(15, 23, 42, 0.98) 100%);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: 20px;
+    padding: 1.75rem;
+    height: fit-content;
+    position: sticky;
+    top: 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(139, 92, 246, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+}
+
+.dashboard-sidebar:hover {
+    border-color: rgba(139, 92, 246, 0.4);
+    box-shadow: 
+        0 15px 40px rgba(139, 92, 246, 0.2),
+        0 0 0 1px rgba(139, 92, 246, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    transform: translateY(-3px);
+}
+
+.user-profile {
+    text-align: center;
+    padding: 1.5rem 0 1.75rem;
+    border-bottom: 1px solid rgba(139, 92, 246, 0.15);
+    margin-bottom: 1.75rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.user-profile::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(139, 92, 246, 0.5), 
+        transparent);
+}
+
+.user-profile::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(139, 92, 246, 0.5), 
+        transparent);
+}
+
+.avatar {
+    width: 85px;
+    height: 85px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, 
+        var(--primary) 0%, 
+        var(--secondary) 50%,
+        var(--accent) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin: 0 auto 1rem;
+    color: white;
+    box-shadow: 
+        0 8px 25px rgba(139, 92, 246, 0.4),
+        0 0 0 4px rgba(139, 92, 246, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.avatar:hover {
+    transform: scale(1.05);
+    box-shadow: 
+        0 12px 35px rgba(139, 92, 246, 0.5),
+        0 0 0 4px rgba(139, 92, 246, 0.2);
+}
+
+.avatar::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent
+    );
+    transform: rotate(45deg);
+    animation: avatarShine 3s infinite;
+}
+
+@keyframes avatarShine {
+    0%, 100% {
+        transform: translateX(-100%) translateY(-100%) rotate(45deg);
+    }
+    50% {
+        transform: translateX(100%) translateY(100%) rotate(45deg);
+    }
+}
+
+.user-name {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #f1f5f9, #cbd5e1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.user-level {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: linear-gradient(135deg, 
+        rgba(139, 92, 246, 0.15), 
+        rgba(99, 102, 241, 0.15));
+    color: var(--secondary);
+    padding: 0.5rem 1.2rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.user-level:hover {
+    background: linear-gradient(135deg, 
+        rgba(139, 92, 246, 0.25), 
+        rgba(99, 102, 241, 0.25));
+    border-color: rgba(139, 92, 246, 0.5);
+    transform: translateY(-2px);
+}
+
+.user-level::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.1) 50%, 
+        transparent 100%);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+}
+
+.user-level:hover::before {
+    transform: translateX(100%);
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    margin-bottom: 1.5rem;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    border-radius: 14px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    background: transparent;
+    border: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    overflow: hidden;
+}
+
+.nav-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(to bottom, var(--secondary), var(--primary));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.nav-link:hover {
+    background: linear-gradient(135deg, 
+        rgba(139, 92, 246, 0.1), 
+        rgba(99, 102, 241, 0.05));
+    color: var(--text);
+    transform: translateX(6px);
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.15);
+}
+
+.nav-link:hover::before {
+    opacity: 1;
+}
+
+.nav-link.active {
+    background: linear-gradient(135deg, 
+        rgba(139, 92, 246, 0.2), 
+        rgba(99, 102, 241, 0.15));
+    color: white;
+    box-shadow: 
+        0 6px 20px rgba(139, 92, 246, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transform: translateX(6px);
+    border-left: 4px solid var(--secondary);
+}
+
+.nav-link.active::before {
+    opacity: 1;
+}
+
+.nav-link i {
+    width: 22px;
+    text-align: center;
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+}
+
+.nav-link:hover i,
+.nav-link.active i {
+    transform: scale(1.1);
+}
+
+.nav-badge {
+    margin-left: auto;
+    background: linear-gradient(135deg, var(--accent), #059669);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    box-shadow: 0 3px 8px rgba(16, 185, 129, 0.3);
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover .nav-badge {
+    transform: scale(1.05);
+}
+
+.premium-badge {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    box-shadow: 0 3px 8px rgba(245, 158, 11, 0.3);
+}
+
+/* Upgrade Button */
+.upgrade-section {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(139, 92, 246, 0.15);
+    position: relative;
+}
+
+.upgrade-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 25%;
+    right: 25%;
+    height: 1px;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(139, 92, 246, 0.5), 
+        transparent);
+}
+
+.upgrade-btn {
+    width: 100%;
+    padding: 1.1rem 1.5rem;
+    background: linear-gradient(135deg, 
+        #f59e0b 0%, 
+        #d97706 50%, 
+        #b45309 100%);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 
+        0 6px 20px rgba(245, 158, 11, 0.3),
+        0 0 0 1px rgba(245, 158, 11, 0.2);
+}
+
+.upgrade-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 
+        0 10px 30px rgba(245, 158, 11, 0.4),
+        0 0 0 1px rgba(245, 158, 11, 0.3);
+    background: linear-gradient(135deg, 
+        #fbbf24 0%, 
+        #f59e0b 50%, 
+        #d97706 100%);
+}
+
+.upgrade-btn:active {
+    transform: translateY(-1px);
+}
+
+.upgrade-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.2), 
+        transparent);
+    transition: left 0.6s ease;
+}
+
+.upgrade-btn:hover::before {
+    left: 100%;
+}
+
+.upgrade-btn i {
+    font-size: 1.2rem;
+    animation: crownFloat 2s infinite ease-in-out;
+}
+
+@keyframes crownFloat {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-5px) rotate(10deg);
+    }
+}
+
+/* Sidebar Footer */
+.sidebar-footer {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(139, 92, 246, 0.1);
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.sidebar-footer a {
+    color: var(--secondary);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.sidebar-footer a:hover {
+    color: var(--primary);
+    text-decoration: underline;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .dashboard-sidebar {
+        position: static;
+        top: 0;
+        margin-bottom: 1.5rem;
+    }
+    
+    .avatar {
+        width: 75px;
+        height: 75px;
+        font-size: 1.8rem;
+    }
+    
+    .user-name {
+        font-size: 1.3rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .nav-link {
+        padding: 0.9rem 1rem;
+    }
+    
+    .upgrade-btn {
+        padding: 1rem 1.25rem;
+        font-size: 0.95rem;
+    }
+}
+
+    /* Main Content */
+    .dashboard-main {
+        flex: 1;
+    }
+
+    /* Section Management */
+    .dashboard-section {
+        display: none;
+        animation: fadeIn 0.5s ease;
+    }
+
+    .dashboard-section.active {
+        display: block;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Header */
+    .dashboard-header {
+        background: linear-gradient(135deg, 
+        rgba(99, 102, 241, 0.15), 
+        rgba(139, 92, 246, 0.15));
+        border: 1px solid var(--glass);
+        border-radius: 16px; 
+        padding: 1rem; 
+        margin-bottom: 1rem; 
+        position: relative;
+        overflow: hidden;
+    }
+
+    .dashboard-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(
+            circle at 30% 30%,
+            rgba(99, 102, 241, 0.1) 0%,
+            transparent 50%
+        );
+        animation: float 20s infinite linear;
+    }
+
+    @keyframes float {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .header-content {
+        position: relative;
+        z-index: 2;
     }
 
     .welcome-title {
-        font-size: 3rem;
+        font-size: 1.75rem;
         font-weight: 800;
-        margin-bottom: 1rem;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        margin-bottom: 0.5rem;
+        background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }
 
-    .welcome-desc {
-        color: var(--text-muted);
-        font-size: 1.2rem;
+   /* XP Indicator for Certificate */
+.xp-indicator-certificate {
+    position: relative;
+    overflow: visible;
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)) !important;
+    border: 1px solid rgba(245, 158, 11, 0.3) !important;
+}
+
+.xp-indicator-certificate::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(135deg, #f59e0b, #fbbf24, #f59e0b);
+    border-radius: 16px;
+    z-index: -1;
+    opacity: 0.3;
+    animation: borderGlow 3s infinite alternate;
+}
+
+@keyframes borderGlow {
+    0% { opacity: 0.3; }
+    100% { opacity: 0.6; }
+}
+
+.xp-icon {
+    background: linear-gradient(135deg, #f59e0b, #fbbf24) !important;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4) !important;
+}
+
+.xp-progress-bar-certificate {
+    height: 14px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 7px;
+    overflow: visible;
+    margin: 25px 0 15px;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.xp-progress-fill-certificate {
+    height: 100%;
+    background: linear-gradient(90deg, 
+        #3b82f6 0%, 
+        #8b5cf6 30%, 
+        #f59e0b 70%, 
+        #fbbf24 100%);
+    border-radius: 7px;
+    width: 0%;
+    position: relative;
+    overflow: hidden;
+    transition: width 2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+}
+
+.xp-progress-fill-certificate::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.4),
+        transparent
+    );
+    animation: shimmerFast 1.5s infinite;
+}
+
+@keyframes shimmerFast {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.xp-milestone {
+    position: absolute;
+    top: -40px;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 2;
+}
+
+.milestone-dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+    border: 3px solid var(--card-bg);
+}
+
+.certificate-dot {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    color: white;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+    border: 3px solid var(--card-bg);
+}
+
+.milestone-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    white-space: nowrap;
+    background: rgba(30, 41, 59, 0.9);
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+.certificate-status {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.status-unlocked {
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.1);
+    padding: 6px 12px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.status-locked {
+    color: var(--warning);
+    background: rgba(245, 158, 11, 0.1);
+    padding: 6px 12px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.xp-progress-text-certificate {
+    margin-top: 15px;
+}
+
+.xp-remaining-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.xp-remaining {
+    color: #fbbf24;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.xp-percentage {
+    font-size: 1.2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.certificate-ready {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #10b981;
+    font-weight: 600;
+    font-size: 0.95rem;
+    background: rgba(16, 185, 129, 0.1);
+    padding: 10px 15px;
+    border-radius: 10px;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.download-certificate-btn {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.download-certificate-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+}
+
+/* XP Level Steps */
+.xp-level-steps {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.xp-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    position: relative;
+    flex: 1;
+}
+
+.xp-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 15px;
+    right: -50%;
+    width: 100%;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    z-index: 1;
+}
+
+.step-dot {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    z-index: 2;
+    position: relative;
+}
+
+.step-dot.completed {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border-color: #10b981;
+}
+
+.step-dot.current {
+    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    color: white;
+    border-color: #f59e0b;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+}
+
+.step-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 5px;
+}
+
+.step-xp {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+/* XP Breakdown */
+.xp-breakdown {
+    margin-top: 15px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.xp-breakdown-title {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.xp-breakdown-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.xp-breakdown-item:last-child {
+    border-bottom: none;
+}
+
+.xp-source {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.85rem;
+    color: var(--text);
+}
+
+.xp-amount {
+    font-weight: 600;
+    color: #f59e0b;
+}
+
+.xp-source-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: rgba(245, 158, 11, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #f59e0b;
+}
+
+.xp-total {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 2px solid rgba(245, 158, 11, 0.3);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+}
+
+.xp-total-label {
+    color: var(--text);
+}
+
+.xp-total-amount {
+    font-size: 1.1rem;
+    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+@keyframes shine {
+    0% { transform: translateX(-100%) rotate(30deg); }
+    100% { transform: translateX(100%) rotate(30deg); }
+}
+
+.certificate-features {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.certificate-features span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text);
+    background: var(--card-bg);
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+}
+
+.certificate-features i {
+    color: #10b981;
+}
+
+.certificate-button {
+    width: 100%;
+    padding: 1rem;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+/* Certificate Locked Screen */
+.certificate-locked-screen {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 3rem;
+    text-align: center;
+    border: 2px solid var(--border);
+    margin-top: 2rem;
+}
+
+.lock-icon {
+    font-size: 4rem;
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+    opacity: 0.5;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .certificate-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .certificate-features {
+        justify-content: center;
+    }
+    
+    .xp-tips-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .certificates-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .certificate-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .certificate-actions {
+        flex-direction: column;
+    }
+}
+
+    /* Search Bar */
+    .search-container {
+        position: relative;
+        margin-bottom: 2rem;
     }
 
-    .section-title {
-        font-size: 1.8rem;
-        font-weight: 700;
-        margin: 2rem 0 1.5rem 0;
+    .search-input {
+        width: 100%;
+        padding: 1rem 1.5rem 1rem 3.5rem;
+        background: var(--card-bg);
+        border: 1px solid var(--glass);
+        border-radius: 12px;
         color: var(--text);
+        font-size: 1rem;
+        transition: all 0.3s;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 1.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        pointer-events: none;
+    }
+
+    /* Quick Stats */
+    .quick-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+        gap: 1rem; 
+        margin-bottom: 1.5rem; 
+    }
+
+    .stat-card {
+        background: var(--card-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass);
+        border-radius: 14px; 
+        padding: 1.25rem; 
         display: flex;
         align-items: center;
         gap: 0.75rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
     }
 
-    .section-badge {
-        background: linear-gradient(135deg, #f59e0b, #d97706);
-        color: white;
-        padding: 0.25rem 0.75rem;
-        border-radius: 15px;
-        font-size: 0.75rem;
+    .stat-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--primary);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(to bottom, var(--primary), var(--secondary));
+    }
+
+    .stat-icon {
+        width: 45px; 
+        height: 45px; 
+        border-radius: 10px; 
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem; 
+        background: rgba(139, 92, 246, 0.1);
+        color: var(--secondary);
+    }
+
+    .stat-content {
+        flex: 1;
+    }
+
+    .stat-value {
+        font-size: 1.6rem;
         font-weight: 700;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        line-height: 1;
     }
 
+    .stat-label {
+        color: var(--text-muted);
+        font-size: 0.85rem; 
+        margin-top: 0.2rem;
+    }
+
+    /* Premium Banner */
+    .premium-banner {
+        background: linear-gradient(135deg, 
+            rgba(245, 158, 11, 0.2), 
+            rgba(217, 119, 6, 0.2));
+        border: 1px solid rgba(245, 158, 11, 0.3);
+        border-radius: 14px; 
+        padding: 1.25rem; 
+        margin: 1.5rem 0; 
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .premium-banner::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(
+            circle at center, 
+            rgba(245, 158, 11, 0.1) 0%, 
+            transparent 50%
+        );
+        animation: float 20s infinite linear reverse;
+    }
+
+    .premium-info {
+        position: relative;
+        z-index: 2;
+        flex: 1;
+    }
+
+    .premium-badge-small {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: var(--premium-gold);
+        color: white;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Cipher Categories Filter */
+    .category-filter {
+        display: flex;
+        gap: 0.75rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-btn {
+        padding: 0.75rem 1.5rem;
+        background: var(--card-bg);
+        border: 1px solid var(--glass);
+        border-radius: 12px;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .filter-btn:hover {
+        background: rgba(139, 92, 246, 0.1);
+        color: var(--text);
+    }
+
+    .filter-btn.active {
+        background: linear-gradient(135deg, var(--secondary), var(--primary));
+        color: white;
+        border-color: transparent;
+    }
+
+    /* Cipher Grid */
     .cipher-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 3rem;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+        gap: 1rem; 
+        margin-bottom: 2rem; 
+    }
+
+    .cipher-card-wrapper {
+        perspective: 1000px;
     }
 
     .cipher-card {
-        background: rgba(30, 41, 59, 0.5);
+        display: block;
+        background: var(--card-bg);
         backdrop-filter: blur(10px);
-        border: 2px solid rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--glass);
+        border-radius: 14px; 
+        padding: 1.25rem; 
+        text-decoration: none;
+        color: var(--text);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        height: 100%;
+    }
+
+    .cipher-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        border-radius: 16px 16px 0 0;
+    }
+
+    .cipher-card.free::before {
+        background: var(--gradient-success);
+    }
+
+    .cipher-card.premium::before {
+        background: var(--gradient-warning);
+    }
+
+    .cipher-card.attack-card::before {
+        background: var(--gradient-danger);
+    }
+
+    .cipher-card.legacy::before {
+        background: var(--gradient-legacy);
+    }
+
+    .cipher-card:hover {
+        transform: translateY(-8px);
+        border-color: var(--primary);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Card Badges */
+    .card-badges {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    .badge {
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .badge-free {
+        background: var(--gradient-success);
+        color: white;
+    }
+
+    .badge-premium {
+        background: var(--gradient-warning);
+        color: #333;
+    }
+
+    .badge-attack {
+        background: var(--gradient-danger);
+        color: white;
+    }
+
+    .badge-new {
+        background: linear-gradient(135deg, #00b09b, #96c93d);
+        color: white;
+        animation: pulse 2s infinite;
+    }
+
+    .badge-legacy {
+        background: var(--gradient-legacy);
+        color: white;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+
+    .difficulty-badge {
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .difficulty-badge.easy {
+        background: rgba(16, 185, 129, 0.2);
+        color: var(--accent);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .difficulty-badge.medium {
+        background: rgba(245, 158, 11, 0.2);
+        color: var(--warning);
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .difficulty-badge.hard {
+        background: rgba(239, 68, 68, 0.2);
+        color: var(--danger);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    /* Card Header */
+    .card-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .cipher-icon {
+        position: relative;
+        width: 50px;
+        height: 50px;
+        flex-shrink: 0;
+    }
+
+    .icon-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        color: white;
+        position: relative;
+    }
+
+    .shift-icon {
+        background: var(--gradient-primary);
+    }
+
+    .vigenere-icon {
+        background: var(--gradient-success);
+    }
+
+    .attack-icon {
+        background: var(--gradient-danger);
+    }
+
+    .substitution-icon {
+        background: linear-gradient(135deg, #9C27B0, #673AB7);
+    }
+
+    .transposition-icon {
+        background: linear-gradient(135deg, #00BCD4, #0097A7);
+    }
+
+    .playfair-icon {
+        background: var(--gradient-warning);
+    }
+
+    .hill-icon {
+        background: linear-gradient(135deg, #3F51B5, #303F9F);
+    }
+
+    .rsa-icon {
+        background: linear-gradient(135deg, #E91E63, #C2185B);
+    }
+
+    .aes-icon {
+        background: linear-gradient(135deg, #2196F3, #1976D2);
+    }
+
+    .des-icon {
+        background: var(--gradient-legacy);
+    }
+
+    .tdes-icon {
+        background: var(--gradient-warning);
+    }
+
+    .blowfish-icon {
+        background: linear-gradient(135deg, #00BCD4, #0097A7);
+    }
+
+    .hash-icon {
+        background: var(--gradient-success);
+    }
+
+    /* Icon Elements */
+    .icon-elements {
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        font-size: 0.7rem;
+        font-weight: bold;
+        color: white;
+        opacity: 0.8;
+    }
+
+    /* Triple DES Icon */
+    .tdes-icon {
+        overflow: visible;
+    }
+
+    .tdes-icon .icon-main {
+        z-index: 3;
+        position: relative;
+    }
+
+    .tdes-icon .icon-layer-1 {
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        font-size: 1.2rem;
+        opacity: 0.7;
+        z-index: 1;
+    }
+
+    .tdes-icon .icon-layer-2 {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        font-size: 1rem;
+        opacity: 0.5;
+        z-index: 2;
+    }
+
+    .layers-text {
+        position: absolute;
+        bottom: -5px;
+        right: -5px;
+        background: white;
+        color: #FF9800;
+        font-size: 0.7rem;
+        padding: 2px 6px;
+        border-radius: 10px;
+        font-weight: bold;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    /* Cipher Meta */
+    .cipher-meta {
+        flex: 1;
+    }
+
+    .cipher-name h3 {
+        margin: 0;
+        font-size: 1rem;
+        color: var(--text);
+        line-height: 1.3;
+    }
+
+    .cipher-code {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        font-family: 'Courier New', monospace;
+        margin-top: 0.2rem;
+    }
+
+    .cipher-year {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-top: 0.2rem;
+    }
+
+    /* Description */
+    .cipher-desc {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        line-height: 1.4;
+        margin-bottom: 0.75rem;
+        min-height: 3.5rem;
+    }
+
+    /* Specifications */
+    .cipher-specs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.8rem;
+        margin-bottom: 1rem;
+    }
+
+    .spec-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.6rem;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .spec-item:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(4px);
+    }
+
+    .spec-item i {
+        color: var(--secondary);
+        font-size: 1rem;
+    }
+
+    .spec-label {
+        display: block;
+        font-size: 0.7rem;
+        color: var(--text-muted);
+    }
+
+    .spec-value {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text);
+    }
+
+    /* Category Tags */
+    .category-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .category-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.4rem 0.8rem;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        transition: all 0.3s ease;
+    }
+
+    .category-tag:hover {
+        background: var(--secondary);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .category-tag i {
+        font-size: 0.7rem;
+    }
+
+    /* Animations */
+    @keyframes float-card {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+    .cipher-card:hover .cipher-icon {
+        animation: float-card 2s ease-in-out infinite;
+    }
+
+    /* Grid Patterns */
+    .grid-pattern {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-image: 
+            linear-gradient(to right, rgba(255,255,255,0.1) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(255,255,255,0.1) 1px, transparent 1px);
+        background-size: 10px 10px;
+        border-radius: 50%;
+    }
+
+    /* Progress Section */
+    .progress-section {
+        background: var(--card-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass);
+        border-radius: 16px; 
+        padding: 1.5rem;
+        margin: 2rem 0; 
+    }
+
+    .progress-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .progress-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem; 
+    }
+
+    .progress-bar-container {
+        height: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 5px;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+    }
+
+    .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary), var(--accent));
+        border-radius: 5px;
+        width: 0;
+        transition: width 1s ease;
+    }
+
+    /* Section Titles */
+    .section-title {
+        font-size: 1.5rem; 
+        color: var(--text);
+        margin: 2rem 0 1rem 0; 
+        display: flex;
+        align-items: center;
+        gap: 0.75rem; 
+    }
+
+    .section-title span {
+        font-size: 1rem;
+        color: var(--text-muted);
+        font-weight: normal;
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Lebih kecil */
+        gap: 1rem; /* Lebih rapat */
+        margin: 1.5rem 0; /* Dikurangi dari 2rem */
+    }
+
+    .action-card {
+        background: var(--card-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass);
+        border-radius: 14px; 
+        padding: 1.25rem; 
+        display: flex;
+        align-items: center;
+        gap: 1rem; 
+        transition: all 0.3s;
+        text-decoration: none;
+        color: inherit;
+        cursor: pointer;
+    }
+
+    .action-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .action-icon {
+        width: 45px; 
+        height: 45px; 
+        border-radius: 10px; 
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem; 
+        background: rgba(139, 92, 246, 0.1);
+        color: var(--secondary);
+    }
+
+    /* Tools Section */
+    .tools-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+    }
+
+    .tool-card {
+        background: var(--card-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass);
         border-radius: 16px;
         padding: 1.5rem;
-        transition: all 0.3s;
+        transition: all 0.3s ease;
         cursor: pointer;
         text-decoration: none;
         color: inherit;
         display: block;
     }
 
-    .cipher-card:hover {
-        border-color: var(--primary);
+    .tool-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+        border-color: var(--primary);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     }
 
-    .cipher-icon {
-        font-size: 2.5rem;
-        margin-bottom: 1rem;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+    /* Upgrade Modal */
+    .upgrade-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(5px);
+        z-index: 10000;
+        justify-content: center;
+        align-items: center;
+        animation: fadeIn 0.3s ease;
     }
 
-    .cipher-name {
-        font-size: 1.3rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
+    .upgrade-modal.active {
+        display: flex;
     }
 
-    .cipher-desc {
+    .modal-content {
+        background: var(--card-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--glass);
+        border-radius: 20px;
+        padding: 2.5rem;
+        max-width: 500px;
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+        animation: slideUp 0.4s ease;
+    }
+
+    @keyframes slideUp {
+        from { transform: translateY(50px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+        .dashboard-layout {
+            grid-template-columns: 1fr;
+        }
+        
+        .dashboard-sidebar {
+            position: static;
+        }
+        
+        .cipher-grid {
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        }
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-container {
+            padding: 1rem;
+        }
+        
+        .welcome-title {
+            font-size: 1.8rem;
+        }
+        
+        .quick-stats {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+        
+        .cipher-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .quick-actions {
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+        }
+        
+        .tools-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .quick-stats {
+            grid-template-columns: 1fr;
+        }
+        
+        .premium-banner {
+            flex-direction: column;
+            text-align: center;
+            gap: 0.75rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem; 
+        }
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: var(--darker);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--primary);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--secondary);
+    }
+
+    /* Recently Viewed Completion Status */
+    .completion-status {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+        padding: 0.4rem;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 6px;
+    }
+
+    .completion-bar {
+        flex: 1;
+        height: 4px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 2px;
+        overflow: hidden;
+    }
+
+    .completion-fill {
+        height: 100%;
+        border-radius: 2px;
+        transition: width 1s ease;
+    }
+
+    .completion-text {
         color: var(--text-muted);
-        font-size: 0.9rem;
-        line-height: 1.5;
+        font-size: 0.8rem;
+        min-width: 40px;
+        text-align: right;
     }
 
-    .new-badge {
-        background: linear-gradient(135deg, #10b981, #059669);
-        color: white;
-        padding: 0.25rem 0.5rem;
-        border-radius: 10px;
-        font-size: 0.7rem;
-        font-weight: 700;
-        margin-left: 0.5rem;
+    /* Fish Bubbles Animation */
+    .fish-bubbles {
+        position: absolute;
+        bottom: -10px;
+        right: -10px;
     }
 
-    .free-badge {
-        background: rgba(99, 102, 241, 0.2);
-        color: var(--primary);
-        padding: 0.25rem 0.5rem;
-        border-radius: 10px;
-        font-size: 0.7rem;
-        font-weight: 700;
-        float: right;
+    .bubble {
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        background: rgba(255,255,255,0.5);
+        border-radius: 50%;
+        animation: bubble 2s infinite;
     }
 
-    .premium-badge {
-        background: linear-gradient(135deg, #f59e0b, #d97706);
-        color: white;
-        padding: 0.25rem 0.5rem;
-        border-radius: 10px;
-        font-size: 0.7rem;
-        font-weight: 700;
-        float: right;
+    .bubble:nth-child(1) {
+        bottom: 0;
+        right: 0;
+        animation-delay: 0s;
+    }
+
+    .bubble:nth-child(2) {
+        bottom: 10px;
+        right: 5px;
+        animation-delay: 0.5s;
+    }
+
+    .bubble:nth-child(3) {
+        bottom: 20px;
+        right: 0;
+        animation-delay: 1s;
+    }
+
+    @keyframes bubble {
+        0% {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+        }
+        100% {
+            transform: translateY(-20px) scale(1.5);
+            opacity: 0;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loader"></div>
+</div>
+
 <div class="dashboard-container">
-    <div class="welcome-section">
-        <h1 class="welcome-title">
-            <i class="fas fa-shield-halved"></i> Welcome, {{ username }}!
-        </h1>
-        <p class="welcome-desc">
-            Pilih cipher algorithm untuk mulai enkripsi dan dekripsi
-        </p>
+    <div class="dashboard-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="dashboard-sidebar">
+            <!-- User Profile -->
+            <div class="user-profile">
+                <div class="avatar">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <h3 class="user-name">{{ username }}</h3>
+                <div class="user-level">
+                    <i class="fas fa-star"></i>
+                    Level {{ user_level|default("1") }}
+                </div>
+            </div>
+
+            <!-- Navigation Menu -->
+            <nav class="sidebar-nav">
+                <button class="nav-link active" onclick="showSection('dashboard')">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </button>
+                
+                <button class="nav-link" onclick="showSection('ciphers')">
+                    <i class="fas fa-lock"></i>
+                    Semua Cipher
+                    <span class="nav-badge">13</span>
+                </button>
+                
+                <button class="nav-link" onclick="showSection('learn')">
+                    <i class="fas fa-graduation-cap"></i>
+                    Belajar
+                </button>
+                
+                <button class="nav-link" onclick="showSection('challenges')">
+                    <i class="fas fa-flag-checkered"></i>
+                    Tantangan
+                    <span class="nav-badge premium-badge">PREMIUM</span>
+                </button>
+                
+                <button class="nav-link" onclick="showSection('certificates')">
+                    <i class="fas fa-certificate"></i>
+                    Sertifikat
+                    <span class="nav-badge premium-badge">PREMIUM</span>
+                </button>
+                
+                <button class="nav-link" onclick="showSection('community')">
+                    <i class="fas fa-users"></i>
+                    Komunitas
+                </button>
+                
+                <button class="nav-link" onclick="showSection('settings')">
+                    <i class="fas fa-cog"></i>
+                    Pengaturan
+                </button>
+            </nav>
+
+            <!-- Upgrade Button -->
+            <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--glass);">
+                <button onclick="showUpgradeModal()" style="width: 100%; padding: 1rem; background: var(--premium-gold); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                    <i class="fas fa-crown"></i>
+                    Upgrade Premium
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <!-- DASHBOARD SECTION (Default) -->
+            <section id="dashboard-section" class="dashboard-section active">
+
+                <!-- Welcome Header -->
+                <div class="dashboard-header">
+                    <div class="header-content">
+                        <h1 class="welcome-title">Selamat Datang, {{ username }}!</h1>
+                        <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 1rem;">
+                            Kuasai seni kriptografi melalui pembelajaran interaktif
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="quick-stats">
+                    <div class="stat-card" onclick="window.location.href='/progress'">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value">{{ ((completed_ciphers|default(0)/20)*100)|round|int }}%</div>
+                            <div class="stat-label">Progress Pembelajaran</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card" onclick="showSection('ciphers')">
+                        <div class="stat-icon">
+                            <i class="fas fa-lock-open"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value">{{ completed_ciphers|default("0") }}/13</div>
+                            <div class="stat-label">Cipher Dikuasai</div>
+                        </div>
+                    </div>
+
+                    <!-- XP Indicator - Untuk Sertifikat -->
+<div class="stat-card xp-indicator-certificate" id="xpIndicator">
+    <div class="stat-icon xp-icon">
+        <i class="fas fa-certificate"></i>
     </div>
-
-    <!-- FREE CIPHERS -->
-    <h2 class="section-title">
-        <i class="fas fa-unlock"></i> Free Ciphers
-    </h2>
-    <div class="cipher-grid">
-        <a href="/caesar" class="cipher-card">
-            <span class="free-badge">FREE</span>
-            <div class="cipher-icon">
-                <i class="fas fa-rotate"></i>
+    <div class="stat-content">
+        <div class="xp-progress-info">
+            <div class="xp-progress-header">
+                <span class="xp-value">
+                    {% if user_xp is defined %}{{ user_xp|int }}{% else %}0{% endif %}/1000 XP
+                </span>
+                <span class="certificate-status">
+                    {% if user_xp is defined and user_xp >= 1000 %}
+                    <span class="status-unlocked">
+                        <i class="fas fa-unlock"></i> Sertifikat Terbuka
+                    </span>
+                    {% else %}
+                    <span class="status-locked">
+                        <i class="fas fa-lock"></i> Menuju Sertifikat
+                    </span>
+                    {% endif %}
+                </span>
             </div>
-            <div class="cipher-name">Caesar Cipher</div>
-            <div class="cipher-desc">Shift cipher klasik untuk enkripsi substitusi sederhana</div>
-        </a>
-
-        <a href="/vigenere" class="cipher-card">
-            <span class="free-badge">FREE</span>
-            <div class="cipher-icon">
-                <i class="fas fa-keyboard"></i>
+            <div class="xp-progress-bar-certificate">
+                <div class="xp-progress-fill-certificate" id="xpProgressFill"></div>
+                <div class="xp-milestone" style="left: 100%;">
+                    <div class="milestone-dot certificate-dot">
+                        <i class="fas fa-certificate"></i>
+                    </div>
+                </div>
             </div>
-            <div class="cipher-name">Vigenere Cipher</div>
-            <div class="cipher-desc">Polyalphabetic substitution dengan keyword</div>
-        </a>
-
-        <a href="/bruteforce" class="cipher-card">
-            <span class="free-badge">FREE</span>
-            <div class="cipher-icon">
-                <i class="fas fa-hammer"></i>
+            <div class="xp-progress-text-certificate">
+                {% set xp_current = user_xp|default(0)|int %}
+                {% set xp_needed = 1000 - xp_current %}
+                {% set progress_percent = (xp_current / 1000) * 100 %}
+                
+                {% if xp_current >= 1000 %}
+                <span class="certificate-ready">
+                    <i class="fas fa-trophy"></i> Sertifikat siap diunduh!
+                    <button class="download-certificate-btn" onclick="showCertificate()">
+                        <i class="fas fa-download"></i> Lihat Sertifikat
+                    </button>
+                </span>
+                {% else %}
+                <div class="xp-remaining-info">
+                    <span class="xp-remaining">
+                        <i class="fas fa-bullseye"></i> {{ xp_needed }} XP lagi untuk sertifikat
+                    </span>
+                    <span class="xp-percentage">{{ progress_percent|round|int }}%</span>
+                </div>
+                {% endif %}
             </div>
-            <div class="cipher-name">Brute Force Attack</div>
-            <div class="cipher-desc">Crack Caesar cipher dengan mencoba semua kemungkinan</div>
-        </a>
-    </div>
-
-    <!-- PREMIUM CIPHERS - CLASSIC -->
-    <h2 class="section-title">
-        <i class="fas fa-crown"></i> Premium - Classic Ciphers
-        <span class="section-badge">LOGIN REQUIRED</span>
-    </h2>
-    <div class="cipher-grid">
-        <a href="/substitution" class="cipher-card">
-            <span class="premium-badge"><i class="fas fa-crown"></i> PREMIUM</span>
-            <div class="cipher-icon">
-                <i class="fas fa-exchange-alt"></i>
-            </div>
-            <div class="cipher-name">Substitution Cipher</div>
-            <div class="cipher-desc">Substitusi huruf dengan keyword custom</div>
-        </a>
-
-        <a href="/transposition" class="cipher-card">
-            <span class="premium-badge"><i class="fas fa-crown"></i> PREMIUM</span>
-            <div class="cipher-icon">
-                <i class="fas fa-shuffle"></i>
-            </div>
-            <div class="cipher-name">Transposition Cipher</div>
-            <div class="cipher-desc">Rail Fence, Columnar, Route Cipher</div>
-        </a>
-
-        <a href="/playfair" class="cipher-card">
-            <span class="premium-badge"><i class="fas fa-crown"></i> PREMIUM</span>
-            <div class="cipher-icon">
-                <i class="fas fa-table-cells"></i>
-            </div>
-            <div class="cipher-name">Playfair Cipher</div>
-            <div class="cipher-desc">Enkripsi digraph dengan matriks 5x5 (Key Hidden)</div>
-        </a>
-
-        <a href="/hill" class="cipher-card">
-            <span class="premium-badge"><i class="fas fa-crown"></i> PREMIUM</span>
-            <div class="cipher-icon">
-                <i class="fa-solid fa-table-cells"></i>
-            </div>
-            <div class="cipher-name">Hill Cipher</div>
-            <div class="cipher-desc">Matrix multiplication cipher dengan linear algebra</div>
-        </a>
-
-        <a href="/rsa" class="cipher-card">
-            <span class="premium-badge"><i class="fas fa-crown"></i> PREMIUM</span>
-            <div class="cipher-icon">
-                <i class="fas fa-key"></i>
-            </div>
-            <div class="cipher-name">RSA Encryption</div>
-            <div class="cipher-desc">Public-key cryptography untuk enkripsi asimetris</div>
-        </a>
-
-        <a href="/hash" class="cipher-card">
-            <span class="premium-badge"><i class="fas fa-crown"></i> PREMIUM</span>
-            <div class="cipher-icon">
-                <i class="fas fa-hashtag"></i>
-            </div>
-            <div class="cipher-name">Hash Functions</div>
-            <div class="cipher-desc">MD5, SHA-256, Bcrypt, Argon2 & Password Strength</div>
-        </a>
-    </div>
-
-    <!-- PREMIUM CIPHERS - MODERN ENCRYPTION -->
-    <h2 class="section-title">
-        <i class="fas fa-rocket"></i> Premium - Modern Encryption
-        <span class="section-badge">NEW FEATURES</span>
-    </h2>
-    <div class="cipher-grid">
-        <a href="/aes" class="cipher-card">
-            <span class="premium-badge"><i class="fas fa-crown"></i> PREMIUM</span>
-            <span class="new-badge">NEW</span>
-            <div class="cipher-icon">
-                <i class="fas fa-shield-halved"></i>
-            </div>
-            <div class="cipher-name">AES Encryption</div>
-            <div class="cipher-desc">Advanced Encryption Standard - Industry standard security</div>
-        </a>
-
-        <a href="/des" class="cipher-card">
-            <span class="premium-badge"><i class="fas fa-crown"></i> PREMIUM</span>
-            <span class="new-badge">NEW</span>
-            <div class="cipher-icon">
-                <i class="fas fa-triangle-exclamation"></i>
-            </div>
-            <div class="cipher-name">DES Encryption</div>
-            <div class="cipher-desc">Data Encryption Standard - Legacy algorithm (untuk pembelajaran)</div>
-        </a>
-
-        <a href="/triple-des" class="cipher-card">
-            <span class="premium-badge"><i class="fas fa-crown"></i> PREMIUM</span>
-            <span class="new-badge">NEW</span>
-            <div class="cipher-icon">
-                <i class="fas fa-layer-group"></i>
-            </div>
-            <div class="cipher-name">Triple DES (3DES)</div>
-            <div class="cipher-desc">3x DES security - Masih digunakan di sistem ATM & payment</div>
-        </a>
-
-        <a href="/blowfish" class="cipher-card">
-            <span class="premium-badge"><i class="fas fa-crown"></i> PREMIUM</span>
-            <span class="new-badge">NEW</span>
-            <div class="cipher-icon">
-                <i class="fas fa-fish"></i>
-            </div>
-            <div class="cipher-name">Blowfish Encryption</div>
-            <div class="cipher-desc">Fast block cipher dengan flexible key size (32-448 bit)</div>
-        </a>
+        </div>
     </div>
 </div>
+                </div>
+
+                <!-- Progress Section -->
+                <div class="progress-section">
+                    <div class="progress-header">
+                        <h2 class="progress-title">
+                            <i class="fas fa-chart-line"></i> Progress Pembelajaran
+                        </h2>
+                        <span style="color: var(--accent); font-weight: 600; font-size: 1.2rem;" id="progressText">
+                            {{ ((completed_ciphers|default(0)/20)*100)|round|int }}% Selesai
+                        </span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="progressBar" 
+                             data-progress="{{ ((completed_ciphers|default(0)/20)*100)|round|int }}"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+                        <p style="color: var(--text-muted); font-size: 0.95rem;">
+                            Selesaikan {{ 13 - completed_ciphers|default(0) }} cipher lagi untuk level Master dan Mendapatkan Sertifikat
+                        </p>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--accent);"></div>
+                                <span style="font-size: 0.9rem; color: var(--text-muted);">Selesai</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--warning);"></div>
+                                <span style="font-size: 0.9rem; color: var(--text-muted);">Progress</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted);"></div>
+                                <span style="font-size: 0.9rem; color: var(--text-muted);">Belum</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            
+                <!-- Premium Banner -->
+                <div class="premium-banner" id="premiumStatus">
+                    <div class="premium-info">
+                        <div class="premium-badge-small">
+                            <i class="fas fa-crown"></i>
+                            STATUS PREMIUM
+                        </div>
+                        <h3 style="color: var(--text); margin-bottom: 0.5rem;" id="premiumTitle">Anda menggunakan versi Gratis</h3>
+                        <p style="color: var(--text-muted);" id="premiumDescription">
+                            Upgrade untuk membuka 15+ cipher premium, tools, dan sertifikat.
+                        </p>
+                    </div>
+                    <button onclick="showUpgradeModal()" style="position: relative; z-index: 2; padding: 0.75rem 1.5rem; background: var(--premium-gold); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; white-space: nowrap;">
+                        <i class="fas fa-rocket"></i> Upgrade
+                    </button>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <a href="/caesar" class="action-card">
+                        <div class="action-icon">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <div>
+                            <h3 style="color: var(--text); margin-bottom: 0.5rem;">Mulai Belajar</h3>
+                            <p style="color: var(--text-muted); font-size: 0.9rem;">Pelajari cipher dasar untuk pemula</p>
+                        </div>
+                    </a>
+                    
+                    <button class="action-card" onclick="showSection('practice')">
+                        <div class="action-icon">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <div>
+                            <h3 style="color: var(--text); margin-bottom: 0.5rem;">Latihan Praktik</h3>
+                            <p style="color: var(--text-muted); font-size: 0.9rem;">Uji kemampuan dengan tantangan</p>
+                        </div>
+                    </button>
+                    
+                    
+                    <button class="action-card" onclick="showSection('challenges')">
+                        <div class="action-icon">
+                            <i class="fas fa-flag-checkered"></i>
+                        </div>
+                        <div>
+                            <h3 style="color: var(--text); margin-bottom: 0.5rem;">Tantangan Harian</h3>
+                            <p style="color: var(--text-muted); font-size: 0.9rem;">Dapatkan XP dan hadiah</p>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Recently Viewed Ciphers -->
+                <h2 class="section-title">
+                    <i class="fas fa-history"></i>
+                    Terakhir Dilihat
+                </h2>
+                
+                <div class="cipher-grid">
+                    <a href="/caesar" class="cipher-card free">
+                        <div class="card-badges">
+                            <span class="badge badge-free">
+                                <i class="fas fa-unlock"></i> GRATIS
+                            </span>
+                            <span class="difficulty-badge easy">
+                                <i class="fas fa-signal"></i> MUDAH
+                            </span>
+                        </div>
+                        <div class="card-header">
+                            <div class="cipher-icon">
+                                <div class="icon-circle shift-icon">
+                                    <i class="fas fa-exchange-alt"></i>
+                                </div>
+                            </div>
+                            <div class="cipher-meta">
+                                <div class="cipher-name">
+                                    <h3>Caesar Cipher</h3>
+                                    <span class="cipher-code">ROT3</span>
+                                </div>
+                                <div class="cipher-year">100 SM</div>
+                            </div>
+                        </div>
+                        <div class="cipher-desc">
+                            Cipher substitusi klasik dengan pergeseran karakter. Dasar kriptografi.
+                        </div>
+                        <div class="completion-status">
+                            <div class="completion-bar">
+                                <div class="completion-fill" style="width: 80%; background: var(--accent);"></div>
+                            </div>
+                            <span class="completion-text">80%</span>
+                        </div>
+                    </a>
+                    
+                    <a href="/vigenere" class="cipher-card free">
+                        <div class="card-badges">
+                            <span class="badge badge-free">
+                                <i class="fas fa-unlock"></i> GRATIS
+                            </span>
+                            <span class="difficulty-badge medium">
+                                <i class="fas fa-signal"></i> MENENGAH
+                            </span>
+                        </div>
+                        <div class="card-header">
+                            <div class="cipher-icon">
+                                <div class="icon-circle vigenere-icon">
+                                    <i class="fas fa-keyboard"></i>
+                                </div>
+                            </div>
+                            <div class="cipher-meta">
+                                <div class="cipher-name">
+                                    <h3>Vigenère Cipher</h3>
+                                    <span class="cipher-code">VIG</span>
+                                </div>
+                                <div class="cipher-year">1553</div>
+                            </div>
+                        </div>
+                        <div class="cipher-desc">
+                            Cipher polialfabetik dengan tabel Vigenère. Lebih aman dari Caesar.
+                        </div>
+                        <div class="completion-status">
+                            <div class="completion-bar">
+                                <div class="completion-fill" style="width: 45%; background: var(--warning);"></div>
+                            </div>
+                            <span class="completion-text">45%</span>
+                        </div>
+                    </a>
+                    
+                    <div class="cipher-card premium" onclick="unlockCipher('rsa')">
+                        <div class="card-badges">
+                            <span class="badge badge-premium">
+                                <i class="fas fa-crown"></i> PREMIUM
+                            </span>
+                            <span class="difficulty-badge hard">SULIT</span>
+                        </div>
+                        <div class="card-header">
+                            <div class="cipher-icon">
+                                <div class="icon-circle rsa-icon">
+                                    <i class="fas fa-key"></i>
+                                </div>
+                            </div>
+                            <div class="cipher-meta">
+                                <div class="cipher-name">
+                                    <h3>Enkripsi RSA</h3>
+                                    <span class="cipher-code">RSA-2048</span>
+                                </div>
+                                <div class="cipher-year">1977</div>
+                            </div>
+                        </div>
+                        <div class="cipher-desc">
+                            Kriptografi kunci publik untuk keamanan internet modern.
+                        </div>
+                        <div class="completion-status">
+                            <div class="completion-bar">
+                                <div class="completion-fill" style="width: 0%; background: var(--text-muted);"></div>
+                            </div>
+                            <span class="completion-text">0%</span>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- ALL CIPHERS SECTION -->
+            <section id="ciphers-section" class="dashboard-section">
+                <h1 class="section-title">
+                    <i class="fas fa-lock"></i>
+                    Semua Cipher
+                    <span>13 cipher tersedia</span>
+                </h1>
+
+                <!-- Cipher Categories -->
+                <div class="category-filter">
+                    <button class="filter-btn active" onclick="filterCiphers('all')" data-category="all">
+                        <i class="fas fa-layer-group"></i> Semua
+                    </button>
+                    <button class="filter-btn" onclick="filterCiphers('free')" data-category="free">
+                        <i class="fas fa-unlock"></i> Gratis
+                    </button>
+                    <button class="filter-btn" onclick="filterCiphers('premium')" data-category="premium">
+                        <i class="fas fa-crown"></i> Premium
+                    </button>
+                    <button class="filter-btn" onclick="filterCiphers('classical')" data-category="classical">
+                        <i class="fas fa-landmark"></i> Klasik
+                    </button>
+                    <button class="filter-btn" onclick="filterCiphers('modern')" data-category="modern">
+                        <i class="fas fa-microchip"></i> Modern
+                    </button>
+                </div>
+
+                <!-- Cipher Grid -->
+                <div class="cipher-grid" id="ciphersGrid">
+                    <!-- Caesar Cipher -->
+                    <div class="cipher-card-wrapper" data-category="free classical" data-difficulty="easy">
+                        <a href="/caesar" class="cipher-card free">
+                            <div class="card-badges">
+                                <span class="badge badge-free">
+                                    <i class="fas fa-unlock"></i> GRATIS
+                                </span>
+                                <span class="difficulty-badge easy">
+                                    <i class="fas fa-signal"></i> MUDAH
+                                </span>
+                            </div>
+                            
+                            <div class="card-header">
+                                <div class="cipher-icon">
+                                    <div class="icon-circle shift-icon">
+                                        <i class="fas fa-exchange-alt"></i>
+                                    </div>
+                                </div>
+                                <div class="cipher-meta">
+                                    <div class="cipher-name">
+                                        <h3>Caesar Cipher</h3>
+                                    </div>
+                                    <div class="cipher-year">100 SM</div>
+                                </div>
+                            </div>
+                            
+                            <div class="cipher-desc">
+                                Cipher substitusi klasik dengan pergeseran karakter. Digunakan Julius Caesar untuk komunikasi militer rahasia.
+                            </div>
+                            
+                            <div class="cipher-specs">
+                                <div class="spec-item">
+                                    <i class="fas fa-sliders-h"></i>
+                                    <div>
+                                        <span class="spec-label">Pergeseran</span>
+                                        <span class="spec-value">1-25</span>
+                                    </div>
+                                </div>
+                                <div class="spec-item">
+                                    <i class="fas fa-font"></i>
+                                    <div>
+                                        <span class="spec-label">Alfabet</span>
+                                        <span class="spec-value">26</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="category-tags">
+                                <span class="category-tag">
+                                    <i class="fas fa-exchange-alt"></i> Substitusi
+                                </span>
+                                <span class="category-tag">
+                                    <i class="fas fa-landmark"></i> Klasik
+                                </span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Vigenère Cipher -->
+                    <div class="cipher-card-wrapper" data-category="free classical" data-difficulty="medium">
+                        <a href="/vigenere" class="cipher-card free">
+                            <div class="card-badges">
+                                <span class="badge badge-free">
+                                    <i class="fas fa-unlock"></i> GRATIS
+                                </span>
+                                <span class="difficulty-badge medium">
+                                    <i class="fas fa-signal"></i> MENENGAH
+                                </span>
+                            </div>
+                            
+                            <div class="card-header">
+                                <div class="cipher-icon">
+                                    <div class="icon-circle vigenere-icon">
+                                        <i class="fas fa-keyboard"></i>
+                                    </div>
+                                </div>
+                                <div class="cipher-meta">
+                                    <div class="cipher-name">
+                                        <h3>Vigenère Cipher</h3>
+                                    </div>
+                                    <div class="cipher-year">1553</div>
+                                </div>
+                            </div>
+                            
+                            <div class="cipher-desc">
+                                Cipher polialfabetik dengan tabel Vigenère. Menggunakan keyword untuk enkripsi multi-lapis.
+                            </div>
+                            
+                            <div class="cipher-specs">
+                                <div class="spec-item">
+                                    <i class="fas fa-table"></i>
+                                    <div>
+                                        <span class="spec-label">Tabel</span>
+                                        <span class="spec-value">26×26</span>
+                                    </div>
+                                </div>
+                                <div class="spec-item">
+                                    <i class="fas fa-key"></i>
+                                    <div>
+                                        <span class="spec-label">Keyword</span>
+                                        <span class="spec-value">Dinamis</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="category-tags">
+                                <span class="category-tag">
+                                    <i class="fas fa-layer-group"></i> Polialfabetik
+                                </span>
+                                <span class="category-tag">
+                                    <i class="fas fa-landmark"></i> Renaissance
+                                </span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Brute Force Attack -->
+                    <div class="cipher-card-wrapper" data-category="free attack" data-difficulty="medium">
+                        <a href="/bruteforce" class="cipher-card attack-card">
+                            <div class="card-badges">
+                                <span class="badge badge-attack">
+                                    <i class="fas fa-crosshairs"></i> ATTACK
+                                </span>
+                                <span class="difficulty-badge medium">
+                                    <i class="fas fa-signal"></i> MENENGAH
+                                </span>
+                            </div>
+                            
+                            <div class="card-header">
+                                <div class="cipher-icon">
+                                    <div class="icon-circle attack-icon">
+                                        <i class="fas fa-hammer"></i>
+                                    </div>
+                                </div>
+                                <div class="cipher-meta">
+                                    <div class="cipher-name">
+                                        <h3>Brute Force Attack</h3>
+                                        <span class="cipher-code">BFA</span>
+                                    </div>
+                                    <div class="cipher-year">-</div>
+                                </div>
+                            </div>
+                            
+                            <div class="cipher-desc">
+                                Teknik exhaustive search untuk membongkar cipher dengan mencoba semua kemungkinan kombinasi kunci.
+                            </div>
+                            
+                            <div class="cipher-specs">
+                                <div class="spec-item">
+                                    <i class="fas fa-cogs"></i>
+                                    <div>
+                                        <span class="spec-label">Metode</span>
+                                        <span class="spec-value">Exhaustive</span>
+                                    </div>
+                                </div>
+                                <div class="spec-item">
+                                    <i class="fas fa-clock"></i>
+                                    <div>
+                                        <span class="spec-label">Waktu</span>
+                                        <span class="spec-value">O(n)</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="category-tags">
+                                <span class="category-tag">
+                                    <i class="fas fa-crosshairs"></i> Cryptanalysis
+                                </span>
+                                <span class="category-tag">
+                                    <i class="fas fa-brain"></i> Strategi
+                                </span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Substitution Cipher -->
+                    <div class="cipher-card-wrapper" data-category="premium classical" data-difficulty="medium">
+                        <a href="/substitution" class="cipher-card premium">
+                            <div class="card-badges">
+                                <span class="badge badge-premium">
+                                    <i class="fas fa-crown"></i> PREMIUM
+                                </span>
+                                <span class="difficulty-badge medium">
+                                    <i class="fas fa-signal"></i> MENENGAH
+                                </span>
+                            </div>
+                            
+                            <div class="card-header">
+                                <div class="cipher-icon">
+                                    <div class="icon-circle substitution-icon">
+                                        <i class="fas fa-font"></i>
+                                    </div>
+                                </div>
+                                <div class="cipher-meta">
+                                    <div class="cipher-name">
+                                        <h3>Substitution Cipher</h3>
+                                        <span class="cipher-code">SUB</span>
+                                    </div>
+                                    <div class="cipher-year">-</div>
+                                </div>
+                            </div>
+                            
+                            <div class="cipher-desc">
+                                Substitusi karakter dengan mapping custom. Termasuk Monoalphabetic dan Polyalphabetic substitution.
+                            </div>
+                            
+                            <div class="cipher-specs">
+                                <div class="spec-item">
+                                    <i class="fas fa-random"></i>
+                                    <div>
+                                        <span class="spec-label">Mapping</span>
+                                        <span class="spec-value">1:1</span>
+                                    </div>
+                                </div>
+                                <div class="spec-item">
+                                    <i class="fas fa-project-diagram"></i>
+                                    <div>
+                                        <span class="spec-label">Permutasi</span>
+                                        <span class="spec-value">26!</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="category-tags">
+                                <span class="category-tag">
+                                    <i class="fas fa-exchange-alt"></i> Substitusi
+                                </span>
+                                <span class="category-tag">
+                                    <i class="fas fa-history"></i> Klasik
+                                </span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Transposition Cipher -->
+                    <div class="cipher-card-wrapper" data-category="premium classical" data-difficulty="medium">
+                        <a href="/transposition" class="cipher-card premium">
+                            <div class="card-badges">
+                                <span class="badge badge-premium">
+                                    <i class="fas fa-crown"></i> PREMIUM
+                                </span>
+                                <span class="difficulty-badge medium">
+                                    <i class="fas fa-signal"></i> MENENGAH
+                                </span>
+                            </div>
+                            
+                            <div class="card-header">
+                                <div class="cipher-icon">
+                                    <div class="icon-circle transposition-icon">
+                                        <i class="fas fa-braille"></i>
+                                        <div class="grid-pattern"></div>
+                                    </div>
+                                </div>
+                                <div class="cipher-meta">
+                                    <div class="cipher-name">
+                                        <h3>Transposition Cipher</h3>
+                                        <span class="cipher-code">TRANS</span>
+                                    </div>
+                                    <div class="cipher-year">-</div>
+                                </div>
+                            </div>
+                            
+                            <div class="cipher-desc">
+                                Rail Fence, Columnar, dan Route Cipher. Teknik penyusunan ulang posisi karakter dalam teks.
+                            </div>
+                            
+                            <div class="cipher-specs">
+                                <div class="spec-item">
+                                    <i class="fas fa-th"></i>
+                                    <div>
+                                        <span class="spec-label">Metode</span>
+                                        <span class="spec-value">Rail/Column</span>
+                                    </div>
+                                </div>
+                                <div class="spec-item">
+                                    <i class="fas fa-route"></i>
+                                    <div>
+                                        <span class="spec-label">Path</span>
+                                        <span class="spec-value">Zigzag/Spiral</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="category-tags">
+                                <span class="category-tag">
+                                    <i class="fas fa-retweet"></i> Transposisi
+                                </span>
+                                <span class="category-tag">
+                                    <i class="fas fa-puzzle-piece"></i> Pattern
+                                </span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Playfair Cipher -->
+                    <div class="cipher-card-wrapper" data-category="premium classical" data-difficulty="medium">
+                        <a href="/playfair" class="cipher-card premium">
+                            <div class="card-badges">
+                                <span class="badge badge-premium">
+                                    <i class="fas fa-crown"></i> PREMIUM
+                                </span>
+                                <span class="difficulty-badge medium">
+                                    <i class="fas fa-signal"></i> MENENGAH
+                                </span>
+                            </div>
+                            
+                            <div class="card-header">
+                                <div class="cipher-icon">
+                                    <div class="icon-circle playfair-icon">
+                                        <i class="fas fa-table-cells"></i>
+                                    </div>
+                                </div>
+                                <div class="cipher-meta">
+                                    <div class="cipher-name">
+                                        <h3>Playfair Cipher</h3>
+                                        <span class="cipher-code">PLAY</span>
+                                    </div>
+                                    <div class="cipher-year">1854</div>
+                                </div>
+                            </div>
+                            
+                            <div class="cipher-desc">
+                                Digraph cipher dengan matriks 5×5. Digunakan dalam Perang Dunia I dan II untuk komunikasi militer.
+                            </div>
+                            
+                            <div class="cipher-specs">
+                                <div class="spec-item">
+                                    <i class="fas fa-border-all"></i>
+                                    <div>
+                                        <span class="spec-label">Matrix</span>
+                                        <span class="spec-value">5×5</span>
+                                    </div>
+                                </div>
+                                <div class="spec-item">
+                                    <i class="fas fa-handshake"></i>
+                                    <div>
+                                        <span class="spec-label">Unit</span>
+                                        <span class="spec-value">Digraph</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="category-tags">
+                                <span class="category-tag">
+                                    <i class="fas fa-border-all"></i> Matrix
+                                </span>
+                                <span class="category-tag">
+                                    <i class="fas fa-helmet-battle"></i> Military
+                                </span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Hill Cipher -->
+                    <div class="cipher-card-wrapper" data-category="premium classical" data-difficulty="hard">
+                        <a href="/hill" class="cipher-card premium">
+                            <div class="card-badges">
+                                <span class="badge badge-premium">
+                                    <i class="fas fa-crown"></i> PREMIUM
+                                </span>
+                                <span class="difficulty-badge hard">
+                                    <i class="fas fa-signal"></i> SULIT
+                                </span>
+                            </div>
+                            
+                            <div class="card-header">
+                                <div class="cipher-icon">
+                                    <div class="icon-circle hill-icon">
+                                        <i class="fas fa-calculator"></i>
+                                    </div>
+                                </div>
+                                <div class="cipher-meta">
+                                    <div class="cipher-name">
+                                        <h3>Hill Cipher</h3>
+                                        <span class="cipher-code">HILL</span>
+                                    </div>
+                                    <div class="cipher-year">1929</div>
+                                </div>
+                            </div>
+                            
+                            <div class="cipher-desc">
+                                Cipher pertama yang menggunakan aljabar linear dengan operasi matriks modulo 26. Konsep kriptografi modern.
+                            </div>
+                            
+                            <div class="cipher-specs">
+                                <div class="spec-item">
+                                    <i class="fas fa-square-root-alt"></i>
+                                    <div>
+                                        <span class="spec-label">Aljabar</span>
+                                        <span class="spec-value">Linear</span>
+                                    </div>
+                                </div>
+                                <div class="spec-item">
+                                    <i class="fas fa-divide"></i>
+                                    <div>
+                                        <span class="spec-label">Modulo</span>
+                                        <span class="spec-value">26</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="category-tags">
+                                <span class="category-tag">
+                                    <i class="fas fa-square-root-alt"></i> Matriks
+                                </span>
+                                <span class="category-tag">
+                                    <i class="fas fa-superscript"></i> Linear
+                                </span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- RSA Encryption -->
+                    <div class="cipher-card-wrapper" data-category="premium modern" data-difficulty="hard">
+                        <a href="/rsa" class="cipher-card premium">
+                            <div class="card-badges">
+                                <span class="badge badge-premium">
+                                    <i class="fas fa-crown"></i> PREMIUM
+                                </span>
+                                <span class="badge badge-new">
+                                    <i class="fas fa-bolt"></i> BARU
+                                </span>
+                            </div>
+                            
+                            <div class="card-header">
+                                <div class="cipher-icon">
+                                    <div class="icon-circle rsa-icon">
+                                        <i class="fas fa-key"></i>
+                                    </div>
+                                </div>
+                                <div class="cipher-meta">
+                                    <div class="cipher-name">
+                                        <h3>Enkripsi RSA</h3>
+                                        <span class="cipher-code">RSA-2048</span>
+                                    </div>
+                                    <div class="cipher-year">1977</div>
+                                </div>
+                            </div>
+                            
+                            <div class="cipher-desc">
+                                Kriptografi kunci publik berbasis faktorisasi bilangan prima. Standar keamanan internet modern.
+                            </div>
+                            
+                            <div class="cipher-specs">
+                                <div class="spec-item">
+                                    <i class="fas fa-user-secret"></i>
+                                    <div>
+                                        <span class="spec-label">Tipe</span>
+                                        <span class="spec-value">Asimetris</span>
+                                    </div>
+                                </div>
+                                <div class="spec-item">
+                                    <i class="fas fa-hashtag"></i>
+                                    <div>
+                                        <span class="spec-label">Key Size</span>
+                                        <span class="spec-value">2048-bit</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="category-tags">
+                                <span class="category-tag">
+                                    <i class="fas fa-user-secret"></i> Asimetris
+                                </span>
+                                <span class="category-tag">
+                                    <i class="fas fa-globe"></i> Internet
+                                </span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- AES Encryption -->
+                    <div class="cipher-card-wrapper" data-category="premium modern" data-difficulty="medium">
+                        <a href="/aes" class="cipher-card premium">
+                            <div class="card-badges">
+                                <span class="badge badge-premium">
+                                    <i class="fas fa-crown"></i> PREMIUM
+                                </span>
+                                <span class="badge badge-new">
+                                    <i class="fas fa-bolt"></i> BARU
+                                </span>
+                            </div>
+                            
+                            <div class="card-header">
+                                <div class="cipher-icon">
+                                    <div class="icon-circle aes-icon">
+                                        <i class="fas fa-shield-alt"></i>
+                                        <span class="icon-elements">AES</span>
+                                    </div>
+                                </div>
+                                <div class="cipher-meta">
+                                    <div class="cipher-name">
+                                        <h3>Enkripsi AES</h3>
+                                        <span class="cipher-code">AES-256</span>
+                                    </div>
+                                    <div class="cipher-year">2001</div>
+                                </div>
+                            </div>
+                            
+                            <div class="cipher-desc">
+                                Advanced Encryption Standard. Algoritma simetris standar industri untuk keamanan data tingkat tinggi.
+                            </div>
+                            
+                            <div class="cipher-specs">
+                                <div class="spec-item">
+                                    <i class="fas fa-bolt"></i>
+                                    <div>
+                                        <span class="spec-label">Rounds</span>
+                                        <span class="spec-value">10-14</span>
+                                    </div>
+                                </div>
+                                <div class="spec-item">
+                                    <i class="fas fa-microchip"></i>
+                                    <div>
+                                        <span class="spec-label">Block</span>
+                                        <span class="spec-value">128-bit</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="category-tags">
+                                <span class="category-tag">
+                                    <i class="fas fa-cube"></i> Block Cipher
+                                </span>
+                                <span class="category-tag">
+                                    <i class="fas fa-industry"></i> Standar
+                                </span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- DES Encryption -->
+                    <div class="cipher-card-wrapper" data-category="premium legacy" data-difficulty="medium">
+                        <a href="/des" class="cipher-card legacy">
+                            <div class="card-badges">
+                                <span class="badge badge-premium">
+                                    <i class="fas fa-crown"></i> PREMIUM
+                                </span>
+                                <span class="badge badge-legacy">
+                                    <i class="fas fa-history"></i> LEGACY
+                                </span>
+                            </div>
+                            
+                            <div class="card-header">
+                                <div class="cipher-icon">
+                                    <div class="icon-circle des-icon">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                    </div>
+                                </div>
+                                <div class="cipher-meta">
+                                    <div class="cipher-name">
+                                        <h3>Enkripsi DES</h3>
+                                        <span class="cipher-code">DES</span>
+                                    </div>
+                                    <div class="cipher-year">1977</div>
+                                </div>
+                            </div>
+                            
+                            <div class="cipher-desc">
+                                Data Encryption Standard. Algoritma historis untuk tujuan edukasi, tidak direkomendasikan untuk penggunaan praktis.
+                            </div>
+                            
+                            <div class="cipher-specs">
+                                <div class="spec-item">
+                                    <i class="fas fa-microchip"></i>
+                                    <div>
+                                        <span class="spec-label">Block</span>
+                                        <span class="spec-value">64-bit</span>
+                                    </div>
+                                </div>
+                                <div class="spec-item">
+                                    <i class="fas fa-key"></i>
+                                    <div>
+                                        <span class="spec-label">Key</span>
+                                        <span class="spec-value">56-bit</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="category-tags">
+                                <span class="category-tag">
+                                    <i class="fas fa-cube"></i> Block Cipher
+                                </span>
+                                <span class="category-tag">
+                                    <i class="fas fa-history"></i> Legacy
+                                </span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Triple DES -->
+                    <div class="cipher-card-wrapper" data-category="premium legacy" data-difficulty="medium">
+                        <a href="/triple-des" class="cipher-card legacy">
+                            <div class="card-badges">
+                                <span class="badge badge-premium">
+                                    <i class="fas fa-star"></i> PREMIUM
+                                </span>
+                                <span class="badge badge-legacy">
+                                    <i class="fas fa-history"></i> LEGACY
+                                </span>
+                            </div>
+                            
+                            <div class="card-header">
+                                <div class="cipher-icon">
+                                    <div class="icon-circle tdes-icon">
+                                        <i class="fas fa-key icon-main"></i>
+                                        <i class="fas fa-key icon-layer-1"></i>
+                                        <i class="fas fa-key icon-layer-2"></i>
+                                    </div>
+                                </div>
+                                <div class="cipher-meta">
+                                    <div class="cipher-name">
+                                        <h3>Triple DES (3DES)</h3>
+                                        <span class="cipher-code">TDES/3DES</span>
+                                    </div>
+                                    <div class="cipher-year">1998</div>
+                                </div>
+                            </div>
+                            
+                            <div class="cipher-desc">
+                                Enhanced DES dengan tiga kali enkripsi berurutan menggunakan 2 atau 3 kunci berbeda.
+                            </div>
+                            
+                            <div class="cipher-specs">
+                                <div class="spec-item">
+                                    <i class="fas fa-redo-alt"></i>
+                                    <div>
+                                        <span class="spec-label">Rounds</span>
+                                        <span class="spec-value">3×DES</span>
+                                    </div>
+                                </div>
+                                <div class="spec-item">
+                                    <i class="fas fa-key"></i>
+                                    <div>
+                                        <span class="spec-label">Key</span>
+                                        <span class="spec-value">168-bit</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="category-tags">
+                                <span class="category-tag">
+                                    <i class="fas fa-cube"></i> Block Cipher
+                                </span>
+                                <span class="category-tag">
+                                    <i class="fas fa-history"></i> Legacy
+                                </span>
+                                <span class="category-tag">
+                                    <i class="fas fa-sync-alt"></i> 3 Rounds
+                                </span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Blowfish -->
+                    <div class="cipher-card-wrapper" data-category="premium modern" data-difficulty="medium">
+                        <a href="/blowfish" class="cipher-card premium">
+                            <div class="card-badges">
+                                <span class="badge badge-premium">
+                                    <i class="fas fa-crown"></i> PREMIUM
+                                </span>
+                            </div>
+                            
+                            <div class="card-header">
+                                <div class="cipher-icon">
+                                    <div class="icon-circle blowfish-icon">
+                                        <i class="fas fa-fish"></i>
+                                        <div class="fish-bubbles">
+                                            <span class="bubble"></span>
+                                            <span class="bubble"></span>
+                                            <span class="bubble"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="cipher-meta">
+                                    <div class="cipher-name">
+                                        <h3>Blowfish Encryption</h3>
+                                        <span class="cipher-code">BF</span>
+                                    </div>
+                                    <div class="cipher-year">1993</div>
+                                </div>
+                            </div>
+                            
+                            <div class="cipher-desc">
+                                Fast block cipher dengan key length variabel hingga 448-bit. Dikenal untuk kecepatan dan keamanan.
+                            </div>
+                            
+                            <div class="cipher-specs">
+                                <div class="spec-item">
+                                    <i class="fas fa-tachometer-alt"></i>
+                                    <div>
+                                        <span class="spec-label">Kecepatan</span>
+                                        <span class="spec-value">High</span>
+                                    </div>
+                                </div>
+                                <div class="spec-item">
+                                    <i class="fas fa-ruler"></i>
+                                    <div>
+                                        <span class="spec-label">Key Size</span>
+                                        <span class="spec-value">32-448 bit</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="category-tags">
+                                <span class="category-tag">
+                                    <i class="fas fa-cube"></i> Block Cipher
+                                </span>
+                                <span class="category-tag">
+                                    <i class="fas fa-bolt"></i> Fast
+                                </span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Hash Functions -->
+                    <div class="cipher-card-wrapper" data-category="premium modern" data-difficulty="medium">
+                        <a href="/hash" class="cipher-card premium">
+                            <div class="card-badges">
+                                <span class="badge badge-premium">
+                                    <i class="fas fa-crown"></i> PREMIUM
+                                </span>
+                                <span class="badge badge-new">
+                                    <i class="fas fa-bolt"></i> BARU
+                                </span>
+                            </div>
+                            
+                            <div class="card-header">
+                                <div class="cipher-icon">
+                                    <div class="icon-circle hash-icon">
+                                        <i class="fas fa-fingerprint"></i>
+                                    </div>
+                                </div>
+                                <div class="cipher-meta">
+                                    <div class="cipher-name">
+                                        <h3>Fungsi Hash Kriptografi</h3>
+                                        <span class="cipher-code">HASH</span>
+                                    </div>
+                                    <div class="cipher-year">-</div>
+                                </div>
+                            </div>
+                            
+                            <div class="cipher-desc">
+                                MD5, SHA-256, Bcrypt, Argon2. Praktik terbaik keamanan password dan verifikasi integritas data.
+                            </div>
+                            
+                            <div class="cipher-specs">
+                                <div class="spec-item">
+                                    <i class="fas fa-hashtag"></i>
+                                    <div>
+                                        <span class="spec-label">Output</span>
+                                        <span class="spec-value">Fixed</span>
+                                    </div>
+                                </div>
+                                <div class="spec-item">
+                                    <i class="fas fa-lock"></i>
+                                    <div>
+                                        <span class="spec-label">One-way</span>
+                                        <span class="spec-value">✓</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="category-tags">
+                                <span class="category-tag">
+                                    <i class="fas fa-hashtag"></i> Hash
+                                </span>
+                                <span class="category-tag">
+                                    <i class="fas fa-shield-alt"></i> Security
+                                </span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- LEARN SECTION -->
+            <section id="learn-section" class="dashboard-section">
+                <h1 class="section-title">
+                    <i class="fas fa-graduation-cap"></i>
+                    Pembelajaran
+                </h1>
+
+                <div class="quick-actions">
+                    <a href="/tutorials" class="action-card">
+                        <div class="action-icon">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <div>
+                            <h3 style="color: var(--text); margin-bottom: 0.5rem;">Tutorial</h3>
+                            <p style="color: var(--text-muted); font-size: 0.9rem;">Pelajari teori kriptografi dasar</p>
+                        </div>
+                    </a>
+                    
+                    <a href="/video-courses" class="action-card">
+                        <div class="action-icon">
+                            <i class="fas fa-video"></i>
+                        </div>
+                        <div>
+                            <h3 style="color: var(--text); margin-bottom: 0.5rem;">Video Course</h3>
+                            <p style="color: var(--text-muted); font-size: 0.9rem;">Belajar dari video interaktif</p>
+                        </div>
+                    </a>
+                    
+                    <a href="/glossary" class="action-card">
+                        <div class="action-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div>
+                            <h3 style="color: var(--text); margin-bottom: 0.5rem;">Glosarium</h3>
+                            <p style="color: var(--text-muted); font-size: 0.9rem;">Kamus istilah kriptografi</p>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Learning Paths -->
+                <h2 class="section-title" style="margin-top: 3rem;">
+                    <i class="fas fa-road"></i>
+                    Learning Path
+                </h2>
+
+                <div class="cipher-grid">
+                    <a href="/path/beginner" class="cipher-card free">
+                        <div class="card-badges">
+                            <span class="badge badge-free">
+                                <i class="fas fa-user-graduate"></i> Free
+                            </span>
+                        </div>
+                        <div class="card-header">
+                            <div class="cipher-icon">
+                                <div class="icon-circle shift-icon">
+                                    <i class="fas fa-baby"></i>
+                                </div>
+                            </div>
+                            <div class="cipher-meta">
+                                <div class="cipher-name">
+                                    <h3>Path untuk Pemula</h3>
+                                    <span class="cipher-code">BEGINNER</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cipher-desc">
+                            Mulai dari nol. Pelajari cipher dasar dan konsep kriptografi sederhana.
+                        </div>
+                        <div class="cipher-specs">
+                            <div class="spec-item">
+                                <i class="fas fa-book"></i>
+                                <div>
+                                    <span class="spec-label">Modul</span>
+                                    <span class="spec-value">4</span>
+                                </div>
+                            </div>
+                            <div class="spec-item">
+                                <i class="fas fa-clock"></i>
+                                <div>
+                                    <span class="spec-label">Waktu</span>
+                                    <span class="spec-value">2 Jam</span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+
+                    <div class="cipher-card premium" onclick="unlockCipher('intermediate')">
+                        <div class="card-badges">
+                            <span class="badge badge-premium">
+                                <i class="fas fa-crown"></i> PREMIUM
+                            </span>
+                        </div>
+                        <div class="card-header">
+                            <div class="cipher-icon">
+                                <div class="icon-circle hill-icon">
+                                    <i class="fas fa-user-tie"></i>
+                                </div>
+                            </div>
+                            <div class="cipher-meta">
+                                <div class="cipher-name">
+                                    <h3>Path Menengah</h3>
+                                    <span class="cipher-code">INTERMEDIATE</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cipher-desc">
+                            Tingkatkan skill ke cipher yang lebih kompleks dan teknik analisis.
+                        </div>
+                        <div class="cipher-specs">
+                            <div class="spec-item">
+                                <i class="fas fa-book"></i>
+                                <div>
+                                    <span class="spec-label">Modul</span>
+                                    <span class="spec-value">6</span>
+                                </div>
+                            </div>
+                            <div class="spec-item">
+                                <i class="fas fa-clock"></i>
+                                <div>
+                                    <span class="spec-label">Waktu</span>
+                                    <span class="spec-value">4 Jam</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cipher-card premium" onclick="unlockCipher('advanced')">
+                        <div class="card-badges">
+                            <span class="badge badge-premium">
+                                <i class="fas fa-crown"></i> PREMIUM
+                            </span>
+                            <span class="badge badge-new">
+                                <i class="fas fa-star"></i> POPULAR
+                            </span>
+                        </div>
+                        <div class="card-header">
+                            <div class="cipher-icon">
+                                <div class="icon-circle rsa-icon">
+                                    <i class="fas fa-user-ninja"></i>
+                                </div>
+                            </div>
+                            <div class="cipher-meta">
+                                <div class="cipher-name">
+                                    <h3>Path Lanjutan</h3>
+                                    <span class="cipher-code">ADVANCED</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cipher-desc">
+                            Kuasai enkripsi modern, kriptanalisis, dan keamanan sistem.
+                        </div>
+                        <div class="cipher-specs">
+                            <div class="spec-item">
+                                <i class="fas fa-book"></i>
+                                <div>
+                                    <span class="spec-label">Modul</span>
+                                    <span class="spec-value">8</span>
+                                </div>
+                            </div>
+                            <div class="spec-item">
+                                <i class="fas fa-clock"></i>
+                                <div>
+                                    <span class="spec-label">Waktu</span>
+                                    <span class="spec-value">6 Jam</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PRACTICE SECTION -->
+            <section id="practice-section" class="dashboard-section">
+                <h1 class="section-title">
+                    <i class="fas fa-code"></i>
+                    Praktik & Latihan
+                </h1>
+
+                <div class="quick-actions">
+                    <a href="/exercises" class="action-card">
+                        <div class="action-icon">
+                            <i class="fas fa-dumbbell"></i>
+                        </div>
+                        <div>
+                            <h3 style="color: var(--text); margin-bottom: 0.5rem;">Latihan</h3>
+                            <p style="color: var(--text-muted); font-size: 0.9rem;">Latihan cipher dengan contoh kasus</p>
+                        </div>
+                    </a>
+                    
+                    <a href="/quizzes" class="action-card">
+                        <div class="action-icon">
+                            <i class="fas fa-question-circle"></i>
+                        </div>
+                        <div>
+                            <h3 style="color: var(--text); margin-bottom: 0.5rem;">Kuis</h3>
+                            <p style="color: var(--text-muted); font-size: 0.9rem;">Uji pengetahuan dengan kuis interaktif</p>
+                        </div>
+                    </a>
+                    
+                    <div class="action-card premium" onclick="unlockCipher('projects')">
+                        <div class="action-icon" style="background: rgba(245, 158, 11, 0.1); color: var(--warning);">
+                            <i class="fas fa-project-diagram"></i>
+                        </div>
+                        <div>
+                            <h3 style="color: var(--text); margin-bottom: 0.5rem;">Proyek</h3>
+                            <p style="color: var(--text-muted); font-size: 0.9rem;">Bangun proyek kriptografi nyata</p>
+                        </div>
+                    </div>
+                    
+                    <div class="action-card premium" onclick="unlockCipher('code-challenges')">
+                        <div class="action-icon" style="background: rgba(245, 158, 11, 0.1); color: var(--warning);">
+                            <i class="fas fa-terminal"></i>
+                        </div>
+                        <div>
+                            <h3 style="color: var(--text); margin-bottom: 0.5rem;">Code Challenge</h3>
+                            <p style="color: var(--text-muted); font-size: 0.9rem;">Tantangan coding kriptografi</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- CHALLENGES SECTION (Premium) -->
+            <section id="challenges-section" class="dashboard-section">
+                <div class="premium-banner" style="text-align: center; flex-direction: column;">
+                    <div class="premium-icon" style="font-size: 4rem; margin-bottom: 1rem;">
+                        <i class="fas fa-flag-checkered"></i>
+                    </div>
+                    <h2 style="color: var(--warning); margin-bottom: 1rem;">Tantangan Premium</h2>
+                    <p style="color: var(--text); margin-bottom: 1.5rem; max-width: 600px;">
+                        Akses tantangan harian, mingguan, dan spesial untuk menguji kemampuan kriptografi Anda. Dapatkan XP bonus dan hadiah eksklusif!
+                    </p>
+                    <button onclick="showUpgradeModal()" style="padding: 1rem 2rem; background: var(--premium-gold); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 1.1rem;">
+                        <i class="fas fa-crown"></i> Upgrade untuk Buka Tantangan
+                    </button>
+                </div>
+            </section>
+
+            <!-- CERTIFICATES SECTION (Premium) -->
+            <section id="certificates-section" class="dashboard-section">
+                <div class="premium-banner" style="text-align: center; flex-direction: column;">
+                    <div class="premium-icon" style="font-size: 4rem; margin-bottom: 1rem;">
+                        <i class="fas fa-certificate"></i>
+                    </div>
+                    <h2 style="color: var(--warning); margin-bottom: 1rem;">Sertifikat Premium</h2>
+                    <p style="color: var(--text); margin-bottom: 1.5rem; max-width: 600px;">
+                        Dapatkan sertifikat digital yang bisa diverifikasi setelah menyelesaikan setiap learning path. Tunjukkan keahlian kriptografi Anda!
+                    </p>
+                    <button onclick="showUpgradeModal()" style="padding: 1rem 2rem; background: var(--premium-gold); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 1.1rem;">
+                        <i class="fas fa-crown"></i> Upgrade untuk Dapatkan Sertifikat
+                    </button>
+                </div>
+            </section>
+
+            <!-- COMMUNITY SECTION -->
+            <section id="community-section" class="dashboard-section">
+                <h1 class="section-title">
+                    <i class="fas fa-users"></i>
+                    Komunitas
+                </h1>
+
+                <div class="cipher-grid">
+                    <a href="/forum" class="cipher-card free">
+                        <div class="card-badges">
+                            <span class="badge" style="background: rgba(59, 130, 246, 0.2); color: #3b82f6;">
+                                <i class="fas fa-comments"></i> FORUM
+                            </span>
+                        </div>
+                        <div class="card-header">
+                            <div class="cipher-icon">
+                                <div class="icon-circle aes-icon">
+                                    <i class="fas fa-comments"></i>
+                                </div>
+                            </div>
+                            <div class="cipher-meta">
+                                <div class="cipher-name">
+                                    <h3>Forum Diskusi</h3>
+                                    <span class="cipher-code">FORUM</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cipher-desc">
+                            Diskusikan kriptografi dengan anggota komunitas lainnya.
+                        </div>
+                    </a>
+
+                    <a href="/tanya_jawab" class="cipher-card free">
+                        <div class="card-badges">
+                            <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: var(--accent);">
+                                <i class="fas fa-question-circle"></i> Q&A
+                            </span>
+                        </div>
+                        <div class="card-header">
+                            <div class="cipher-icon">
+                                <div class="icon-circle vigenere-icon">
+                                    <i class="fas fa-question-circle"></i>
+                                </div>
+                            </div>
+                            <div class="cipher-meta">
+                                <div class="cipher-name">
+                                    <h3>Tanya Jawab</h3>
+                                    <span class="cipher-code">Q&A</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cipher-desc">
+                            Ajukan pertanyaan dan dapatkan jawaban dari Dify Bot Langsung.
+                        </div>
+                    </a>
+                </div>
+            </section>
+
+            <!-- SETTINGS SECTION -->
+            <section id="settings-section" class="dashboard-section">
+                <h1 class="section-title">
+                    <i class="fas fa-cog"></i>
+                    Pengaturan
+                </h1>
+
+                <div class="tools-grid">
+                    <a href="/profile" class="tool-card">
+                        <div class="card-header">
+                            <div class="cipher-icon">
+                                <div class="icon-circle shift-icon">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            </div>
+                            <div class="cipher-meta">
+                                <div class="cipher-name">
+                                    <h3>Profile Settings</h3>
+                                    <span class="cipher-code">PROFILE</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cipher-desc">
+                            Ubah informasi profil, foto, dan preferensi akun.
+                        </div>
+                    </a>
+
+                    <div class="tool-card premium" onclick="unlockCipher('premium-settings')">
+                        <div class="card-badges">
+                            <span class="badge badge-premium">
+                                <i class="fas fa-crown"></i> PREMIUM
+                            </span>
+                        </div>
+                        <div class="card-header">
+                            <div class="cipher-icon">
+                                <div class="icon-circle tdes-icon">
+                                    <i class="fas fa-crown"></i>
+                                </div>
+                            </div>
+                            <div class="cipher-meta">
+                                <div class="cipher-name">
+                                    <h3>Premium Settings</h3>
+                                    <span class="cipher-code">PREMIUM</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cipher-desc">
+                            Kelola langganan premium dan fitur eksklusif.
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+
+<!-- Upgrade Modal -->
+<div class="upgrade-modal" id="upgradeModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">
+                <i class="fas fa-crown" style="background: var(--premium-gold); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+            </div>
+            <h2 style="color: var(--text); margin-bottom: 0.5rem;">Upgrade ke DecoDifyPremium</h2>
+            <p style="color: var(--text-muted);">Buka semua potensi kriptografi Anda</p>
+        </div>
+
+        <div style="margin: 2rem 0;">
+            <h3 style="color: var(--text); margin-bottom: 1rem;">Fitur yang Didapat:</h3>
+            <ul style="color: var(--text-muted); padding-left: 1.5rem; margin-bottom: 2rem;">
+                <li>10+ cipher premium (RSA, AES, Hash Functions, dll)</li>
+                <li>Sertifikat digital setelah menyelesaikan learning path</li>
+                <li>Tantangan harian dan mingguan</li>
+                <li>Akses ke komunitas premium</li>
+                <li>Priority support 24/7</li>
+                <li>Materi update eksklusif</li>
+            </ul>
+
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <div style="text-align: center; flex: 1;">
+                    <div style="font-size: 2rem; font-weight: 700; background: var(--premium-gold); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Rp 49.000</div>
+                    <div style="color: var(--text-muted); font-size: 0.9rem;">/bulan</div>
+                    <button onclick="processPayment('monthly')" style="width: 100%; padding: 0.75rem; margin-top: 1rem; background: var(--premium-gold); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">
+                        Pilih Bulanan
+                    </button>
+                </div>
+                
+                <div style="text-align: center; flex: 1;">
+                    <div style="font-size: 2rem; font-weight: 700; background: var(--premium-gold); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Rp 299.000</div>
+                    <div style="color: var(--text-muted); font-size: 0.9rem;">/tahun</div>
+                    <div style="color: var(--warning); font-size: 0.9rem; margin: 0.5rem 0;">Hemat 49%</div>
+                    <button onclick="processPayment('yearly')" style="width: 100%; padding: 0.75rem; margin-top: 1rem; background: var(--premium-gold); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">
+                        Pilih Tahunan
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--glass);">
+            <button onclick="hideUpgradeModal()" style="background: transparent; border: 1px solid var(--glass); color: var(--text); padding: 0.75rem 2rem; border-radius: 10px; cursor: pointer; margin-right: 1rem;">
+                Nanti Saja
+            </button>
+            <button onclick="processPayment('yearly')" style="background: var(--premium-gold); color: white; padding: 0.75rem 2rem; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">
+                Upgrade Sekarang
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Global state
+    let isPremium = false;
+    let currentSection = 'dashboard';
+
+    // Initialize dashboard
+    document.addEventListener('DOMContentLoaded', function() {
+        // Hide loading overlay
+        setTimeout(() => {
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        }, 1000);
+
+        // Check premium status
+        checkPremiumStatus();
+        
+        // Animate progress bar
+        animateProgressBar();
+        
+        // Initialize search
+        initSearch();
+        
+        // Initialize cipher filtering
+        initCipherFilter();
+        
+        // Check first visit
+        checkFirstVisit();
+        
+        // Show welcome notification
+        setTimeout(() => {
+            showNotification('Selamat datang di DecoDify! Jelajahi semua cipher dan fitur yang tersedia.', 'welcome');
+        }, 1500);
+    });
+
+    // Check premium status
+    function checkPremiumStatus() {
+        // Check localStorage for premium status
+        const premiumStatus = localStorage.getItem('cryptolab_premium');
+        const premiumExpiry = localStorage.getItem('cryptolab_premium_expiry');
+        
+        if (premiumStatus && premiumExpiry) {
+            const expiryDate = new Date(premiumExpiry);
+            const now = new Date();
+            
+            if (expiryDate > now) {
+                isPremium = true;
+                updatePremiumUI(true);
+            } else {
+                // Premium expired
+                localStorage.removeItem('cryptolab_premium');
+                localStorage.removeItem('cryptolab_premium_expiry');
+                updatePremiumUI(false);
+            }
+        } else {
+            updatePremiumUI(false);
+        }
+    }
+
+    // Update UI based on premium status
+    function updatePremiumUI(isPremiumUser) {
+        const premiumBanner = document.getElementById('premiumStatus');
+        const premiumTitle = document.getElementById('premiumTitle');
+        const premiumDescription = document.getElementById('premiumDescription');
+        
+        if (isPremiumUser) {
+            isPremium = true;
+            
+            // Update premium banner
+            premiumBanner.style.background = 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2))';
+            premiumBanner.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+            premiumTitle.textContent = '🎉 Anda adalah Member Premium!';
+            premiumDescription.textContent = 'Nikmati semua fitur eksklusif dan cipher lanjutan.';
+            
+            // Make all premium cards clickable
+            document.querySelectorAll('.cipher-card.premium, .tool-card.premium').forEach(card => {
+                if (!card.hasAttribute('href')) {
+                    card.style.cursor = 'pointer';
+                    card.onclick = function(e) {
+                        e.preventDefault();
+                        const href = card.getAttribute('data-href') || card.querySelector('a')?.getAttribute('href');
+                        if (href) {
+                            window.location.href = href;
+                        }
+                    };
+                }
+            });
+        } else {
+            isPremium = false;
+            
+            // Lock premium cards without href
+            document.querySelectorAll('.cipher-card.premium:not([href]), .tool-card.premium:not([href])').forEach(card => {
+                card.style.cursor = 'pointer';
+                card.onclick = function(e) {
+                    e.preventDefault();
+                    showUpgradeModal();
+                };
+            });
+        }
+    }
+
+    // Show section
+    function showSection(sectionId) {
+        // Hide all sections
+        document.querySelectorAll('.dashboard-section').forEach(section => {
+            section.classList.remove('active');
+        });
+        
+        // Show selected section
+        const section = document.getElementById(`${sectionId}-section`);
+        if (section) {
+            section.classList.add('active');
+        }
+        
+        // Update active nav link
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.classList.remove('active');
+        });
+        
+        const navLink = document.querySelector(`.nav-link[onclick*="${sectionId}"]`);
+        if (navLink) {
+            navLink.classList.add('active');
+        }
+        
+        // Update current section
+        currentSection = sectionId;
+        
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Show upgrade modal
+    function showUpgradeModal() {
+        const modal = document.getElementById('upgradeModal');
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    // Hide upgrade modal
+    function hideUpgradeModal() {
+        const modal = document.getElementById('upgradeModal');
+        modal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+
+    // Process payment
+    function processPayment(plan) {
+        showNotification(`Memproses upgrade ${plan}...`, 'info');
+        
+        // Simulate payment processing
+        setTimeout(() => {
+            const expiryDate = new Date();
+            
+            switch(plan) {
+                case 'monthly':
+                    expiryDate.setMonth(expiryDate.getMonth() + 1);
+                    break;
+                case 'yearly':
+                    expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+                    break;
+                default:
+                    expiryDate.setMonth(expiryDate.getMonth() + 1);
+            }
+            
+            // Save premium status
+            localStorage.setItem('cryptolab_premium', 'true');
+            localStorage.setItem('cryptolab_premium_expiry', expiryDate.toISOString());
+            
+            // Update UI
+            updatePremiumUI(true);
+            
+            // Hide modal
+            hideUpgradeModal();
+            
+            // Show success message
+            showNotification('🎉 Upgrade berhasil! Selamat menikmati semua fitur Premium!', 'success');
+            
+            // Refresh current section to show unlocked content
+            showSection(currentSection);
+            
+            // Add confetti effect
+            createConfetti();
+        }, 2000);
+    }
+
+    // Unlock cipher (for premium users)
+    function unlockCipher(cipherName) {
+        if (!isPremium) {
+            showUpgradeModal();
+            return;
+        }
+        
+        showNotification(`Membuka cipher ${cipherName}...`, 'info');
+        // In real app, this would navigate to the cipher page
+        setTimeout(() => {
+            window.location.href = `/${cipherName}`;
+        }, 1000);
+    }
+
+    // Animate progress bar
+    function animateProgressBar() {
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        
+        if (!progressBar || !progressText) return;
+        
+        const progress = parseInt(progressBar.getAttribute('data-progress') || 0);
+        
+        setTimeout(() => {
+            progressBar.style.width = progress + '%';
+            
+            // Animate percentage text
+            let current = 0;
+            const increment = progress / 50;
+            
+            const animate = () => {
+                if (current < progress) {
+                    current += increment;
+                    if (current > progress) current = progress;
+                    progressText.textContent = Math.round(current) + '% Selesai';
+                    requestAnimationFrame(animate);
+                }
+            };
+            
+            animate();
+        }, 500);
+    }
+
+    // Initialize search
+    function initSearch() {
+        const searchInput = document.getElementById('searchInput');
+        if (!searchInput) return;
+        
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const cipherCards = document.querySelectorAll('.cipher-card, .tool-card');
+            
+            cipherCards.forEach(card => {
+                const cardName = card.querySelector('.cipher-name h3')?.textContent.toLowerCase() || 
+                                card.querySelector('.cipher-name')?.textContent.toLowerCase();
+                const cardDesc = card.querySelector('.cipher-desc')?.textContent.toLowerCase();
+                
+                if (searchTerm === '' || (cardName && cardName.includes(searchTerm)) || 
+                    (cardDesc && cardDesc.includes(searchTerm))) {
+                    card.style.display = 'block';
+                    card.style.animation = 'fadeIn 0.5s ease';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+        
+        // Focus search on Ctrl+K
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'k') {
+                e.preventDefault();
+                searchInput.focus();
+            }
+        });
+    }
+
+    // Initialize cipher filtering
+    function initCipherFilter() {
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const category = this.getAttribute('data-category');
+                
+                // Update active button
+                filterButtons.forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                this.classList.add('active');
+                
+                // Filter ciphers
+                filterCiphers(category);
+            });
+        });
+    }
+
+    // Filter ciphers by category
+    function filterCiphers(category) {
+        const cipherCards = document.querySelectorAll('#ciphersGrid .cipher-card-wrapper');
+        
+        cipherCards.forEach(wrapper => {
+            const cardCategories = wrapper.getAttribute('data-category');
+            
+            if (category === 'all' || cardCategories.includes(category)) {
+                wrapper.style.display = 'block';
+                
+                // Add animation
+                wrapper.style.animation = 'none';
+                setTimeout(() => {
+                    wrapper.style.animation = 'fadeIn 0.5s ease';
+                }, 10);
+            } else {
+                wrapper.style.display = 'none';
+            }
+        });
+    }
+
+    // Check first visit
+    function checkFirstVisit() {
+        const hasVisited = localStorage.getItem('cryptolab_has_visited');
+        if (!hasVisited) {
+            localStorage.setItem('cryptolab_has_visited', 'true');
+            
+            // Show tutorial on first visit
+            setTimeout(() => {
+                if (confirm('Selamat datang! Ingin melihat tur singkat tentang fitur DecoDify?')) {
+                    showTutorial();
+                }
+            }, 2000);
+        }
+    }
+
+    // Show tutorial
+    function showTutorial() {
+        const steps = [
+            {
+                title: 'Dashboard Utama',
+                content: 'Ini adalah dashboard Anda. Lihat progress, statistik, dan cipher terakhir dilihat.',
+                element: '.dashboard-header'
+            },
+            {
+                title: 'Menu Navigasi',
+                content: 'Gunakan menu kiri untuk navigasi ke semua fitur DecoDify.',
+                element: '.dashboard-sidebar'
+            },
+            {
+                title: 'Cipher Premium',
+                content: 'Upgrade ke Premium untuk membuka semua cipher lanjutan dan tools.',
+                element: '.premium-banner'
+            }
+        ];
+        
+        let currentStep = 0;
+        
+        function showStep() {
+            if (currentStep >= steps.length) {
+                document.querySelectorAll('.tutorial-overlay').forEach(el => el.remove());
+                return;
+            }
+            
+            const step = steps[currentStep];
+            const element = document.querySelector(step.element);
+            
+            if (element) {
+                // Create tutorial overlay
+                const overlay = document.createElement('div');
+                overlay.className = 'tutorial-overlay';
+                overlay.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.7);
+                    z-index: 9998;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                `;
+                
+                // Create tutorial popup
+                const popup = document.createElement('div');
+                popup.style.cssText = `
+                    background: var(--card-bg);
+                    backdrop-filter: blur(10px);
+                    border: 1px solid var(--glass);
+                    border-radius: 20px;
+                    padding: 2rem;
+                    max-width: 400px;
+                    z-index: 9999;
+                    position: relative;
+                `;
+                
+                popup.innerHTML = `
+                    <h3 style="color: var(--text); margin-bottom: 1rem;">${step.title}</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">${step.content}</p>
+                    <div style="display: flex; justify-content: space-between;">
+                        <button onclick="document.querySelector('.tutorial-overlay').remove();" style="padding: 0.5rem 1rem; background: transparent; border: 1px solid var(--glass); color: var(--text); border-radius: 8px; cursor: pointer;">
+                            Lewati
+                        </button>
+                        <button onclick="nextStep()" style="padding: 0.5rem 1.5rem; background: linear-gradient(135deg, var(--secondary), var(--primary)); color: white; border: none; border-radius: 8px; cursor: pointer;">
+                            ${currentStep === steps.length - 1 ? 'Selesai' : 'Lanjut'}
+                        </button>
+                    </div>
+                `;
+                
+                overlay.appendChild(popup);
+                document.body.appendChild(overlay);
+                
+                // Highlight element
+                const rect = element.getBoundingClientRect();
+                element.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.5)';
+                element.style.transition = 'box-shadow 0.3s ease';
+                
+                window.nextStep = function() {
+                    element.style.boxShadow = '';
+                    overlay.remove();
+                    currentStep++;
+                    showStep();
+                };
+                
+                // Scroll to element
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+        
+        showStep();
+    }
+
+    // Create confetti effect
+    function createConfetti() {
+        const confettiCount = 200;
+        const colors = ['#f59e0b', '#d97706', '#8b5cf6', '#10b981', '#ef4444'];
+        
+        for (let i = 0; i < confettiCount; i++) {
+            const confetti = document.createElement('div');
+            confetti.style.cssText = `
+                position: fixed;
+                width: 10px;
+                height: 10px;
+                background: ${colors[Math.floor(Math.random() * colors.length)]};
+                top: -20px;
+                left: ${Math.random() * 100}vw;
+                border-radius: ${Math.random() > 0.5 ? '50%' : '0'};
+                opacity: 0.8;
+                z-index: 10001;
+                pointer-events: none;
+            `;
+            
+            document.body.appendChild(confetti);
+            
+            // Animate confetti
+            const animation = confetti.animate([
+                { transform: 'translateY(0) rotate(0deg)', opacity: 1 },
+                { transform: `translateY(${window.innerHeight + 20}px) rotate(${Math.random() * 360}deg)`, opacity: 0 }
+            ], {
+                duration: Math.random() * 2000 + 1000,
+                easing: 'cubic-bezier(0.215, 0.610, 0.355, 1)'
+            });
+            
+            // Remove confetti after animation
+            animation.onfinish = () => confetti.remove();
+        }
+    }
+
+    // Show notification
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        
+        let bgColor = 'linear-gradient(135deg, var(--secondary), #7c3aed)';
+        let icon = 'fas fa-info-circle';
+        
+        switch(type) {
+            case 'success':
+                bgColor = 'linear-gradient(135deg, var(--accent), #059669)';
+                icon = 'fas fa-check-circle';
+                break;
+            case 'warning':
+                bgColor = 'linear-gradient(135deg, var(--warning), #d97706)';
+                icon = 'fas fa-exclamation-triangle';
+                break;
+            case 'welcome':
+                bgColor = 'linear-gradient(135deg, var(--primary), var(--secondary))';
+                icon = 'fas fa-hand-wave';
+                break;
+        }
+        
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${bgColor};
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            z-index: 1000;
+            animation: slideIn 0.5s ease;
+            max-width: 300px;
+        `;
+        
+        notification.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <i class="${icon}" style="font-size: 1.2rem;"></i>
+                <div>
+                    <div style="font-size: 0.9rem;">${message}</div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Remove notification after 5 seconds
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.5s ease';
+            setTimeout(() => notification.remove(), 500);
+        }, 5000);
+    }
+
+    // Add CSS for animations
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        .fa-lock-triple:before {
+            content: "\\f023\\00a0\\f023\\00a0\\f023";
+            letter-spacing: 0.2em;
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Close modal on outside click or Escape key
+    document.getElementById('upgradeModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            hideUpgradeModal();
+        }
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            hideUpgradeModal();
+        }
+    });
+</script>
 {% endblock %}
