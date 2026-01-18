@@ -1,0 +1,412 @@
+{% extends "base.html" %}
+
+{% block title %}Premium - CryptoLab{% endblock %}
+
+{% block content %}
+<div class="premium-container">
+    <!-- Header -->
+    <div class="premium-header">
+        <div class="premium-icon-large">
+            <i class="fas fa-crown"></i>
+        </div>
+        <h1>Unlock Full Potential with DecoDifyPremium</h1>
+        <p>Akses semua cipher lanjutan, sertifikat, dan fitur eksklusif lainnya</p>
+        
+        {% if is_premium %}
+        <div class="premium-status-badge">
+            <i class="fas fa-check-circle"></i> AKUN PREMIUM AKTIF
+            <small>hingga {{ premium_until.strftime('%d %B %Y') }}</small>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Pricing Plans -->
+    <div class="pricing-grid">
+        <!-- Free Plan -->
+        <div class="pricing-card">
+            <div class="plan-header">
+                <h3>Gratis</h3>
+                <div class="plan-price">Rp 0<span>/selamanya</span></div>
+            </div>
+            <ul class="plan-features">
+                <li><i class="fas fa-check"></i> 3 Cipher Dasar</li>
+                <li><i class="fas fa-check"></i> Materi Pengenalan</li>
+                <li><i class="fas fa-check"></i> Quiz & Challenges</li>
+                <li class="disabled"><i class="fas fa-times"></i> Cipher Premium</li>
+                <li class="disabled"><i class="fas fa-times"></i> Sertifikat</li>
+                <li class="disabled"><i class="fas fa-times"></i> Tanpa Iklan</li>
+            </ul>
+            <button class="plan-button" disabled>Plan Saat Ini</button>
+        </div>
+        
+        <!-- Premium Monthly -->
+        <div class="pricing-card featured">
+            <div class="popular-badge">TERPOPULER</div>
+            <div class="plan-header">
+                <h3>Premium Bulanan</h3>
+                <div class="plan-price">Rp 49.999<span>/bulan</span></div>
+                <div class="plan-save">Hanya Rp 1.667/hari</div>
+            </div>
+            <ul class="plan-features">
+                <li><i class="fas fa-check"></i> <strong>Semua Cipher (20+)</strong></li>
+                <li><i class="fas fa-check"></i> Materi Tingkat Lanjut</li>
+                <li><i class="fas fa-check"></i> Sertifikat Kelulusan</li>
+                <li><i class="fas fa-check"></i> Tanpa Iklan</li>
+                <li><i class="fas fa-check"></i> Dukungan Prioritas</li>
+                <li><i class="fas fa-check"></i> Update Gratis</li>
+            </ul>
+            <form action="{{ url_for('premium_upgrade') }}" method="POST">
+                <input type="hidden" name="plan_type" value="monthly">
+                <input type="hidden" name="payment_method" value="manual">
+                <button type="submit" class="plan-button upgrade-button">
+                    {% if is_premium %}Perpanjang Sekarang{% else %}Upgrade Sekarang{% endif %}
+                </button>
+            </form>
+        </div>
+        
+        <!-- Premium Yearly -->
+        <div class="pricing-card">
+            <div class="plan-header">
+                <h3>Premium Tahunan</h3>
+                <div class="plan-price">Rp 399.999<span>/tahun</span></div>
+                <div class="plan-save">Hemat 33%</div>
+            </div>
+            <ul class="plan-features">
+                <li><i class="fas fa-check"></i> Semua Fitur Premium</li>
+                <li><i class="fas fa-check"></i> 12 bulan penuh</li>
+                <li><i class="fas fa-check"></i> Prioritas Fitur Baru</li>
+                <li><i class="fas fa-check"></i> Profile Badge Eksklusif</li>
+                <li><i class="fas fa-check"></i> Akses Beta Features</li>
+                <li><i class="fas fa-check"></i> Backup Data Cloud</li>
+            </ul>
+            <form action="{{ url_for('upgrade_premium') }}" method="POST">
+                <input type="hidden" name="plan_type" value="yearly">
+                <input type="hidden" name="payment_method" value="manual">
+                <button type="submit" class="plan-button upgrade-button">
+                    Pilih Tahunan
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Features Comparison -->
+    <div class="features-section">
+        <h2>Perbandingan Fitur Lengkap</h2>
+        <table class="features-table">
+            <thead>
+                <tr>
+                    <th>Fitur</th>
+                    <th>Gratis</th>
+                    <th>Premium</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Jumlah Cipher</td>
+                    <td>3</td>
+                    <td><strong>20+</strong></td>
+                </tr>
+                <tr>
+                    <td>Cipher Premium</td>
+                    <td><i class="fas fa-times"></i></td>
+                    <td><i class="fas fa-check"></i></td>
+                </tr>
+                <tr>
+                    <td>Sertifikat Kelulusan</td>
+                    <td><i class="fas fa-times"></i></td>
+                    <td><i class="fas fa-check"></i></td>
+                </tr>
+                <tr>
+                    <td>Materi Video</td>
+                    <td>Terbatas</td>
+                    <td><strong>Lengkap</strong></td>
+                </tr>
+                <tr>
+                    <td>Dukungan</td>
+                    <td>Komunitas</td>
+                    <td><strong>Prioritas</strong></td>
+                </tr>
+                <tr>
+                    <td>Tanpa Iklan</td>
+                    <td><i class="fas fa-times"></i></td>
+                    <td><i class="fas fa-check"></i></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- FAQ -->
+    <div class="faq-section">
+        <h2>Pertanyaan Umum</h2>
+        <div class="faq-item">
+            <h3>Apakah bisa refund?</h3>
+            <p>Ya, kami menawarkan garansi uang kembali 7 hari jika Anda tidak puas.</p>
+        </div>
+        <div class="faq-item">
+            <h3>Bagaimana cara pembayaran?</h3>
+            <p>Transfer bank (BCA, Mandiri, BRI), e-wallet (GoPay, OVO, Dana), dan kartu kredit.</p>
+        </div>
+        <div class="faq-item">
+            <h3>Apakah data saya aman?</h3>
+            <p>Ya, semua data dienkripsi dan tidak dibagikan ke pihak ketiga.</p>
+        </div>
+    </div>
+</div>
+
+<style>
+.premium-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.premium-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 2rem;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1));
+    border-radius: 20px;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.premium-icon-large {
+    font-size: 5rem;
+    background: linear-gradient(135deg, var(--warning), #d97706);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1rem;
+}
+
+.premium-header h1 {
+    color: var(--warning);
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.premium-header p {
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    max-width: 600px;
+    margin: 0 auto 1rem;
+}
+
+.premium-status-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--accent), #059669);
+    color: white;
+    padding: 0.5rem 1.5rem;
+    border-radius: 20px;
+    font-weight: 600;
+    margin-top: 1rem;
+}
+
+.premium-status-badge small {
+    display: block;
+    font-size: 0.8rem;
+    opacity: 0.9;
+}
+
+.pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.pricing-card {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 2rem;
+    border: 1px solid var(--glass);
+    position: relative;
+}
+
+.pricing-card.featured {
+    border: 2px solid var(--warning);
+    transform: scale(1.05);
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.05));
+}
+
+.popular-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--warning);
+    color: white;
+    padding: 0.5rem 1.5rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.plan-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.plan-header h3 {
+    color: var(--text);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.plan-price {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.plan-price span {
+    font-size: 1rem;
+    color: var(--text-muted);
+    margin-left: 0.5rem;
+}
+
+.plan-save {
+    font-size: 0.9rem;
+    color: var(--accent);
+    margin-top: 0.5rem;
+}
+
+.plan-features {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 2rem;
+}
+
+.plan-features li {
+    padding: 0.5rem 0;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.plan-features li.disabled {
+    color: var(--text-muted);
+}
+
+.plan-features li i.fa-check {
+    color: var(--accent);
+}
+
+.plan-features li i.fa-times {
+    color: var(--danger);
+}
+
+.plan-button {
+    width: 100%;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--glass);
+    color: var(--text);
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.plan-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.plan-button.upgrade-button {
+    background: linear-gradient(135deg, var(--warning), #d97706);
+    color: white;
+    border: none;
+    font-weight: 600;
+}
+
+.plan-button.upgrade-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(245, 158, 11, 0.3);
+}
+
+.features-section {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 3rem;
+}
+
+.features-section h2 {
+    text-align: center;
+    color: var(--text);
+    margin-bottom: 2rem;
+}
+
+.features-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.features-table th {
+    text-align: left;
+    padding: 1rem;
+    border-bottom: 2px solid var(--glass);
+    color: var(--text);
+    font-weight: 600;
+}
+
+.features-table td {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--text);
+}
+
+.features-table tr:last-child td {
+    border-bottom: none;
+}
+
+.features-table strong {
+    color: var(--warning);
+}
+
+.faq-section {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 2rem;
+}
+
+.faq-section h2 {
+    text-align: center;
+    color: var(--text);
+    margin-bottom: 2rem;
+}
+
+.faq-item {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.faq-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.faq-item h3 {
+    color: var(--text);
+    margin-bottom: 0.5rem;
+}
+
+.faq-item p {
+    color: var(--text-muted);
+}
+
+@media (max-width: 768px) {
+    .pricing-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .pricing-card.featured {
+        transform: none;
+    }
+    
+    .premium-header h1 {
+        font-size: 1.8rem;
+    }
+}
+</style>
+{% endblock %}

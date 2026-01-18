@@ -1,0 +1,1173 @@
+{% extends "base.html" %}
+
+{% block title %}Glosarium - DecoDify{% endblock %}
+
+{% block extra_css %}
+<style>
+    .glossary-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    .glossary-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .glossary-header h1 {
+        font-size: 2.5rem;
+        background: linear-gradient(135deg, var(--secondary), var(--primary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 1rem;
+    }
+
+    .glossary-header p {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    /* Search Box */
+    .glossary-search {
+        max-width: 600px;
+        margin: 0 auto 3rem;
+        position: relative;
+    }
+
+    .glossary-search input {
+        width: 100%;
+        padding: 1rem 1rem 1rem 3.5rem;
+        background: var(--card-bg);
+        border: 1px solid var(--glass);
+        border-radius: 12px;
+        color: var(--text);
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .glossary-search input:focus {
+        outline: none;
+        border-color: var(--secondary);
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+    }
+
+    .glossary-search i {
+        position: absolute;
+        left: 1.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        pointer-events: none;
+    }
+
+    .search-hint {
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+
+    /* Alphabet Navigation */
+    .alphabet-nav {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+        padding: 1rem;
+        background: var(--card-bg);
+        border-radius: 12px;
+        border: 1px solid var(--glass);
+    }
+
+    .alphabet-letter {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass);
+        border-radius: 8px;
+        color: var(--text-muted);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .alphabet-letter:hover {
+        background: rgba(139, 92, 246, 0.2);
+        color: var(--secondary);
+        transform: translateY(-2px);
+    }
+
+    .alphabet-letter.active {
+        background: linear-gradient(135deg, var(--secondary), var(--primary));
+        color: white;
+        border-color: transparent;
+    }
+
+    /* Glossary Content */
+    .glossary-content {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 2rem;
+    }
+
+    @media (max-width: 768px) {
+        .glossary-content {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Sidebar Categories */
+    .glossary-categories {
+        position: sticky;
+        top: 2rem;
+        height: fit-content;
+    }
+
+    .categories-title {
+        font-size: 1.2rem;
+        color: var(--text);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .categories-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .category-btn {
+        padding: 0.75rem 1rem;
+        background: var(--card-bg);
+        border: 1px solid var(--glass);
+        border-radius: 8px;
+        color: var(--text-muted);
+        text-align: left;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .category-btn:hover {
+        background: rgba(139, 92, 246, 0.1);
+        color: var(--text);
+        transform: translateX(5px);
+    }
+
+    .category-btn.active {
+        background: linear-gradient(135deg, var(--secondary), var(--primary));
+        color: white;
+        border-color: transparent;
+    }
+
+    .category-count {
+        margin-left: auto;
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-muted);
+        padding: 0.2rem 0.6rem;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .category-btn.active .category-count {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+    }
+
+    /* Terms List */
+    .glossary-terms {
+        flex: 1;
+    }
+
+    .terms-section {
+        margin-bottom: 3rem;
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid rgba(139, 92, 246, 0.3);
+    }
+
+    .section-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        background: linear-gradient(135deg, var(--secondary), var(--primary));
+        color: white;
+    }
+
+    .section-info h2 {
+        color: var(--text);
+        margin: 0;
+        font-size: 1.5rem;
+    }
+
+    .section-info p {
+        color: var(--text-muted);
+        margin: 0.25rem 0 0 0;
+        font-size: 0.95rem;
+    }
+
+    .terms-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .term-card {
+        background: var(--card-bg);
+        border: 1px solid var(--glass);
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .term-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(to bottom, var(--secondary), var(--primary));
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .term-card:hover {
+        transform: translateY(-2px);
+        border-color: var(--secondary);
+        box-shadow: 0 10px 25px rgba(139, 92, 246, 0.1);
+    }
+
+    .term-card:hover::before {
+        opacity: 1;
+    }
+
+    .term-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.75rem;
+    }
+
+    .term-title {
+        font-size: 1.2rem;
+        color: var(--text);
+        margin: 0;
+    }
+
+    .term-subtitle {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        font-style: italic;
+        margin-top: 0.25rem;
+    }
+
+    .term-meta {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .term-category {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.3rem 0.6rem;
+        background: rgba(139, 92, 246, 0.2);
+        color: var(--secondary);
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .term-difficulty {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.3rem 0.6rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .difficulty-beginner {
+        background: rgba(16, 185, 129, 0.2);
+        color: var(--accent);
+    }
+
+    .difficulty-intermediate {
+        background: rgba(245, 158, 11, 0.2);
+        color: var(--warning);
+    }
+
+    .difficulty-advanced {
+        background: rgba(239, 68, 68, 0.2);
+        color: var(--danger);
+    }
+
+    .term-body {
+        margin-top: 1rem;
+    }
+
+    .term-definition {
+        color: var(--text-muted);
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+
+    .term-example {
+        background: rgba(255, 255, 255, 0.05);
+        border-left: 3px solid var(--secondary);
+        padding: 1rem;
+        border-radius: 0 8px 8px 0;
+        margin-top: 1rem;
+    }
+
+    .example-title {
+        color: var(--text);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .example-content {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        line-height: 1.5;
+        font-family: 'Courier New', monospace;
+    }
+
+    .term-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--glass);
+    }
+
+    .term-related {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .related-label {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+    }
+
+    .related-tags {
+        display: flex;
+        gap: 0.3rem;
+        flex-wrap: wrap;
+    }
+
+    .related-tag {
+        padding: 0.2rem 0.6rem;
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-muted);
+        border-radius: 10px;
+        font-size: 0.8rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .related-tag:hover {
+        background: rgba(139, 92, 246, 0.2);
+        color: var(--secondary);
+    }
+
+    .term-more {
+        color: var(--secondary);
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        transition: all 0.3s ease;
+    }
+
+    .term-more:hover {
+        color: var(--primary);
+        gap: 0.5rem;
+    }
+
+    /* No Results */
+    .no-results {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: var(--card-bg);
+        border-radius: 16px;
+        border: 1px solid var(--glass);
+    }
+
+    .no-results i {
+        font-size: 4rem;
+        color: var(--text-muted);
+        margin-bottom: 1.5rem;
+        opacity: 0.5;
+    }
+
+    .no-results h3 {
+        color: var(--text);
+        margin-bottom: 0.5rem;
+    }
+
+    .no-results p {
+        color: var(--text-muted);
+        margin-bottom: 1.5rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .glossary-content {
+            grid-template-columns: 1fr;
+        }
+
+        .glossary-header h1 {
+            font-size: 2rem;
+        }
+
+        .alphabet-nav {
+            padding: 0.5rem;
+        }
+
+        .alphabet-letter {
+            width: 35px;
+            height: 35px;
+            font-size: 0.9rem;
+        }
+
+        .term-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .term-footer {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="glossary-container">
+    <!-- Header -->
+    <div class="glossary-header">
+        <h1>📖 Glosarium Kriptografi</h1>
+        <p>Kamus lengkap istilah-istilah dalam dunia kriptografi dan keamanan informasi. Cari dan pelajari definisi penting.</p>
+    </div>
+
+    <!-- Search -->
+    <div class="glossary-search">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchGlossary" placeholder="Cari istilah kriptografi...">
+        <div class="search-hint">Tekan "Enter" untuk mencari atau klik huruf alfabet di bawah</div>
+    </div>
+
+    <!-- Alphabet Navigation -->
+    <div class="alphabet-nav" id="alphabetNav">
+        <div class="alphabet-letter" data-letter="all">All</div>
+        {% for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}
+            <div class="alphabet-letter" data-letter="{{ letter }}">{{ letter }}</div>
+        {% endfor %}
+    </div>
+
+    <!-- Glossary Content -->
+    <div class="glossary-content">
+        <!-- Sidebar Categories -->
+        <div class="glossary-categories">
+            <h3 class="categories-title">
+                <i class="fas fa-filter"></i> Kategori
+            </h3>
+            <div class="categories-list">
+                <button class="category-btn active" data-category="all">
+                    <i class="fas fa-layer-group"></i> Semua Istilah
+                    <span class="category-count">52</span>
+                </button>
+                <button class="category-btn" data-category="basic">
+                    <i class="fas fa-book"></i> Dasar
+                    <span class="category-count">15</span>
+                </button>
+                <button class="category-btn" data-category="classical">
+                    <i class="fas fa-landmark"></i> Cipher Klasik
+                    <span class="category-count">12</span>
+                </button>
+                <button class="category-btn" data-category="modern">
+                    <i class="fas fa-microchip"></i> Kriptografi Modern
+                    <span class="category-count">10</span>
+                </button>
+                <button class="category-btn" data-category="cryptanalysis">
+                    <i class="fas fa-crosshairs"></i> Kriptanalisis
+                    <span class="category-count">8</span>
+                </button>
+                <button class="category-btn" data-category="mathematics">
+                    <i class="fas fa-calculator"></i> Matematika
+                    <span class="category-count">7</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Terms List -->
+        <div class="glossary-terms">
+            <!-- Section: Basic Terms -->
+            <div class="terms-section" data-category="basic" data-letter="all">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="section-info">
+                        <h2>Istilah Dasar Kriptografi</h2>
+                        <p>Konsep fundamental yang perlu dipahami sebelum mempelajari kriptografi lebih lanjut</p>
+                    </div>
+                </div>
+
+                <div class="terms-grid">
+                    <!-- Term 1: Cryptography -->
+                    <div class="term-card" data-letter="C">
+                        <div class="term-header">
+                            <div>
+                                <h3 class="term-title">Cryptography (Kriptografi)</h3>
+                                <div class="term-subtitle">/krɪpˈtɒɡ.rə.fi/</div>
+                            </div>
+                            <div class="term-meta">
+                                <span class="term-category">
+                                    <i class="fas fa-book"></i> Dasar
+                                </span>
+                                <span class="term-difficulty difficulty-beginner">
+                                    <i class="fas fa-signal"></i> Pemula
+                                </span>
+                            </div>
+                        </div>
+                        <div class="term-body">
+                            <p class="term-definition">
+                                Ilmu dan seni menyembunyikan informasi untuk memastikan kerahasiaan, integritas, autentikasi, dan non-repudiasi. Dalam konteks komputer, kriptografi melibatkan teknik matematika untuk mengamankan komunikasi digital.
+                            </p>
+                            <div class="term-example">
+                                <div class="example-title">Contoh:</div>
+                                <div class="example-content">
+                                    "Kriptografi digunakan dalam transaksi online untuk melindungi data kartu kredit dari pencurian."
+                                </div>
+                            </div>
+                        </div>
+                        <div class="term-footer">
+                            <div class="term-related">
+                                <span class="related-label">Terkait:</span>
+                                <div class="related-tags">
+                                    <a href="#" class="related-tag">Enkripsi</a>
+                                    <a href="#" class="related-tag">Dekripsi</a>
+                                    <a href="#" class="related-tag">Kriptanalisis</a>
+                                </div>
+                            </div>
+                            <a href="#" class="term-more">
+                                Baca lebih lanjut <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Term 2: Plaintext -->
+                    <div class="term-card" data-letter="P">
+                        <div class="term-header">
+                            <div>
+                                <h3 class="term-title">Plaintext (Teks Terang)</h3>
+                                <div class="term-subtitle">/ˈpleɪn.tekst/</div>
+                            </div>
+                            <div class="term-meta">
+                                <span class="term-category">
+                                    <i class="fas fa-book"></i> Dasar
+                                </span>
+                                <span class="term-difficulty difficulty-beginner">
+                                    <i class="fas fa-signal"></i> Pemula
+                                </span>
+                            </div>
+                        </div>
+                        <div class="term-body">
+                            <p class="term-definition">
+                                Data atau informasi dalam bentuk asli yang dapat dibaca dan dimengerti sebelum melalui proses enkripsi. Plaintext adalah input untuk algoritma enkripsi dan output dari algoritma dekripsi.
+                            </p>
+                            <div class="term-example">
+                                <div class="example-title">Contoh:</div>
+                                <div class="example-content">
+                                    Plaintext: "HELLO WORLD"
+                                    <br>
+                                    Setelah enkripsi Caesar Cipher (shift 3):
+                                    <br>
+                                    Ciphertext: "KHOOR ZRUOG"
+                                </div>
+                            </div>
+                        </div>
+                        <div class="term-footer">
+                            <div class="term-related">
+                                <span class="related-label">Terkait:</span>
+                                <div class="related-tags">
+                                    <a href="#" class="related-tag">Ciphertext</a>
+                                    <a href="#" class="related-tag">Enkripsi</a>
+                                    <a href="#" class="related-tag">Dekripsi</a>
+                                </div>
+                            </div>
+                            <a href="#" class="term-more">
+                                Baca lebih lanjut <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Term 3: Ciphertext -->
+                    <div class="term-card" data-letter="C">
+                        <div class="term-header">
+                            <div>
+                                <h3 class="term-title">Ciphertext (Teks Sandi)</h3>
+                                <div class="term-subtitle">/ˈsaɪ.fər.tekst/</div>
+                            </div>
+                            <div class="term-meta">
+                                <span class="term-category">
+                                    <i class="fas fa-book"></i> Dasar
+                                </span>
+                                <span class="term-difficulty difficulty-beginner">
+                                    <i class="fas fa-signal"></i> Pemula
+                                </span>
+                            </div>
+                        </div>
+                        <div class="term-body">
+                            <p class="term-definition">
+                                Data atau informasi yang telah dienkripsi sehingga tidak dapat dibaca tanpa kunci dekripsi yang tepat. Ciphertext adalah output dari proses enkripsi dan input untuk proses dekripsi.
+                            </p>
+                            <div class="term-example">
+                                <div class="example-title">Contoh:</div>
+                                <div class="example-content">
+                                    Plaintext: "SEND HELP"
+                                    <br>
+                                    Ciphertext setelah enkripsi: "VHQG KHOS" (Caesar shift 3)
+                                </div>
+                            </div>
+                        </div>
+                        <div class="term-footer">
+                            <div class="term-related">
+                                <span class="related-label">Terkait:</span>
+                                <div class="related-tags">
+                                    <a href="#" class="related-tag">Plaintext</a>
+                                    <a href="#" class="related-tag">Enkripsi</a>
+                                    <a href="#" class="related-tag">Kunci</a>
+                                </div>
+                            </div>
+                            <a href="#" class="term-more">
+                                Baca lebih lanjut <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Term 4: Encryption -->
+                    <div class="term-card" data-letter="E">
+                        <div class="term-header">
+                            <div>
+                                <h3 class="term-title">Encryption (Enkripsi)</h3>
+                                <div class="term-subtitle">/ɪnˈkrɪp.ʃən/</div>
+                            </div>
+                            <div class="term-meta">
+                                <span class="term-category">
+                                    <i class="fas fa-book"></i> Dasar
+                                </span>
+                                <span class="term-difficulty difficulty-beginner">
+                                    <i class="fas fa-signal"></i> Pemula
+                                </span>
+                            </div>
+                        </div>
+                        <div class="term-body">
+                            <p class="term-definition">
+                                Proses mengubah plaintext menjadi ciphertext menggunakan algoritma kriptografi dan kunci. Tujuannya adalah untuk melindungi kerahasiaan informasi sehingga hanya pihak yang memiliki kunci yang sesuai yang dapat mengakses informasi asli.
+                            </p>
+                            <div class="term-example">
+                                <div class="example-title">Rumus (Caesar Cipher):</div>
+                                <div class="example-content">
+                                    E(x) = (x + k) mod 26
+                                    <br>
+                                    Dimana x adalah posisi huruf (A=0, B=1, ...), k adalah kunci (shift)
+                                </div>
+                            </div>
+                        </div>
+                        <div class="term-footer">
+                            <div class="term-related">
+                                <span class="related-label">Terkait:</span>
+                                <div class="related-tags">
+                                    <a href="#" class="related-tag">Dekripsi</a>
+                                    <a href="#" class="related-tag">Algoritma</a>
+                                    <a href="#" class="related-tag">Kunci</a>
+                                </div>
+                            </div>
+                            <a href="#" class="term-more">
+                                Baca lebih lanjut <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section: Classical Ciphers -->
+            <div class="terms-section" data-category="classical" data-letter="all">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-landmark"></i>
+                    </div>
+                    <div class="section-info">
+                        <h2>Cipher Klasik</h2>
+                        <p>Metode enkripsi tradisional yang digunakan sebelum era komputer</p>
+                    </div>
+                </div>
+
+                <div class="terms-grid">
+                    <!-- Term 5: Caesar Cipher -->
+                    <div class="term-card" data-letter="C">
+                        <div class="term-header">
+                            <div>
+                                <h3 class="term-title">Caesar Cipher</h3>
+                                <div class="term-subtitle">/ˈsiː.zər ˈsaɪ.fər/</div>
+                            </div>
+                            <div class="term-meta">
+                                <span class="term-category">
+                                    <i class="fas fa-landmark"></i> Cipher Klasik
+                                </span>
+                                <span class="term-difficulty difficulty-beginner">
+                                    <i class="fas fa-signal"></i> Pemula
+                                </span>
+                            </div>
+                        </div>
+                        <div class="term-body">
+                            <p class="term-definition">
+                                Cipher substitusi paling sederhana di mana setiap huruf dalam plaintext digeser sejumlah posisi tertentu dalam alfabet. Dinamakan sesuai Julius Caesar yang menggunakan cipher ini dengan shift 3 untuk komunikasi militer.
+                            </p>
+                            <div class="term-example">
+                                <div class="example-title">Contoh (Shift 3):</div>
+                                <div class="example-content">
+                                    Plaintext:  A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+                                    <br>
+                                    Ciphertext: D E F G H I J K L M N O P Q R S T U V W X Y Z A B C
+                                    <br>
+                                    "HELLO" → "KHOOR"
+                                </div>
+                            </div>
+                        </div>
+                        <div class="term-footer">
+                            <div class="term-related">
+                                <span class="related-label">Terkait:</span>
+                                <div class="related-tags">
+                                    <a href="#" class="related-tag">Substitusi</a>
+                                    <a href="#" class="related-tag">Shift Cipher</a>
+                                    <a href="#" class="related-tag">ROT13</a>
+                                </div>
+                            </div>
+                            <a href="#" class="term-more">
+                                Baca lebih lanjut <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Term 6: Vigenère Cipher -->
+                    <div class="term-card" data-letter="V">
+                        <div class="term-header">
+                            <div>
+                                <h3 class="term-title">Vigenère Cipher</h3>
+                                <div class="term-subtitle">/viːʒəˈnɛər ˈsaɪ.fər/</div>
+                            </div>
+                            <div class="term-meta">
+                                <span class="term-category">
+                                    <i class="fas fa-landmark"></i> Cipher Klasik
+                                </span>
+                                <span class="term-difficulty difficulty-intermediate">
+                                    <i class="fas fa-signal"></i> Menengah
+                                </span>
+                            </div>
+                        </div>
+                        <div class="term-body">
+                            <p class="term-definition">
+                                Cipher polialfabetik yang menggunakan tabel Vigenère dan kata kunci untuk enkripsi. Setiap huruf dalam plaintext menggunakan Caesar cipher yang berbeda berdasarkan huruf kunci yang bersesuaian.
+                            </p>
+                            <div class="term-example">
+                                <div class="example-title">Contoh dengan kunci "KEY":</div>
+                                <div class="example-content">
+                                    Plaintext:  H E L L O W O R L D
+                                    <br>
+                                    Kunci:      K E Y K E Y K E Y K
+                                    <br>
+                                    Ciphertext: R I B Z S O A S V N
+                                </div>
+                            </div>
+                        </div>
+                        <div class="term-footer">
+                            <div class="term-related">
+                                <span class="related-label">Terkait:</span>
+                                <div class="related-tags">
+                                    <a href="#" class="related-tag">Polialfabetik</a>
+                                    <a href="#" class="related-tag">Tabel Vigenère</a>
+                                    <a href="#" class="related-tag">Autokey Cipher</a>
+                                </div>
+                            </div>
+                            <a href="#" class="term-more">
+                                Baca lebih lanjut <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section: Modern Cryptography -->
+            <div class="terms-section" data-category="modern" data-letter="all">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-microchip"></i>
+                    </div>
+                    <div class="section-info">
+                        <h2>Kriptografi Modern</h2>
+                        <p>Algoritma dan teknik kriptografi yang digunakan dalam sistem komputer dan internet</p>
+                    </div>
+                </div>
+
+                <div class="terms-grid">
+                    <!-- Term 7: Symmetric Key -->
+                    <div class="term-card" data-letter="S">
+                        <div class="term-header">
+                            <div>
+                                <h3 class="term-title">Symmetric Key Cryptography</h3>
+                                <div class="term-subtitle">/sɪˈmet.rɪk kiː krɪpˈtɒɡ.rə.fi/</div>
+                            </div>
+                            <div class="term-meta">
+                                <span class="term-category">
+                                    <i class="fas fa-microchip"></i> Kriptografi Modern
+                                </span>
+                                <span class="term-difficulty difficulty-intermediate">
+                                    <i class="fas fa-signal"></i> Menengah
+                                </span>
+                            </div>
+                        </div>
+                        <div class="term-body">
+                            <p class="term-definition">
+                                Sistem kriptografi di mana kunci yang sama digunakan untuk enkripsi dan dekripsi. Juga dikenal sebagai kriptografi kunci rahasia. Contoh: AES, DES, 3DES, Blowfish.
+                            </p>
+                            <div class="term-example">
+                                <div class="example-title">Karakteristik:</div>
+                                <div class="example-content">
+                                    • Kecepatan tinggi
+                                    <br>
+                                    • Cocok untuk enkripsi data besar
+                                    <br>
+                                    • Masalah distribusi kunci
+                                    <br>
+                                    • AES adalah standar industri
+                                </div>
+                            </div>
+                        </div>
+                        <div class="term-footer">
+                            <div class="term-related">
+                                <span class="related-label">Terkait:</span>
+                                <div class="related-tags">
+                                    <a href="#" class="related-tag">Asymmetric Key</a>
+                                    <a href="#" class="related-tag">AES</a>
+                                    <a href="#" class="related-tag">DES</a>
+                                </div>
+                            </div>
+                            <a href="#" class="term-more">
+                                Baca lebih lanjut <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Term 8: Asymmetric Key -->
+                    <div class="term-card" data-letter="A">
+                        <div class="term-header">
+                            <div>
+                                <h3 class="term-title">Asymmetric Key Cryptography</h3>
+                                <div class="term-subtitle">/ˌeɪ.sɪˈmet.rɪk kiː krɪpˈtɒɡ.rə.fi/</div>
+                            </div>
+                            <div class="term-meta">
+                                <span class="term-category">
+                                    <i class="fas fa-microchip"></i> Kriptografi Modern
+                                </span>
+                                <span class="term-difficulty difficulty-advanced">
+                                    <i class="fas fa-signal"></i> Lanjutan
+                                </span>
+                            </div>
+                        </div>
+                        <div class="term-body">
+                            <p class="term-definition">
+                                Sistem kriptografi yang menggunakan sepasang kunci: kunci publik untuk enkripsi dan kunci privat untuk dekripsi. Juga dikenal sebagai kriptografi kunci publik. Contoh: RSA, ECC, Diffie-Hellman.
+                            </p>
+                            <div class="term-example">
+                                <div class="example-title">Aplikasi:</div>
+                                <div class="example-content">
+                                    • SSL/TLS untuk keamanan web
+                                    <br>
+                                    • Email enkripsi (PGP)
+                                    <br>
+                                    • Digital signatures
+                                    <br>
+                                    • Key exchange protocols
+                                </div>
+                            </div>
+                        </div>
+                        <div class="term-footer">
+                            <div class="term-related">
+                                <span class="related-label">Terkait:</span>
+                                <div class="related-tags">
+                                    <a href="#" class="related-tag">Symmetric Key</a>
+                                    <a href="#" class="related-tag">RSA</a>
+                                    <a href="#" class="related-tag">Public Key</a>
+                                </div>
+                            </div>
+                            <a href="#" class="term-more">
+                                Baca lebih lanjut <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchGlossary');
+        const alphabetLetters = document.querySelectorAll('.alphabet-letter');
+        const categoryButtons = document.querySelectorAll('.category-btn');
+        const termCards = document.querySelectorAll('.term-card');
+        const termSections = document.querySelectorAll('.terms-section');
+        const noResultsHtml = `
+            <div class="no-results">
+                <i class="fas fa-search"></i>
+                <h3>Tidak ditemukan</h3>
+                <p>Tidak ada istilah yang sesuai dengan pencarian Anda.</p>
+                <button onclick="clearSearch()" style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, var(--secondary), var(--primary)); color: white; border: none; border-radius: 8px; cursor: pointer;">
+                    <i class="fas fa-redo"></i> Reset Pencarian
+                </button>
+            </div>
+        `;
+
+        // Search functionality
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            filterTerms(searchTerm);
+        });
+
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                filterTerms(this.value.toLowerCase());
+            }
+        });
+
+        // Alphabet filter
+        alphabetLetters.forEach(letter => {
+            letter.addEventListener('click', function() {
+                const selectedLetter = this.getAttribute('data-letter');
+                
+                // Update active letter
+                alphabetLetters.forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Filter by letter
+                filterByLetter(selectedLetter);
+            });
+        });
+
+        // Category filter
+        categoryButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const category = this.getAttribute('data-category');
+                
+                // Update active category
+                categoryButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Filter by category
+                filterByCategory(category);
+            });
+        });
+
+        // Filter terms function
+        function filterTerms(searchTerm) {
+            let hasResults = false;
+            
+            termSections.forEach(section => {
+                const sectionCards = section.querySelectorAll('.term-card');
+                let sectionHasResults = false;
+                
+                sectionCards.forEach(card => {
+                    const title = card.querySelector('.term-title').textContent.toLowerCase();
+                    const definition = card.querySelector('.term-definition').textContent.toLowerCase();
+                    
+                    if (searchTerm === '' || title.includes(searchTerm) || definition.includes(searchTerm)) {
+                        card.style.display = 'block';
+                        card.style.animation = 'fadeIn 0.3s ease';
+                        sectionHasResults = true;
+                        hasResults = true;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+                
+                // Show/hide section based on results
+                section.style.display = sectionHasResults ? 'block' : 'none';
+            });
+            
+            // Show no results message
+            const termsContainer = document.querySelector('.glossary-terms');
+            let noResults = termsContainer.querySelector('.no-results');
+            
+            if (!hasResults) {
+                if (!noResults) {
+                    termsContainer.insertAdjacentHTML('beforeend', noResultsHtml);
+                }
+            } else {
+                if (noResults) {
+                    noResults.remove();
+                }
+            }
+        }
+
+        // Filter by letter
+        function filterByLetter(letter) {
+            if (letter === 'all') {
+                termCards.forEach(card => {
+                    card.style.display = 'block';
+                    card.style.animation = 'fadeIn 0.3s ease';
+                });
+                termSections.forEach(section => {
+                    section.style.display = 'block';
+                });
+                return;
+            }
+            
+            let hasResults = false;
+            
+            termSections.forEach(section => {
+                const sectionCards = section.querySelectorAll('.term-card');
+                let sectionHasResults = false;
+                
+                sectionCards.forEach(card => {
+                    const cardLetter = card.getAttribute('data-letter');
+                    
+                    if (cardLetter === letter) {
+                        card.style.display = 'block';
+                        card.style.animation = 'fadeIn 0.3s ease';
+                        sectionHasResults = true;
+                        hasResults = true;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+                
+                section.style.display = sectionHasResults ? 'block' : 'none';
+            });
+            
+            updateNoResults(hasResults);
+        }
+
+        // Filter by category
+        function filterByCategory(category) {
+            if (category === 'all') {
+                termSections.forEach(section => {
+                    section.style.display = 'block';
+                    section.querySelectorAll('.term-card').forEach(card => {
+                        card.style.display = 'block';
+                        card.style.animation = 'fadeIn 0.3s ease';
+                    });
+                });
+                return;
+            }
+            
+            let hasResults = false;
+            
+            termSections.forEach(section => {
+                const sectionCategory = section.getAttribute('data-category');
+                
+                if (sectionCategory === category) {
+                    section.style.display = 'block';
+                    section.querySelectorAll('.term-card').forEach(card => {
+                        card.style.display = 'block';
+                        card.style.animation = 'fadeIn 0.3s ease';
+                        hasResults = true;
+                    });
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+            
+            updateNoResults(hasResults);
+        }
+
+        // Update no results message
+        function updateNoResults(hasResults) {
+            const termsContainer = document.querySelector('.glossary-terms');
+            let noResults = termsContainer.querySelector('.no-results');
+            
+            if (!hasResults) {
+                if (!noResults) {
+                    termsContainer.insertAdjacentHTML('beforeend', noResultsHtml);
+                }
+            } else {
+                if (noResults) {
+                    noResults.remove();
+                }
+            }
+        }
+
+        // Clear search
+        window.clearSearch = function() {
+            searchInput.value = '';
+            alphabetLetters.forEach(l => l.classList.remove('active'));
+            alphabetLetters[0].classList.add('active'); // Select "All"
+            categoryButtons.forEach(btn => btn.classList.remove('active'));
+            categoryButtons[0].classList.add('active'); // Select "All"
+            
+            termSections.forEach(section => {
+                section.style.display = 'block';
+                section.querySelectorAll('.term-card').forEach(card => {
+                    card.style.display = 'block';
+                    card.style.animation = 'fadeIn 0.3s ease';
+                });
+            });
+            
+            const termsContainer = document.querySelector('.glossary-terms');
+            const noResults = termsContainer.querySelector('.no-results');
+            if (noResults) {
+                noResults.remove();
+            }
+        };
+
+        // Initialize with all terms showing
+        filterTerms('');
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,1612 @@
+{% extends "base.html" %}
+
+{% block title %}Tutorial - DecoDify{% endblock %}
+
+{% block extra_css %}
+<style>
+    .tutorials-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    .tutorials-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .tutorials-header h1 {
+        font-size: 2.5rem;
+        background: linear-gradient(135deg, var(--secondary), var(--primary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 1rem;
+    }
+
+    .tutorials-header p {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+        max-width: 600px;
+        margin: 0 auto 2rem;
+    }
+
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 3rem;
+    }
+
+    .stat-card {
+        background: var(--card-bg);
+        border: 1px solid var(--glass);
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--secondary);
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--secondary), var(--primary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: block;
+    }
+
+    .stat-label {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+
+    /* Search and Filter Enhanced */
+    .tutorials-controls {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        position: sticky;
+        top: 80px;
+        z-index: 100;
+        background: rgba(var(--bg-rgb), 0.95);
+        backdrop-filter: blur(10px);
+        padding: 1rem;
+        border-radius: 16px;
+        border: 1px solid var(--glass);
+    }
+
+    .search-box {
+        flex: 1;
+        min-width: 300px;
+        position: relative;
+    }
+
+    .search-box input {
+        width: 100%;
+        padding: 1rem 1rem 1rem 3rem;
+        background: var(--card-bg);
+        border: 1px solid var(--glass);
+        border-radius: 12px;
+        color: var(--text);
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .search-box input:focus {
+        outline: none;
+        border-color: var(--secondary);
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+    }
+
+    .search-box i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+    }
+
+    .filter-buttons {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-btn {
+        padding: 0.75rem 1.5rem;
+        background: var(--card-bg);
+        border: 1px solid var(--glass);
+        border-radius: 12px;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .filter-btn:hover {
+        background: rgba(139, 92, 246, 0.1);
+        color: var(--text);
+        transform: translateY(-2px);
+    }
+
+    .filter-btn.active {
+        background: linear-gradient(135deg, var(--secondary), var(--primary));
+        color: white;
+        border-color: transparent;
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    }
+
+    .filter-btn i {
+        font-size: 0.8rem;
+    }
+
+    /* Category Styles */
+    .tutorial-category {
+        margin-bottom: 4rem;
+        opacity: 1;
+        transform: translateY(0);
+        transition: all 0.5s ease;
+    }
+
+    .tutorial-category.hidden {
+        opacity: 0;
+        transform: translateY(20px);
+        display: none;
+    }
+
+    .category-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        border-radius: 16px;
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(99, 102, 241, 0.05));
+        border: 1px solid rgba(139, 92, 246, 0.2);
+    }
+
+    .category-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        background: linear-gradient(135deg, var(--secondary), var(--primary));
+        color: white;
+        flex-shrink: 0;
+    }
+
+    .category-info {
+        flex: 1;
+    }
+
+    .category-info h2 {
+        color: var(--text);
+        margin: 0;
+        font-size: 1.8rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .category-info p {
+        color: var(--text-muted);
+        margin: 0.5rem 0 0 0;
+        line-height: 1.6;
+    }
+
+    .category-count {
+        background: var(--secondary);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .category-progress {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .progress-stats {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+    }
+
+    /* Tutorial Grid */
+    .tutorial-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1rem;
+    }
+
+    .tutorial-card {
+        background: var(--card-bg);
+        border: 1px solid var(--glass);
+        border-radius: 16px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        position: relative;
+        opacity: 1;
+        transform: translateY(0);
+        animation: fadeInUp 0.5s ease forwards;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .tutorial-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--secondary);
+        box-shadow: 0 15px 30px rgba(139, 92, 246, 0.2);
+    }
+
+    .tutorial-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+    }
+
+    .tutorial-meta {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .difficulty-badge {
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .difficulty-badge.beginner {
+        background: rgba(16, 185, 129, 0.2);
+        color: var(--accent);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .difficulty-badge.intermediate {
+        background: rgba(245, 158, 11, 0.2);
+        color: var(--warning);
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .difficulty-badge.advanced {
+        background: rgba(239, 68, 68, 0.2);
+        color: var(--danger);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .time-badge {
+        background: rgba(99, 102, 241, 0.2);
+        color: var(--secondary);
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .chapter-count {
+        background: rgba(139, 92, 246, 0.2);
+        color: var(--primary);
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .tutorial-card h3 {
+        color: var(--text);
+        margin: 0 0 1rem 0;
+        font-size: 1.2rem;
+        line-height: 1.4;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .tutorial-icon {
+        color: var(--secondary);
+        font-size: 1rem;
+    }
+
+    .tutorial-card p {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+    }
+
+    .tutorial-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .tutorial-tag {
+        padding: 0.25rem 0.75rem;
+        background: rgba(139, 92, 246, 0.1);
+        color: var(--secondary);
+        border-radius: 12px;
+        font-size: 0.8rem;
+        border: 1px solid rgba(139, 92, 246, 0.2);
+    }
+
+    .tutorial-card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 1rem;
+        border-top: 1px solid var(--glass);
+    }
+
+    .tutorial-progress {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .progress-bar {
+        width: 100px;
+        height: 6px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--secondary), var(--primary));
+        border-radius: 3px;
+        transition: width 0.5s ease;
+    }
+
+    .progress-text {
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        min-width: 40px;
+    }
+
+    .start-tutorial-btn {
+        padding: 0.5rem 1.2rem;
+        background: linear-gradient(135deg, var(--secondary), var(--primary));
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        white-space: nowrap;
+    }
+
+    .start-tutorial-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4);
+    }
+
+    /* Featured Tutorial */
+    .featured-tutorial {
+        grid-column: 1 / -1;
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(99, 102, 241, 0.1));
+        border: 2px solid rgba(139, 92, 246, 0.3);
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .featured-tutorial::before {
+        content: '⭐ FITUR UTAMA';
+        position: absolute;
+        top: 0;
+        right: 0;
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        border-bottom-left-radius: 12px;
+    }
+
+    .featured-tutorial .tutorial-card-header {
+        margin-bottom: 1.5rem;
+    }
+
+    .featured-tutorial h3 {
+        font-size: 1.4rem;
+        color: var(--text);
+    }
+
+    .featured-tutorial p {
+        font-size: 1rem;
+        color: var(--text-muted);
+    }
+
+    /* Premium Tutorial */
+    .tutorial-card.premium {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .tutorial-card.premium::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        transform: rotate(45deg) translate(30px, -30px);
+    }
+
+    .premium-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        z-index: 1;
+    }
+
+    /* New Tutorial */
+    .tutorial-card.new::after {
+        content: 'NEW';
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        background: linear-gradient(135deg, var(--accent), #059669);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        z-index: 1;
+    }
+
+    /* Search Results */
+    .search-results-header {
+        display: none;
+        margin-bottom: 2rem;
+        padding: 1rem;
+        background: rgba(139, 92, 246, 0.1);
+        border-radius: 12px;
+        border: 1px solid rgba(139, 92, 246, 0.2);
+    }
+
+    .search-results-header.show {
+        display: block;
+        animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .results-count {
+        color: var(--text);
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .clear-search {
+        background: none;
+        border: 1px solid var(--glass);
+        color: var(--text-muted);
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-left: 1rem;
+    }
+
+    .clear-search:hover {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+        border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        display: none;
+    }
+
+    .empty-state.show {
+        display: block;
+        animation: fadeIn 0.5s ease;
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: var(--text-muted);
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .empty-state h3 {
+        color: var(--text);
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state p {
+        color: var(--text-muted);
+        max-width: 400px;
+        margin: 0 auto;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .tutorial-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .tutorials-header h1 {
+            font-size: 2rem;
+        }
+
+        .category-info h2 {
+            font-size: 1.5rem;
+        }
+
+        .tutorials-controls {
+            flex-direction: column;
+        }
+
+        .search-box {
+            min-width: 100%;
+        }
+
+        .filter-buttons {
+            justify-content: center;
+        }
+
+        .category-header {
+            flex-direction: column;
+            text-align: center;
+            gap: 1rem;
+        }
+
+        .category-progress {
+            justify-content: center;
+        }
+
+        .stats-container {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 480px) {
+        .stats-container {
+            grid-template-columns: 1fr;
+        }
+        
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+        
+        .tutorial-card {
+            padding: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="tutorials-container">
+    <!-- Header -->
+    <div class="tutorials-header">
+        <h1>📚 Tutorial Kriptografi Lengkap</h1>
+        <p>Pelajari konsep kriptografi dari dasar hingga lanjutan melalui tutorial interaktif yang mudah dipahami. Setiap tutorial dilengkapi dengan materi lengkap, contoh kode, dan latihan praktis.</p>
+    </div>
+
+    <!-- Search Results Header -->
+    <div class="search-results-header" id="searchResultsHeader">
+        <span class="results-count" id="resultsCount">0 hasil ditemukan</span>
+        <button class="clear-search" id="clearSearch">
+            <i class="fas fa-times"></i> Hapus Pencarian
+        </button>
+    </div>
+
+    <!-- Controls -->
+    <div class="tutorials-controls">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchTutorial" placeholder="Cari tutorial, materi, atau konsep...">
+        </div>
+        <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="all">
+                <i class="fas fa-layer-group"></i> Semua
+            </button>
+            <button class="filter-btn" data-filter="free">
+                <i class="fas fa-unlock"></i> Gratis
+            </button>
+            <button class="filter-btn" data-filter="premium">
+                <i class="fas fa-crown"></i> Premium
+            </button>
+            <button class="filter-btn" data-filter="beginner">
+                <i class="fas fa-seedling"></i> Pemula
+            </button>
+            <button class="filter-btn" data-filter="intermediate">
+                <i class="fas fa-chart-line"></i> Menengah
+            </button>
+            <button class="filter-btn" data-filter="advanced">
+                <i class="fas fa-rocket"></i> Lanjutan
+            </button>
+            <button class="filter-btn" data-filter="new">
+                <i class="fas fa-star"></i> Baru
+            </button>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" id="emptyState">
+        <i class="fas fa-search"></i>
+        <h3>Tidak ada hasil ditemukan</h3>
+        <p>Coba gunakan kata kunci yang berbeda atau hapus filter untuk melihat semua tutorial.</p>
+        <button class="clear-search" id="clearAllFilters">
+            <i class="fas fa-redo"></i> Reset Filter
+        </button>
+    </div>
+
+    <!-- Category: Dasar Kriptografi -->
+    <div class="tutorial-category" data-category="dasar" id="categoryDasar">
+        <div class="category-header">
+            <div class="category-icon">
+                <i class="fas fa-lock"></i>
+            </div>
+            <div class="category-info">
+                <h2>Dasar-Dasar Kriptografi <span class="category-count">6 Tutorial</span></h2>
+                <p>Mulai dari nol dengan konsep dasar yang penting untuk dipahami sebelum melanjutkan ke topik yang lebih kompleks</p>
+                <div class="category-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 85%"></div>
+                    </div>
+                    <span class="progress-stats">5/6 tutorial selesai</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="tutorial-grid">
+            <!-- Featured Tutorial -->
+            <a href="/tutorial/caesar-cipher/detail" class="tutorial-card featured-tutorial">
+                <div class="tutorial-card-header">
+                    <div class="tutorial-meta">
+                        <span class="difficulty-badge beginner"><i class="fas fa-seedling"></i> Pemula</span>
+                        <span class="time-badge"><i class="fas fa-clock"></i> 30 menit</span>
+                        <span class="chapter-count"><i class="fas fa-list-ol"></i> 5 Bab</span>
+                    </div>
+                </div>
+                <h3><i class="fas fa-chess-king tutorial-icon"></i> Caesar Cipher: Cipher Pertama dalam Sejarah</h3>
+                <p>Pelajari cipher substitusi paling terkenal yang digunakan Julius Caesar. Tutorial ini akan membimbing Anda memahami konsep dasar enkripsi dan dekripsi melalui contoh praktis dengan implementasi Python.</p>
+                <div class="tutorial-tags">
+                    <span class="tutorial-tag">Substitusi</span>
+                    <span class="tutorial-tag">Sejarah</span>
+                    <span class="tutorial-tag">Python</span>
+                    <span class="tutorial-tag">Praktis</span>
+                </div>
+                <div class="tutorial-card-footer">
+                    <div class="tutorial-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 85%"></div>
+                        </div>
+                        <span class="progress-text">85%</span>
+                    </div>
+                    <span class="start-tutorial-btn">Lanjutkan Belajar</span>
+                </div>
+            </a>
+
+            <!-- Regular Tutorials -->
+            <a href="/tutorial/introduction-cryptography/detail" class="tutorial-card">
+                <div class="tutorial-card-header">
+                    <div class="tutorial-meta">
+                        <span class="difficulty-badge beginner"><i class="fas fa-seedling"></i> Pemula</span>
+                        <span class="time-badge"><i class="fas fa-clock"></i> 20 menit</span>
+                        <span class="chapter-count"><i class="fas fa-list-ol"></i> 3 Bab</span>
+                    </div>
+                </div>
+                <h3><i class="fas fa-book-open tutorial-icon"></i> Apa itu Kriptografi?</h3>
+                <p>Pengenalan konsep kriptografi, sejarah dari masa Mesir kuno hingga modern, dan aplikasinya dalam kehidupan sehari-hari seperti messaging apps dan perbankan online.</p>
+                <div class="tutorial-tags">
+                    <span class="tutorial-tag">Pengenalan</span>
+                    <span class="tutorial-tag">Sejarah</span>
+                    <span class="tutorial-tag">Konsep Dasar</span>
+                </div>
+                <div class="tutorial-card-footer">
+                    <div class="tutorial-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 100%"></div>
+                        </div>
+                        <span class="progress-text">100%</span>
+                    </div>
+                    <span class="start-tutorial-btn"><i class="fas fa-redo"></i> Review</span>
+                </div>
+            </a>
+
+            <a href="/tutorial/terminology/detail" class="tutorial-card">
+                <div class="tutorial-card-header">
+                    <div class="tutorial-meta">
+                        <span class="difficulty-badge beginner"><i class="fas fa-seedling"></i> Pemula</span>
+                        <span class="time-badge"><i class="fas fa-clock"></i> 25 menit</span>
+                        <span class="chapter-count"><i class="fas fa-list-ol"></i> 4 Bab</span>
+                    </div>
+                </div>
+                <h3><i class="fas fa-glossary tutorial-icon"></i> Istilah Penting dalam Kriptografi</h3>
+                <p>Plaintext, ciphertext, enkripsi, dekripsi, kunci, algoritma, dan istilah penting lainnya yang wajib dikuasai oleh pemula.</p>
+                <div class="tutorial-tags">
+                    <span class="tutorial-tag">Terminologi</span>
+                    <span class="tutorial-tag">Konsep</span>
+                    <span class="tutorial-tag">Dasar</span>
+                </div>
+                <div class="tutorial-card-footer">
+                    <div class="tutorial-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 100%"></div>
+                        </div>
+                        <span class="progress-text">100%</span>
+                    </div>
+                    <span class="start-tutorial-btn"><i class="fas fa-redo"></i> Review</span>
+                </div>
+            </a>
+
+            <a href="/tutorial/substitution-ciphers/detail" class="tutorial-card new">
+                <div class="tutorial-card-header">
+                    <div class="tutorial-meta">
+                        <span class="difficulty-badge beginner"><i class="fas fa-seedling"></i> Pemula</span>
+                        <span class="time-badge"><i class="fas fa-clock"></i> 35 menit</span>
+                        <span class="chapter-count"><i class="fas fa-list-ol"></i> 6 Bab</span>
+                    </div>
+                </div>
+                <h3><i class="fas fa-exchange-alt tutorial-icon"></i> Cipher Substitusi Lainnya</h3>
+                <p>Atbash, ROT13, dan variasi cipher substitusi lainnya dengan contoh implementasi dan kelemahannya.</p>
+                <div class="tutorial-tags">
+                    <span class="tutorial-tag">Substitusi</span>
+                    <span class="tutorial-tag">Variasi</span>
+                    <span class="tutorial-tag">Python</span>
+                </div>
+                <div class="tutorial-card-footer">
+                    <div class="tutorial-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 0%"></div>
+                        </div>
+                        <span class="progress-text">0%</span>
+                    </div>
+                    <span class="start-tutorial-btn">Mulai Belajar</span>
+                </div>
+            </a>
+
+            <a href="/tutorial/cryptography-types/detail" class="tutorial-card">
+                <div class="tutorial-card-header">
+                    <div class="tutorial-meta">
+                        <span class="difficulty-badge beginner"><i class="fas fa-seedling"></i> Pemula</span>
+                        <span class="time-badge"><i class="fas fa-clock"></i> 30 menit</span>
+                        <span class="chapter-count"><i class="fas fa-list-ol"></i> 4 Bab</span>
+                    </div>
+                </div>
+                <h3><i class="fas fa-sitemap tutorial-icon"></i> Jenis-jenis Kriptografi</h3>
+                <p>Simetris vs Asimetris, Kriptografi Kunci Publik, Hash Functions, dan Digital Signatures.</p>
+                <div class="tutorial-tags">
+                    <span class="tutorial-tag">Klasifikasi</span>
+                    <span class="tutorial-tag">Sistem</span>
+                    <span class="tutorial-tag">Jenis</span>
+                </div>
+                <div class="tutorial-card-footer">
+                    <div class="tutorial-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 70%"></div>
+                        </div>
+                        <span class="progress-text">70%</span>
+                    </div>
+                    <span class="start-tutorial-btn">Lanjutkan</span>
+                </div>
+            </a>
+
+            <a href="/tutorial/binary-numbers/detail" class="tutorial-card">
+                <div class="tutorial-card-header">
+                    <div class="tutorial-meta">
+                        <span class="difficulty-badge beginner"><i class="fas fa-seedling"></i> Pemula</span>
+                        <span class="time-badge"><i class="fas fa-clock"></i> 40 menit</span>
+                        <span class="chapter-count"><i class="fas fa-list-ol"></i> 5 Bab</span>
+                    </div>
+                </div>
+                <h3><i class="fas fa-calculator tutorial-icon"></i> Matematika Dasar untuk Kriptografi</h3>
+                <p>Sistem bilangan biner, operasi bitwise, dan konsep matematika penting untuk memahami kriptografi modern.</p>
+                <div class="tutorial-tags">
+                    <span class="tutorial-tag">Matematika</span>
+                    <span class="tutorial-tag">Binary</span>
+                    <span class="tutorial-tag">Bitwise</span>
+                </div>
+                <div class="tutorial-card-footer">
+                    <div class="tutorial-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 100%"></div>
+                        </div>
+                        <span class="progress-text">100%</span>
+                    </div>
+                    <span class="start-tutorial-btn"><i class="fas fa-redo"></i> Review</span>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Category: Cipher Klasik -->
+    <div class="tutorial-category" data-category="klasik" id="categoryKlasik">
+        <div class="category-header">
+            <div class="category-icon">
+                <i class="fas fa-landmark"></i>
+            </div>
+            <div class="category-info">
+                <h2>Cipher Klasik <span class="category-count">8 Tutorial</span></h2>
+                <p>Pelajari cipher-cipher bersejarah yang membentuk dasar kriptografi modern dan pahami mengapa mereka tidak lagi aman</p>
+                <div class="category-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 45%"></div>
+                    </div>
+                    <span class="progress-stats">3/8 tutorial selesai</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="tutorial-grid">
+            <a href="/tutorial/vigenere-cipher/detail" class="tutorial-card">
+                <div class="tutorial-card-header">
+                    <div class="tutorial-meta">
+                        <span class="difficulty-badge intermediate"><i class="fas fa-chart-line"></i> Menengah</span>
+                        <span class="time-badge"><i class="fas fa-clock"></i> 45 menit</span>
+                        <span class="chapter-count"><i class="fas fa-list-ol"></i> 7 Bab</span>
+                    </div>
+                </div>
+                <h3><i class="fas fa-table tutorial-icon"></i> Vigenère Cipher: Cipher Polialfabetik Pertama</h3>
+                <p>Pahami bagaimana Vigenère cipher menggunakan tabel dan keyword untuk enkripsi yang lebih aman dan kompleks dibanding Caesar cipher.</p>
+                <div class="tutorial-tags">
+                    <span class="tutorial-tag">Polialfabetik</span>
+                    <span class="tutorial-tag">Tabel</span>
+                    <span class="tutorial-tag">Keyword</span>
+                    <span class="tutorial-tag">Python</span>
+                </div>
+                <div class="tutorial-card-footer">
+                    <div class="tutorial-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 60%"></div>
+                        </div>
+                        <span class="progress-text">60%</span>
+                    </div>
+                    <span class="start-tutorial-btn">Lanjutkan</span>
+                </div>
+            </a>
+
+            <a href="/tutorial/playfair-cipher/detail" class="tutorial-card premium">
+                <div class="premium-badge">
+                    <i class="fas fa-crown"></i> PREMIUM
+                </div>
+                <div class="tutorial-card-header">
+                    <div class="tutorial-meta">
+                        <span class="difficulty-badge intermediate"><i class="fas fa-chart-line"></i> Menengah</span>
+                        <span class="time-badge"><i class="fas fa-clock"></i> 50 menit</span>
+                        <span class="chapter-count"><i class="fas fa-list-ol"></i> 6 Bab</span>
+                    </div>
+                </div>
+                <h3><i class="fas fa-th tutorial-icon"></i> Playfair Cipher: Cipher Digraph</h3>
+                <p>Pelajari cipher berbasis matriks 5×5 yang digunakan dalam Perang Dunia I dan II dengan teknik penyusunan pasangan huruf.</p>
+                <div class="tutorial-tags">
+                    <span class="tutorial-tag">Matriks</span>
+                    <span class="tutorial-tag">Digraph</span>
+                    <span class="tutorial-tag">Sejarah</span>
+                    <span class="tutorial-tag">Premium</span>
+                </div>
+                <div class="tutorial-card-footer">
+                    <span class="start-tutorial-btn">Mulai Belajar</span>
+                </div>
+            </a>
+
+            <a href="/tutorial/hill-cipher/detail" class="tutorial-card premium">
+                <div class="premium-badge">
+                    <i class="fas fa-crown"></i> PREMIUM
+                </div>
+                <div class="tutorial-card-header">
+                    <div class="tutorial-meta">
+                        <span class="difficulty-badge advanced"><i class="fas fa-rocket"></i> Lanjutan</span>
+                        <span class="time-badge"><i class="fas fa-clock"></i> 60 menit</span>
+                        <span class="chapter-count"><i class="fas fa-list-ol"></i> 8 Bab</span>
+                    </div>
+                </div>
+                <h3><i class="fas fa-square-root-alt tutorial-icon"></i> Hill Cipher: Matematika dalam Kriptografi</h3>
+                <p>Eksplorasi penggunaan aljabar linear dan matriks dalam enkripsi dan dekripsi dengan determinan dan invers matriks.</p>
+                <div class="tutorial-tags">
+                    <span class="tutorial-tag">Matriks</span>
+                    <span class="tutorial-tag">Aljabar Linear</span>
+                    <span class="tutorial-tag">Matematika</span>
+                    <span class="tutorial-tag">Premium</span>
+                </div>
+                <div class="tutorial-card-footer">
+                    <span class="start-tutorial-btn">Mulai Belajar</span>
+                </div>
+            </a>
+
+            <a href="/tutorial/transposition-ciphers/detail" class="tutorial-card new">
+                <div class="tutorial-card-header">
+                    <div class="tutorial-meta">
+                        <span class="difficulty-badge intermediate"><i class="fas fa-chart-line"></i> Menengah</span>
+                        <span class="time-badge"><i class="fas fa-clock"></i> 40 menit</span>
+                        <span class="chapter-count"><i class="fas fa-list-ol"></i> 5 Bab</span>
+                    </div>
+                </div>
+                <h3><i class="fas fa-random tutorial-icon"></i> Cipher Transposisi</h3>
+                <p>Rail Fence, Columnar, dan Route Ciphers yang mengatur ulang posisi karakter daripada menggantinya.</p>
+                <div class="tutorial-tags">
+                    <span class="tutorial-tag">Transposisi</span>
+                    <span class="tutorial-tag">Pengaturan</span>
+                    <span class="tutorial-tag">Metode</span>
+                </div>
+                <div class="tutorial-card-footer">
+                    <div class="tutorial-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 30%"></div>
+                        </div>
+                        <span class="progress-text">30%</span>
+                    </div>
+                    <span class="start-tutorial-btn">Lanjutkan</span>
+                </div>
+            </a>
+
+            <a href="/tutorial/enigma-machine/detail" class="tutorial-card premium">
+                <div class="premium-badge">
+                    <i class="fas fa-crown"></i> PREMIUM
+                </div>
+                <div class="tutorial-card-header">
+                    <div class="tutorial-meta">
+                        <span class="difficulty-badge intermediate"><i class="fas fa-chart-line"></i> Menengah</span>
+                        <span class="time-badge"><i class="fas fa-clock"></i> 55 menit</span>
+                        <span class="chapter-count"><i class="fas fa-list-ol"></i> 7 Bab</span>
+                    </div>
+                </div>
+                <h3><i class="fas fa-cogs tutorial-icon"></i> Mesin Enigma: Simbol Perang Dunia</h3>
+                <p>Pelajari mesin enkripsi mekanik yang digunakan Jerman dalam Perang Dunia II dan bagaimana ia akhirnya dipecahkan.</p>
+                <div class="tutorial-tags">
+                    <span class="tutorial-tag">Sejarah</span>
+                    <span class="tutorial-tag">Mekanik</span>
+                    <span class="tutorial-tag">Perang Dunia</span>
+                    <span class="tutorial-tag">Premium</span>
+                </div>
+                <div class="tutorial-card-footer">
+                    <span class="start-tutorial-btn">Mulai Belajar</span>
+                </div>
+            </a>
+
+            <a href="/tutorial/one-time-pad/detail" class="tutorial-card">
+                <div class="tutorial-card-header">
+                    <div class="tutorial-meta">
+                        <span class="difficulty-badge intermediate"><i class="fas fa-chart-line"></i> Menengah</span>
+                        <span class="time-badge"><i class="fas fa-clock"></i> 35 menit</span>
+                        <span class="chapter-count"><i class="fas fa-list-ol"></i> 4 Bab</span>
+                    </div>
+                </div>
+                <h3><i class="fas fa-key tutorial-icon"></i> One-Time Pad: Cipher Sempurna</h3>
+                <p>Pahami mengapa One-Time Pad dianggap sebagai satu-satunya cipher yang terbukti secara matematis tidak dapat dipecahkan.</p>
+                <div class="tutorial-tags">
+                    <span class="tutorial-tag">Sempurna</span>
+                    <span class="tutorial-tag">Teori</span>
+                    <span class="tutorial-tag">Matematis</span>
+                </div>
+                <div class="tutorial-card-footer">
+                    <div class="tutorial-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 100%"></div>
+                        </div>
+                        <span class="progress-text">100%</span>
+                    </div>
+                    <span class="start-tutorial-btn"><i class="fas fa-redo"></i> Review</span>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Category: Kriptografi Modern -->
+    <div class="tutorial-category" data-category="modern" id="categoryModern">
+        <div class="category-header">
+            <div class="category-icon">
+                <i class="fas fa-microchip"></i>
+            </div>
+            <div class="category-info">
+                <h2>Kriptografi Modern <span class="category-count">5 Tutorial</span></h2>
+                <p>Teknik enkripsi yang digunakan dalam keamanan komputer, internet, dan aplikasi modern saat ini</p>
+                <div class="category-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 20%"></div>
+                    </div>
+                    <span class="progress-stats">1/5 tutorial selesai</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="tutorial-grid">
+            <a href="/tutorial/rsa-encryption/detail" class="tutorial-card premium">
+                <div class="premium-badge">
+                    <i class="fas fa-crown"></i> PREMIUM
+                </div>
+                <div class="tutorial-card-header">
+                    <div class="tutorial-meta">
+                        <span class="difficulty-badge advanced"><i class="fas fa-rocket"></i> Lanjutan</span>
+                        <span class="time-badge"><i class="fas fa-clock"></i> 90 menit</span>
+                        <span class="chapter-count"><i class="fas fa-list-ol"></i> 10 Bab</span>
+                    </div>
+                </div>
+                <h3><i class="fas fa-keyboard tutorial-icon"></i> RSA Encryption: Kriptografi Kunci Publik</h3>
+                <p>Pahami konsep kunci publik dan privat dalam kriptografi asimetris modern dengan bilangan prima dan modulus.</p>
+                <div class="tutorial-tags">
+                    <span class="tutorial-tag">Asimetris</span>
+                    <span class="tutorial-tag">Kunci Publik</span>
+                    <span class="tutorial-tag">Matematika</span>
+                    <span class="tutorial-tag">Premium</span>
+                </div>
+                <div class="tutorial-card-footer">
+                    <span class="start-tutorial-btn">Mulai Belajar</span>
+                </div>
+            </a>
+
+            <a href="/tutorial/aes-encryption/detail" class="tutorial-card premium">
+                <div class="premium-badge">
+                    <i class="fas fa-crown"></i> PREMIUM
+                </div>
+                <div class="tutorial-card-header">
+                    <div class="tutorial-meta">
+                        <span class="difficulty-badge advanced"><i class="fas fa-rocket"></i> Lanjutan</span>
+                        <span class="time-badge"><i class="fas fa-clock"></i> 75 menit</span>
+                        <span class="chapter-count"><i class="fas fa-list-ol"></i> 9 Bab</span>
+                    </div>
+                </div>
+                <h3><i class="fas fa-shield-alt tutorial-icon"></i> AES: Advanced Encryption Standard</h3>
+                <p>Pelajari algoritma standar industri untuk enkripsi data simetris dengan transformasi byte dan round keys.</p>
+                <div class="tutorial-tags">
+                    <span class="tutorial-tag">Simetris</span>
+                    <span class="tutorial-tag">Standar</span>
+                    <span class="tutorial-tag">Industri</span>
+                    <span class="tutorial-tag">Premium</span>
+                </div>
+                <div class="tutorial-card-footer">
+                    <span class="start-tutorial-btn">Mulai Belajar</span>
+                </div>
+            </a>
+
+            <a href="/tutorial/hash-functions/detail" class="tutorial-card premium">
+                <div class="premium-badge">
+                    <i class="fas fa-crown"></i> PREMIUM
+                </div>
+                <div class="tutorial-card-header">
+                    <div class="tutorial-meta">
+                        <span class="difficulty-badge intermediate"><i class="fas fa-chart-line"></i> Menengah</span>
+                        <span class="time-badge"><i class="fas fa-clock"></i> 55 menit</span>
+                        <span class="chapter-count"><i class="fas fa-list-ol"></i> 7 Bab</span>
+                    </div>
+                </div>
+                <h3><i class="fas fa-fingerprint tutorial-icon"></i> Fungsi Hash Kriptografi</h3>
+                <p>MD5, SHA-256, dan teknik hashing untuk keamanan password, integritas data, dan blockchain.</p>
+                <div class="tutorial-tags">
+                    <span class="tutorial-tag">Hash</span>
+                    <span class="tutorial-tag">Integritas</span>
+                    <span class="tutorial-tag">Password</span>
+                    <span class="tutorial-tag">Premium</span>
+                </div>
+                <div class="tutorial-card-footer">
+                    <span class="start-tutorial-btn">Mulai Belajar</span>
+                </div>
+            </a>
+
+            <a href="/tutorial/diffie-hellman/detail" class="tutorial-card premium">
+                <div class="premium-badge">
+                    <i class="fas fa-crown"></i> PREMIUM
+                </div>
+                <div class="tutorial-card-header">
+                    <div class="tutorial-meta">
+                        <span class="difficulty-badge advanced"><i class="fas fa-rocket"></i> Lanjutan</span>
+                        <span class="time-badge"><i class="fas fa-clock"></i> 65 menit</span>
+                        <span class="chapter-count"><i class="fas fa-list-ol"></i> 8 Bab</span>
+                    </div>
+                </div>
+                <h3><i class="fas fa-handshake tutorial-icon"></i> Diffie-Hellman Key Exchange</h3>
+                <p>Protokol untuk menukar kunci kriptografi melalui saluran yang tidak aman menggunakan masalah logaritma diskrit.</p>
+                <div class="tutorial-tags">
+                    <span class="tutorial-tag">Key Exchange</span>
+                    <span class="tutorial-tag">Protokol</span>
+                    <span class="tutorial-tag">Matematika</span>
+                    <span class="tutorial-tag">Premium</span>
+                </div>
+                <div class="tutorial-card-footer">
+                    <span class="start-tutorial-btn">Mulai Belajar</span>
+                </div>
+            </a>
+
+            <a href="/tutorial/elliptic-curve/detail" class="tutorial-card premium">
+                <div class="premium-badge">
+                    <i class="fas fa-crown"></i> PREMIUM
+                </div>
+                <div class="tutorial-card-header">
+                    <div class="tutorial-meta">
+                        <span class="difficulty-badge advanced"><i class="fas fa-rocket"></i> Lanjutan</span>
+                        <span class="time-badge"><i class="fas fa-clock"></i> 80 menit</span>
+                        <span class="chapter-count"><i class="fas fa-list-ol"></i> 9 Bab</span>
+                    </div>
+                </div>
+                <h3><i class="fas fa-infinity tutorial-icon"></i> Elliptic Curve Cryptography</h3>
+                <p>Kriptografi kurva eliptis untuk keamanan yang lebih tinggi dengan kunci yang lebih pendek, digunakan dalam Bitcoin dan TLS.</p>
+                <div class="tutorial-tags">
+                    <span class="tutorial-tag">ECC</span>
+                    <span class="tutorial-tag">Bitcoin</span>
+                    <span class="tutorial-tag">Matematika</span>
+                    <span class="tutorial-tag">Premium</span>
+                </div>
+                <div class="tutorial-card-footer">
+                    <span class="start-tutorial-btn">Mulai Belajar</span>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Category: Cryptanalysis -->
+    <div class="tutorial-category" data-category="cryptanalysis" id="categoryCryptanalysis">
+        <div class="category-header">
+            <div class="category-icon">
+                <i class="fas fa-crosshairs"></i>
+            </div>
+            <div class="category-info">
+                <h2>Kriptanalisis <span class="category-count">5 Tutorial</span></h2>
+                <p>Teknik untuk menganalisis, memecahkan, dan menguji kekuatan sistem kriptografi</p>
+                <div class="category-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 65%"></div>
+                    </div>
+                    <span class="progress-stats">3/5 tutorial selesai</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="tutorial-grid">
+            <a href="/tutorial/frequency-analysis/detail" class="tutorial-card">
+                <div class="tutorial-card-header">
+                    <div class="tutorial-meta">
+                        <span class="difficulty-badge intermediate"><i class="fas fa-chart-line"></i> Menengah</span>
+                        <span class="time-badge"><i class="fas fa-clock"></i> 40 menit</span>
+                        <span class="chapter-count"><i class="fas fa-list-ol"></i> 6 Bab</span>
+                    </div>
+                </div>
+                <h3><i class="fas fa-chart-bar tutorial-icon"></i> Analisis Frekuensi untuk Memecahkan Cipher</h3>
+                <p>Gunakan analisis statistik karakter untuk memecahkan cipher substitusi dengan Python dan visualisasi data.</p>
+                <div class="tutorial-tags">
+                    <span class="tutorial-tag">Statistik</span>
+                    <span class="tutorial-tag">Analisis</span>
+                    <span class="tutorial-tag">Python</span>
+                    <span class="tutorial-tag">Visualisasi</span>
+                </div>
+                <div class="tutorial-card-footer">
+                    <div class="tutorial-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 30%"></div>
+                        </div>
+                        <span class="progress-text">30%</span>
+                    </div>
+                    <span class="start-tutorial-btn">Lanjutkan</span>
+                </div>
+            </a>
+
+            <a href="/tutorial/brute-force-attack/detail" class="tutorial-card">
+                <div class="tutorial-card-header">
+                    <div class="tutorial-meta">
+                        <span class="difficulty-badge intermediate"><i class="fas fa-chart-line"></i> Menengah</span>
+                        <span class="time-badge"><i class="fas fa-clock"></i> 35 menit</span>
+                        <span class="chapter-count"><i class="fas fa-list-ol"></i> 5 Bab</span>
+                    </div>
+                </div>
+                <h3><i class="fas fa-hammer tutorial-icon"></i> Brute Force Attack</h3>
+                <p>Pahami teknik exhaustive search untuk menemukan kunci enkripsi dan estimasi waktu pemecahan.</p>
+                <div class="tutorial-tags">
+                    <span class="tutorial-tag">Attack</span>
+                    <span class="tutorial-tag">Exhaustive</span>
+                    <span class="tutorial-tag">Komputasi</span>
+                </div>
+                <div class="tutorial-card-footer">
+                    <div class="tutorial-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 100%"></div>
+                        </div>
+                        <span class="progress-text">100%</span>
+                    </div>
+                    <span class="start-tutorial-btn"><i class="fas fa-redo"></i> Review</span>
+                </div>
+            </a>
+
+            <a href="/tutorial/known-plaintext-attack/detail" class="tutorial-card premium">
+                <div class="premium-badge">
+                    <i class="fas fa-crown"></i> PREMIUM
+                </div>
+                <div class="tutorial-card-header">
+                    <div class="tutorial-meta">
+                        <span class="difficulty-badge advanced"><i class="fas fa-rocket"></i> Lanjutan</span>
+                        <span class="time-badge"><i class="fas fa-clock"></i> 50 menit</span>
+                        <span class="chapter-count"><i class="fas fa-list-ol"></i> 7 Bab</span>
+                    </div>
+                </div>
+                <h3><i class="fas fa-clipboard-check tutorial-icon"></i> Known Plaintext Attack</h3>
+                <p>Teknik untuk menemukan kunci ketika plaintext dan ciphertext diketahui dengan analisis sistem persamaan.</p>
+                <div class="tutorial-tags">
+                    <span class="tutorial-tag">Attack</span>
+                    <span class="tutorial-tag">Analisis</span>
+                    <span class="tutorial-tag">Sistem</span>
+                    <span class="tutorial-tag">Premium</span>
+                </div>
+                <div class="tutorial-card-footer">
+                    <span class="start-tutorial-btn">Mulai Belajar</span>
+                </div>
+            </a>
+
+            <a href="/tutorial/chosen-plaintext-attack/detail" class="tutorial-card premium">
+                <div class="premium-badge">
+                    <i class="fas fa-crown"></i> PREMIUM
+                </div>
+                <div class="tutorial-card-header">
+                    <div class="tutorial-meta">
+                        <span class="difficulty-badge advanced"><i class="fas fa-rocket"></i> Lanjutan</span>
+                        <span class="time-badge"><i class="fas fa-clock"></i> 60 menit</span>
+                        <span class="chapter-count"><i class="fas fa-list-ol"></i> 8 Bab</span>
+                    </div>
+                </div>
+                <h3><i class="fas fa-user-edit tutorial-icon"></i> Chosen Plaintext/Ciphertext Attacks</h3>
+                <p>Serangan kriptanalisis dengan kemampuan memilih input untuk dianalisis outputnya.</p>
+                <div class="tutorial-tags">
+                    <span class="tutorial-tag">Attack</span>
+                    <span class="tutorial-tag">Analisis</span>
+                    <span class="tutorial-tag">Input</span>
+                    <span class="tutorial-tag">Premium</span>
+                </div>
+                <div class="tutorial-card-footer">
+                    <span class="start-tutorial-btn">Mulai Belajar</span>
+                </div>
+            </a>
+
+            <a href="/tutorial/side-channel-attacks/detail" class="tutorial-card new">
+                <div class="tutorial-card-header">
+                    <div class="tutorial-meta">
+                        <span class="difficulty-badge advanced"><i class="fas fa-rocket"></i> Lanjutan</span>
+                        <span class="time-badge"><i class="fas fa-clock"></i> 45 menit</span>
+                        <span class="chapter-count"><i class="fas fa-list-ol"></i> 6 Bab</span>
+                    </div>
+                </div>
+                <h3><i class="fas fa-bolt tutorial-icon"></i> Side Channel Attacks</h3>
+                <p>Waktu eksekusi, konsumsi daya, dan emisi elektromagnetik sebagai celah keamanan dalam implementasi kriptografi.</p>
+                <div class="tutorial-tags">
+                    <span class="tutorial-tag">Attack</span>
+                    <span class="tutorial-tag">Fisik</span>
+                    <span class="tutorial-tag">Implementasi</span>
+                </div>
+                <div class="tutorial-card-footer">
+                    <div class="tutorial-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 0%"></div>
+                        </div>
+                        <span class="progress-text">0%</span>
+                    </div>
+                    <span class="start-tutorial-btn">Mulai Belajar</span>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Elements
+        const searchInput = document.getElementById('searchTutorial');
+        const clearSearchBtn = document.getElementById('clearSearch');
+        const clearAllFiltersBtn = document.getElementById('clearAllFilters');
+        const searchResultsHeader = document.getElementById('searchResultsHeader');
+        const resultsCount = document.getElementById('resultsCount');
+        const emptyState = document.getElementById('emptyState');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const tutorialCards = document.querySelectorAll('.tutorial-card');
+        const tutorialCategories = document.querySelectorAll('.tutorial-category');
+        const categoryHeaders = document.querySelectorAll('.category-header');
+        
+        let activeFilter = 'all';
+        let searchTerm = '';
+        
+        // Initialize counters
+        updateStats();
+        
+        // Search functionality
+        searchInput.addEventListener('input', function(e) {
+            searchTerm = e.target.value.toLowerCase().trim();
+            performSearch();
+        });
+        
+        // Clear search
+        clearSearchBtn.addEventListener('click', function() {
+            searchInput.value = '';
+            searchTerm = '';
+            performSearch();
+            searchInput.focus();
+        });
+        
+        // Clear all filters
+        clearAllFiltersBtn.addEventListener('click', function() {
+            searchInput.value = '';
+            searchTerm = '';
+            activeFilter = 'all';
+            
+            filterButtons.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-filter') === 'all') {
+                    btn.classList.add('active');
+                }
+            });
+            
+            performSearch();
+        });
+        
+        // Filter functionality
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                activeFilter = this.getAttribute('data-filter');
+                
+                // Update active button
+                filterButtons.forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                this.classList.add('active');
+                
+                performSearch();
+            });
+        });
+        
+        function performSearch() {
+            let visibleCardCount = 0;
+            let visibleCategoryCount = 0;
+            
+            tutorialCategories.forEach(category => {
+                const categoryCards = category.querySelectorAll('.tutorial-card');
+                let categoryVisibleCount = 0;
+                
+                categoryCards.forEach(card => {
+                    const isVisible = filterCard(card);
+                    card.style.display = isVisible ? 'block' : 'none';
+                    
+                    if (isVisible) {
+                        visibleCardCount++;
+                        categoryVisibleCount++;
+                        card.style.animation = 'fadeInUp 0.5s ease';
+                    }
+                });
+                
+                // Show/hide category based on visible cards
+                if (categoryVisibleCount > 0) {
+                    category.classList.remove('hidden');
+                    visibleCategoryCount++;
+                } else {
+                    category.classList.add('hidden');
+                }
+            });
+            
+            // Update search results header
+            if (searchTerm || activeFilter !== 'all') {
+                let filterText = '';
+                if (searchTerm) {
+                    filterText += ` untuk "${searchTerm}"`;
+                }
+                if (activeFilter !== 'all') {
+                    const activeFilterBtn = document.querySelector(`.filter-btn[data-filter="${activeFilter}"]`);
+                    const filterLabel = activeFilterBtn.textContent.trim();
+                    filterText += searchTerm ? ` dengan filter ${filterLabel}` : ` dengan filter ${filterLabel}`;
+                }
+                
+                resultsCount.textContent = `${visibleCardCount} hasil ditemukan${filterText}`;
+                searchResultsHeader.classList.add('show');
+            } else {
+                searchResultsHeader.classList.remove('show');
+            }
+            
+            // Show/hide empty state
+            if (visibleCardCount === 0) {
+                emptyState.classList.add('show');
+            } else {
+                emptyState.classList.remove('show');
+            }
+            
+            // Update category counts
+            updateCategoryCounts();
+        }
+        
+        function filterCard(card) {
+            const title = card.querySelector('h3').textContent.toLowerCase();
+            const description = card.querySelector('p').textContent.toLowerCase();
+            const tags = Array.from(card.querySelectorAll('.tutorial-tag')).map(tag => tag.textContent.toLowerCase());
+            
+            // Search filter
+            let searchMatch = true;
+            if (searchTerm) {
+                searchMatch = title.includes(searchTerm) || 
+                            description.includes(searchTerm) || 
+                            tags.some(tag => tag.includes(searchTerm));
+            }
+            
+            // Type filter
+            let typeMatch = true;
+            switch(activeFilter) {
+                case 'all':
+                    typeMatch = true;
+                    break;
+                case 'free':
+                    typeMatch = !card.classList.contains('premium');
+                    break;
+                case 'premium':
+                    typeMatch = card.classList.contains('premium');
+                    break;
+                case 'beginner':
+                    typeMatch = card.querySelector('.difficulty-badge')?.classList.contains('beginner');
+                    break;
+                case 'intermediate':
+                    typeMatch = card.querySelector('.difficulty-badge')?.classList.contains('intermediate');
+                    break;
+                case 'advanced':
+                    typeMatch = card.querySelector('.difficulty-badge')?.classList.contains('advanced');
+                    break;
+                case 'new':
+                    typeMatch = card.classList.contains('new');
+                    break;
+            }
+            
+            return searchMatch && typeMatch;
+        }
+        
+        function updateStats() {
+            const totalCards = tutorialCards.length;
+            const premiumCards = document.querySelectorAll('.tutorial-card.premium').length;
+            const freeCards = totalCards - premiumCards;
+            const completedCards = document.querySelectorAll('.tutorial-card .progress-fill[style*="width: 100%"]').length;
+            
+            // Update stats in header if needed
+            const statNumbers = document.querySelectorAll('.stat-number');
+            if (statNumbers.length >= 4) {
+                statNumbers[0].textContent = totalCards;
+                statNumbers[1].textContent = '150+'; // Static for now
+                statNumbers[2].textContent = '18'; // Static for now
+                statNumbers[3].textContent = Math.round((completedCards / totalCards) * 100) + '%';
+            }
+        }
+        
+        function updateCategoryCounts() {
+            tutorialCategories.forEach(category => {
+                const visibleCards = category.querySelectorAll('.tutorial-card[style*="display: block"]').length;
+                const totalCards = category.querySelectorAll('.tutorial-card').length;
+                const countElement = category.querySelector('.category-count');
+                
+                if (countElement) {
+                    countElement.textContent = `${visibleCards}/${totalCards} Tutorial`;
+                }
+                
+                // Update progress bar
+                const completedCards = category.querySelectorAll('.tutorial-card .progress-fill[style*="width: 100%"]').length;
+                const progressFill = category.querySelector('.category-progress .progress-fill');
+                const progressStats = category.querySelector('.progress-stats');
+                
+                if (progressFill) {
+                    const progressPercentage = totalCards > 0 ? Math.round((completedCards / totalCards) * 100) : 0;
+                    progressFill.style.width = `${progressPercentage}%`;
+                }
+                
+                if (progressStats) {
+                    progressStats.textContent = `${completedCards}/${totalCards} tutorial selesai`;
+                }
+            });
+        }
+        
+        // Add click animations to cards
+        tutorialCards.forEach(card => {
+            card.addEventListener('click', function(e) {
+                // Add click animation
+                this.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 150);
+            });
+        });
+        
+        // Add hover effects to category headers
+        categoryHeaders.forEach(header => {
+            header.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateX(5px)';
+                this.style.transition = 'transform 0.3s ease';
+            });
+            
+            header.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateX(0)';
+            });
+        });
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Focus search on Ctrl/Cmd + K
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                searchInput.focus();
+                searchInput.select();
+            }
+            
+            // Clear search on Escape
+            if (e.key === 'Escape' && document.activeElement === searchInput) {
+                searchInput.value = '';
+                searchTerm = '';
+                performSearch();
+            }
+        });
+        
+        // Add search input placeholder animation
+        const searchPlaceholders = [
+            'Cari tutorial kriptografi...',
+            'Contoh: Caesar cipher, RSA, AES...',
+            'Cari berdasarkan tingkat kesulitan...',
+            'Cari tutorial gratis atau premium...'
+        ];
+        
+        let placeholderIndex = 0;
+        setInterval(() => {
+            searchInput.placeholder = searchPlaceholders[placeholderIndex];
+            placeholderIndex = (placeholderIndex + 1) % searchPlaceholders.length;
+        }, 3000);
+        
+        // Initialize
+        performSearch();
+    });
+</script>
+{% endblock %}

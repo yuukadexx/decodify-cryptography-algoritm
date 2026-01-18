@@ -1,0 +1,1205 @@
+{% extends "base.html" %}
+
+{% block title %}Learning Path - DecoDify{% endblock %}
+
+{% block extra_css %}
+<style>
+    .learning-path-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    .learning-path-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .learning-path-header h1 {
+        font-size: 2.5rem;
+        background: linear-gradient(135deg, var(--secondary), var(--primary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 1rem;
+    }
+
+    .learning-path-header p {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    /* Learning Path Grid */
+    .path-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .path-card {
+        background: var(--card-bg);
+        border: 1px solid var(--glass);
+        border-radius: 20px;
+        padding: 2rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .path-card:hover {
+        transform: translateY(-10px);
+        border-color: var(--secondary);
+        box-shadow: 0 20px 40px rgba(139, 92, 246, 0.2);
+    }
+
+    .path-card.beginner {
+        border-top: 5px solid #10b981;
+    }
+
+    .path-card.intermediate {
+        border-top: 5px solid #f59e0b;
+    }
+
+    .path-card.advanced {
+        border-top: 5px solid #ef4444;
+    }
+
+    .path-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .badge-beginner {
+        background: rgba(16, 185, 129, 0.2);
+        color: var(--accent);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .badge-intermediate {
+        background: rgba(245, 158, 11, 0.2);
+        color: var(--warning);
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .badge-advanced {
+        background: rgba(239, 68, 68, 0.2);
+        color: var(--danger);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .path-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .icon-beginner {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.1));
+        color: var(--accent);
+    }
+
+    .icon-intermediate {
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.1));
+        color: var(--warning);
+    }
+
+    .icon-advanced {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.1));
+        color: var(--danger);
+    }
+
+    .path-title {
+        font-size: 1.5rem;
+        color: var(--text);
+        margin-bottom: 1rem;
+    }
+
+    .path-description {
+        color: var(--text-muted);
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+    }
+
+    .path-stats {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--glass);
+    }
+
+    .stat-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--text);
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin-top: 0.25rem;
+    }
+
+    .path-progress {
+        margin-bottom: 1.5rem;
+    }
+
+    .progress-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .progress-percentage {
+        color: var(--text);
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .progress-text {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+    }
+
+    .progress-bar {
+        height: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.3s ease;
+    }
+
+    .progress-beginner {
+        background: linear-gradient(90deg, var(--accent), #34d399);
+    }
+
+    .progress-intermediate {
+        background: linear-gradient(90deg, var(--warning), #fbbf24);
+    }
+
+    .progress-advanced {
+        background: linear-gradient(90deg, var(--danger), #f87171);
+    }
+
+    .path-action {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .path-timer {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    .path-timer i {
+        color: var(--warning);
+    }
+
+    .start-path-btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-beginner {
+        background: linear-gradient(135deg, var(--accent), #059669);
+        color: white;
+    }
+
+    .btn-intermediate {
+        background: linear-gradient(135deg, var(--warning), #d97706);
+        color: white;
+    }
+
+    .btn-advanced {
+        background: linear-gradient(135deg, var(--danger), #dc2626);
+        color: white;
+    }
+
+    .start-path-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Active Path */
+    .active-path-card {
+        position: relative;
+        overflow: hidden;
+        animation: pulse-border 2s infinite;
+    }
+
+    .active-path-card::before {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: linear-gradient(45deg, #f59e0b, #10b981, #8b5cf6, #ef4444);
+        border-radius: 22px;
+        z-index: -1;
+        animation: gradient-border 3s infinite alternate;
+    }
+
+    @keyframes pulse-border {
+        0% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(139, 92, 246, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
+    }
+
+    @keyframes gradient-border {
+        0% { opacity: 0.3; }
+        100% { opacity: 0.7; }
+    }
+
+    /* Time Expired Modal */
+    .time-expired-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        backdrop-filter: blur(10px);
+        z-index: 10000;
+        justify-content: center;
+        align-items: center;
+        animation: fadeIn 0.5s ease;
+    }
+
+    .time-expired-modal.active {
+        display: flex;
+    }
+
+    .expired-content {
+        background: linear-gradient(135deg, var(--card-bg), rgba(30, 41, 59, 0.9));
+        border: 1px solid var(--glass);
+        border-radius: 24px;
+        padding: 3rem;
+        max-width: 500px;
+        width: 90%;
+        text-align: center;
+        animation: slideUp 0.5s ease;
+    }
+
+    .expired-icon {
+        font-size: 5rem;
+        color: var(--warning);
+        margin-bottom: 1.5rem;
+        animation: shake 0.5s ease infinite;
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: rotate(0deg); }
+        25% { transform: rotate(-10deg); }
+        75% { transform: rotate(10deg); }
+    }
+
+    .expired-title {
+        font-size: 2rem;
+        color: var(--text);
+        margin-bottom: 1rem;
+    }
+
+    .expired-message {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+    }
+
+    .expired-stats {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .stat-row:last-child {
+        border-bottom: none;
+    }
+
+    .stat-label {
+        color: var(--text-muted);
+    }
+
+    .stat-value {
+        color: var(--text);
+        font-weight: 600;
+    }
+
+    .expired-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    .retry-btn {
+        padding: 1rem 2rem;
+        background: linear-gradient(135deg, var(--secondary), var(--primary));
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .retry-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
+    }
+
+    .home-btn {
+        padding: 1rem 2rem;
+        background: transparent;
+        border: 1px solid var(--glass);
+        color: var(--text);
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .home-btn:hover {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* Timer Display */
+    .timer-display {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        background: var(--card-bg);
+        border: 1px solid var(--glass);
+        border-radius: 12px;
+        padding: 0.75rem 1.25rem;
+        z-index: 9999;
+        display: none;
+        align-items: center;
+        gap: 0.75rem;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .timer-display.active {
+        display: flex;
+        animation: slideInRight 0.5s ease;
+    }
+
+    @keyframes slideInRight {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+
+    .timer-label {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .timer-value {
+        font-family: 'Courier New', monospace;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--warning);
+        padding: 0.25rem 0.5rem;
+        background: rgba(245, 158, 11, 0.1);
+        border-radius: 6px;
+        min-width: 90px;
+        text-align: center;
+    }
+
+    .timer-warning {
+        animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .path-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .learning-path-header h1 {
+            font-size: 2rem;
+        }
+
+        .expired-content {
+            padding: 2rem;
+        }
+
+        .expired-actions {
+            flex-direction: column;
+        }
+
+        .timer-display {
+            top: auto;
+            bottom: 1rem;
+            right: 1rem;
+            left: 1rem;
+        }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+        from { transform: translateY(50px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="learning-path-container">
+    <!-- Header -->
+    <div class="learning-path-header">
+        <h1>🚀 Learning Path Kriptografi</h1>
+        <p>Ikuti jalur pembelajaran terstruktur untuk menguasai kriptografi dari dasar hingga mahir. Setiap path memiliki batas waktu untuk menyelesaikannya!</p>
+    </div>
+
+    <!-- Learning Path Grid -->
+    <div class="path-grid">
+        <!-- Beginner Path -->
+        <div class="path-card beginner" id="beginnerPath">
+            <span class="path-badge badge-beginner">
+                <i class="fas fa-user-graduate"></i> PEMULA
+            </span>
+            <div class="path-icon icon-beginner">
+                <i class="fas fa-baby"></i>
+            </div>
+            <h2 class="path-title">Path untuk Pemula</h2>
+            <p class="path-description">
+                Mulai dari nol tanpa pengetahuan sebelumnya. Pelajari cipher dasar, konsep kriptografi sederhana, dan teknik enkripsi klasik.
+            </p>
+            
+            <div class="path-stats">
+                <div class="stat-item">
+                    <div class="stat-value">4</div>
+                    <div class="stat-label">Modul</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">2 Jam</div>
+                    <div class="stat-label">Waktu</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">250 XP</div>
+                    <div class="stat-label">Hadiah</div>
+                </div>
+            </div>
+
+            <div class="path-progress">
+                <div class="progress-info">
+                    <span class="progress-percentage" id="beginnerProgress">0%</span>
+                    <span class="progress-text" id="beginnerStatus">Belum dimulai</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill progress-beginner" id="beginnerProgressBar" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="path-action">
+                <div class="path-timer" id="beginnerTimer">
+                    <i class="fas fa-clock"></i>
+                    <span id="beginnerTimeLeft">02:00:00</span>
+                </div>
+                <button class="start-path-btn btn-beginner" onclick="startLearningPath('beginner')" id="beginnerBtn">
+                    <i class="fas fa-play"></i> Mulai Path
+                </button>
+            </div>
+        </div>
+
+        <!-- Intermediate Path -->
+        <div class="path-card intermediate" id="intermediatePath">
+            <span class="path-badge badge-intermediate">
+                <i class="fas fa-user-tie"></i> MENENGAH
+            </span>
+            <div class="path-icon icon-intermediate">
+                <i class="fas fa-user-graduate"></i>
+            </div>
+            <h2 class="path-title">Path Menengah</h2>
+            <p class="path-description">
+                Tingkatkan skill dengan cipher yang lebih kompleks. Pelajari teknik kriptanalisis dasar dan implementasi praktis.
+            </p>
+            
+            <div class="path-stats">
+                <div class="stat-item">
+                    <div class="stat-value">6</div>
+                    <div class="stat-label">Modul</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">4 Jam</div>
+                    <div class="stat-label">Waktu</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">500 XP</div>
+                    <div class="stat-label">Hadiah</div>
+                </div>
+            </div>
+
+            <div class="path-progress">
+                <div class="progress-info">
+                    <span class="progress-percentage" id="intermediateProgress">0%</span>
+                    <span class="progress-text" id="intermediateStatus">Kunci Premium</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill progress-intermediate" id="intermediateProgressBar" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="path-action">
+                <div class="path-timer" id="intermediateTimer">
+                    <i class="fas fa-clock"></i>
+                    <span id="intermediateTimeLeft">04:00:00</span>
+                </div>
+                <button class="start-path-btn btn-intermediate" onclick="checkPremiumAccess('intermediate')" id="intermediateBtn">
+                    <i class="fas fa-crown"></i> Premium
+                </button>
+            </div>
+        </div>
+
+        <!-- Advanced Path -->
+        <div class="path-card advanced" id="advancedPath">
+            <span class="path-badge badge-advanced">
+                <i class="fas fa-user-ninja"></i> LANJUTAN
+            </span>
+            <div class="path-icon icon-advanced">
+                <i class="fas fa-user-graduate"></i>
+            </div>
+            <h2 class="path-title">Path Lanjutan</h2>
+            <p class="path-description">
+                Kuasai kriptografi modern dan teknik kriptanalisis tingkat lanjut. Pelajari enkripsi asimetris, hash functions, dan keamanan sistem.
+            </p>
+            
+            <div class="path-stats">
+                <div class="stat-item">
+                    <div class="stat-value">8</div>
+                    <div class="stat-label">Modul</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">6 Jam</div>
+                    <div class="stat-label">Waktu</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">750 XP</div>
+                    <div class="stat-label">Hadiah</div>
+                </div>
+            </div>
+
+            <div class="path-progress">
+                <div class="progress-info">
+                    <span class="progress-percentage" id="advancedProgress">0%</span>
+                    <span class="progress-text" id="advancedStatus">Kunci Premium</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill progress-advanced" id="advancedProgressBar" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="path-action">
+                <div class="path-timer" id="advancedTimer">
+                    <i class="fas fa-clock"></i>
+                    <span id="advancedTimeLeft">06:00:00</span>
+                </div>
+                <button class="start-path-btn btn-advanced" onclick="checkPremiumAccess('advanced')" id="advancedBtn">
+                    <i class="fas fa-crown"></i> Premium
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Timer Display (Floating) -->
+<div class="timer-display" id="timerDisplay">
+    <div class="timer-label">
+        <i class="fas fa-hourglass-half"></i> Waktu Tersisa:
+    </div>
+    <div class="timer-value" id="floatingTimer">00:00:00</div>
+    <button onclick="stopTimer()" style="background: none; border: none; color: var(--text-muted); cursor: pointer;">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
+
+<!-- Time Expired Modal -->
+<div class="time-expired-modal" id="timeExpiredModal">
+    <div class="expired-content">
+        <div class="expired-icon">
+            <i class="fas fa-hourglass-end"></i>
+        </div>
+        <h2 class="expired-title">⏰ Waktu Telah Habis!</h2>
+        <p class="expired-message">
+            Waktu yang dialokasikan untuk learning path telah habis. Berikut adalah pencapaian Anda:
+        </p>
+        
+        <div class="expired-stats">
+            <div class="stat-row">
+                <span class="stat-label">Learning Path:</span>
+                <span class="stat-value" id="expiredPathName">-</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Progress:</span>
+                <span class="stat-value" id="expiredProgress">0%</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Modul Selesai:</span>
+                <span class="stat-value" id="expiredCompleted">0/0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">XP Diterima:</span>
+                <span class="stat-value" id="expiredXP">0 XP</span>
+            </div>
+        </div>
+        
+        <div class="expired-actions">
+            <button class="retry-btn" onclick="retryPath()">
+                <i class="fas fa-redo"></i> Coba Lagi
+            </button>
+            <button class="home-btn" onclick="goToHome()">
+                <i class="fas fa-home"></i> Kembali ke Home
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Global variables
+    let activeTimer = null;
+    let timeLeft = 0;
+    let currentPath = null;
+    let timerInterval = null;
+    let pathProgress = {
+        beginner: { progress: 0, completed: 0, total: 4, started: false },
+        intermediate: { progress: 0, completed: 0, total: 6, started: false },
+        advanced: { progress: 0, completed: 0, total: 8, started: false }
+    };
+
+    // Path configurations
+    const pathConfigs = {
+        beginner: {
+            name: "Path untuk Pemula",
+            totalTime: 2 * 60 * 60, // 2 hours in seconds
+            timeLimit: 2 * 60 * 60,
+            xpReward: 250,
+            color: "#10b981",
+            icon: "fa-baby"
+        },
+        intermediate: {
+            name: "Path Menengah",
+            totalTime: 4 * 60 * 60, // 4 hours in seconds
+            timeLimit: 4 * 60 * 60,
+            xpReward: 500,
+            color: "#f59e0b",
+            icon: "fa-user-tie"
+        },
+        advanced: {
+            name: "Path Lanjutan",
+            totalTime: 6 * 60 * 60, // 6 hours in seconds
+            timeLimit: 6 * 60 * 60,
+            xpReward: 750,
+            color: "#ef4444",
+            icon: "fa-user-ninja"
+        }
+    };
+
+    // Initialize from localStorage
+    document.addEventListener('DOMContentLoaded', function() {
+        loadProgress();
+        updateUI();
+        checkActiveTimer();
+    });
+
+    // Load progress from localStorage
+    function loadProgress() {
+        const savedProgress = localStorage.getItem('learning_path_progress');
+        if (savedProgress) {
+            pathProgress = JSON.parse(savedProgress);
+        }
+
+        const savedTimer = localStorage.getItem('active_timer');
+        if (savedTimer) {
+            const timerData = JSON.parse(savedTimer);
+            if (timerData.endTime > Date.now()) {
+                activeTimer = timerData.path;
+                timeLeft = Math.floor((timerData.endTime - Date.now()) / 1000);
+                startTimerDisplay();
+            } else {
+                // Timer expired
+                timeLeft = 0;
+                showTimeExpiredModal(timerData.path);
+            }
+        }
+    }
+
+    // Save progress to localStorage
+    function saveProgress() {
+        localStorage.setItem('learning_path_progress', JSON.stringify(pathProgress));
+    }
+
+    // Save timer to localStorage
+    function saveTimer() {
+        if (activeTimer && timeLeft > 0) {
+            const timerData = {
+                path: activeTimer,
+                startTime: Date.now(),
+                endTime: Date.now() + (timeLeft * 1000)
+            };
+            localStorage.setItem('active_timer', JSON.stringify(timerData));
+        }
+    }
+
+    // Start learning path
+    function startLearningPath(path) {
+        // Check if premium is required
+        if ((path === 'intermediate' || path === 'advanced') && !checkPremiumStatus()) {
+            showUpgradeModal();
+            return;
+        }
+
+        // Check if already started
+        if (pathProgress[path].started && timeLeft > 0) {
+            continuePath(path);
+            return;
+        }
+
+        // Confirm start
+        if (confirm(`Mulai "${pathConfigs[path].name}"? Anda memiliki ${formatTime(pathConfigs[path].totalTime)} untuk menyelesaikannya.`)) {
+            currentPath = path;
+            timeLeft = pathConfigs[path].totalTime;
+            pathProgress[path].started = true;
+            
+            // Reset progress if starting fresh
+            if (pathProgress[path].progress === 100) {
+                pathProgress[path] = {
+                    progress: 0,
+                    completed: 0,
+                    total: pathConfigs[path].total,
+                    started: true
+                };
+            }
+            
+            activeTimer = path;
+            startTimerDisplay();
+            saveProgress();
+            saveTimer();
+            
+            // Start the learning path content
+            startPathContent(path);
+        }
+    }
+
+    // Continue existing path
+    function continuePath(path) {
+        currentPath = path;
+        activeTimer = path;
+        startTimerDisplay();
+        startPathContent(path);
+    }
+
+    // Check premium access
+    function checkPremiumAccess(path) {
+        if (checkPremiumStatus()) {
+            startLearningPath(path);
+        } else {
+            showUpgradeModal();
+        }
+    }
+
+    // Check premium status
+    function checkPremiumStatus() {
+        const premiumStatus = localStorage.getItem('cryptolab_premium');
+        const premiumExpiry = localStorage.getItem('cryptolab_premium_expiry');
+        
+        if (premiumStatus && premiumExpiry) {
+            const expiryDate = new Date(premiumExpiry);
+            const now = new Date();
+            return expiryDate > now;
+        }
+        return false;
+    }
+
+    // Show upgrade modal
+    function showUpgradeModal() {
+        alert('Fitur ini membutuhkan akses Premium. Silakan upgrade akun Anda.');
+        // In real implementation, this would show the actual upgrade modal
+    }
+
+    // Start timer display
+    function startTimerDisplay() {
+        const timerDisplay = document.getElementById('timerDisplay');
+        const floatingTimer = document.getElementById('floatingTimer');
+        
+        timerDisplay.classList.add('active');
+        
+        // Update path card to active state
+        document.getElementById(`${activeTimer}Path`).classList.add('active-path-card');
+        
+        // Start timer interval
+        if (timerInterval) clearInterval(timerInterval);
+        
+        timerInterval = setInterval(() => {
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                showTimeExpiredModal(activeTimer);
+                return;
+            }
+            
+            timeLeft--;
+            saveTimer();
+            
+            // Update floating timer
+            floatingTimer.textContent = formatTime(timeLeft);
+            
+            // Update path card timer
+            const pathTimer = document.getElementById(`${activeTimer}TimeLeft`);
+            if (pathTimer) {
+                pathTimer.textContent = formatTime(timeLeft);
+            }
+            
+            // Warning when less than 5 minutes
+            if (timeLeft <= 300) {
+                floatingTimer.classList.add('timer-warning');
+            }
+            
+            // Auto-save every minute
+            if (timeLeft % 60 === 0) {
+                saveProgress();
+            }
+        }, 1000);
+    }
+
+    // Stop timer
+    function stopTimer() {
+        if (confirm('Hentikan timer? Progress akan disimpan.')) {
+            if (timerInterval) clearInterval(timerInterval);
+            
+            const timerDisplay = document.getElementById('timerDisplay');
+            timerDisplay.classList.remove('active');
+            
+            if (activeTimer) {
+                document.getElementById(`${activeTimer}Path`).classList.remove('active-path-card');
+                saveProgress();
+            }
+            
+            activeTimer = null;
+            localStorage.removeItem('active_timer');
+        }
+    }
+
+    // Check for active timer on page load
+    function checkActiveTimer() {
+        if (activeTimer && timeLeft > 0) {
+            const floatingTimer = document.getElementById('floatingTimer');
+            floatingTimer.textContent = formatTime(timeLeft);
+            
+            // Update UI for active path
+            document.getElementById(`${activeTimer}Path`).classList.add('active-path-card');
+            document.getElementById(`${activeTimer}Btn`).innerHTML = '<i class="fas fa-play"></i> Lanjutkan';
+        }
+    }
+
+    // Show time expired modal
+    function showTimeExpiredModal(path) {
+        // Calculate final progress
+        const progress = pathProgress[path];
+        const completedModules = Math.floor((progress.progress / 100) * progress.total);
+        
+        // Update modal content
+        document.getElementById('expiredPathName').textContent = pathConfigs[path].name;
+        document.getElementById('expiredProgress').textContent = `${progress.progress}%`;
+        document.getElementById('expiredCompleted').textContent = `${completedModules}/${progress.total}`;
+        
+        // Calculate XP (proportional to progress)
+        const earnedXP = Math.floor((progress.progress / 100) * pathConfigs[path].xpReward);
+        document.getElementById('expiredXP').textContent = `${earnedXP} XP`;
+        
+        // Show modal
+        const modal = document.getElementById('timeExpiredModal');
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        
+        // Update user XP
+        updateUserXP(earnedXP);
+        
+        // Clean up
+        if (activeTimer) {
+            document.getElementById(`${activeTimer}Path`).classList.remove('active-path-card');
+        }
+        activeTimer = null;
+        timeLeft = 0;
+        clearInterval(timerInterval);
+        localStorage.removeItem('active_timer');
+        
+        // Hide timer display
+        document.getElementById('timerDisplay').classList.remove('active');
+    }
+
+    // Update user XP
+    function updateUserXP(earnedXP) {
+        let userXP = parseInt(localStorage.getItem('user_xp') || '0');
+        userXP += earnedXP;
+        localStorage.setItem('user_xp', userXP.toString());
+        
+        // Show XP notification
+        showNotification(`🎉 Anda mendapatkan ${earnedXP} XP!`, 'success');
+    }
+
+    // Retry path
+    function retryPath() {
+        const modal = document.getElementById('timeExpiredModal');
+        modal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+        
+        // Reset progress for current path
+        const path = currentPath || activeTimer;
+        if (path) {
+            pathProgress[path] = {
+                progress: 0,
+                completed: 0,
+                total: pathConfigs[path].total,
+                started: false
+            };
+            updateUI();
+            saveProgress();
+            
+            // Start the path again
+            startLearningPath(path);
+        }
+    }
+
+    // Go to home
+    function goToHome() {
+        const modal = document.getElementById('timeExpiredModal');
+        modal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+        
+        // Reset current path
+        currentPath = null;
+        activeTimer = null;
+        timeLeft = 0;
+        clearInterval(timerInterval);
+        
+        // Update UI
+        updateUI();
+    }
+
+    // Start path content (simulated)
+    function startPathContent(path) {
+        // In real app, this would load the actual learning content
+        // For now, we'll simulate with a simple page
+        
+        const pathContent = `
+            <div style="padding: 2rem; max-width: 800px; margin: 0 auto;">
+                <h1 style="color: var(--text); margin-bottom: 2rem;">🎯 ${pathConfigs[path].name}</h1>
+                
+                <div style="background: var(--card-bg); border-radius: 16px; padding: 2rem; margin-bottom: 2rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h2 style="color: var(--text); margin: 0;">Modul 1: Pengenalan</h2>
+                        <span style="color: var(--text-muted); font-size: 0.9rem;">Waktu: 30 menit</span>
+                    </div>
+                    <p style="color: var(--text-muted); line-height: 1.6; margin-bottom: 1.5rem;">
+                        Pelajari konsep dasar kriptografi dan pentingnya keamanan informasi dalam dunia digital.
+                    </p>
+                    <button onclick="completeModule('${path}', 1)" 
+                            style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, ${pathConfigs[path].color}, ${pathConfigs[path].color}99); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                        <i class="fas fa-check"></i> Tandai Selesai
+                    </button>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; margin-top: 2rem;">
+                    <button onclick="goBackToPaths()" 
+                            style="padding: 0.75rem 1.5rem; background: transparent; border: 1px solid var(--glass); color: var(--text); border-radius: 8px; cursor: pointer;">
+                        <i class="fas fa-arrow-left"></i> Kembali ke Learning Path
+                    </button>
+                    <button onclick="stopTimer()" 
+                            style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, var(--danger), #dc2626); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                        <i class="fas fa-stop"></i> Hentikan Timer
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        // Replace main content with path content
+        document.querySelector('.learning-path-container').innerHTML = pathContent;
+    }
+
+    // Complete module
+    function completeModule(path, moduleNumber) {
+        const progress = pathProgress[path];
+        const modulesPerPercent = 100 / progress.total;
+        
+        progress.completed++;
+        progress.progress = Math.min(100, Math.floor(progress.completed * modulesPerPercent));
+        
+        // Update UI
+        updateUI();
+        saveProgress();
+        
+        // Show completion notification
+        showNotification(`✅ Modul ${moduleNumber} selesai! Progress: ${progress.progress}%`, 'success');
+        
+        // Check if all modules completed
+        if (progress.completed >= progress.total) {
+            setTimeout(() => {
+                alert(`🎉 Selamat! Anda telah menyelesaikan ${pathConfigs[path].name} dalam waktu ${formatTime(pathConfigs[path].totalTime - timeLeft)}!`);
+                stopTimer();
+                goBackToPaths();
+            }, 1000);
+        }
+    }
+
+    // Go back to learning paths
+    function goBackToPaths() {
+        location.reload(); // Refresh to show main page
+    }
+
+    // Update UI
+    function updateUI() {
+        for (const path in pathProgress) {
+            const progress = pathProgress[path];
+            
+            // Update progress bar
+            const progressBar = document.getElementById(`${path}ProgressBar`);
+            const progressText = document.getElementById(`${path}Progress`);
+            const statusText = document.getElementById(`${path}Status`);
+            const actionBtn = document.getElementById(`${path}Btn`);
+            
+            if (progressBar) progressBar.style.width = `${progress.progress}%`;
+            if (progressText) progressText.textContent = `${progress.progress}%`;
+            
+            if (progress.started) {
+                if (statusText) statusText.textContent = progress.progress === 100 ? 'Selesai' : 'Dalam Progress';
+                if (actionBtn) actionBtn.innerHTML = '<i class="fas fa-play"></i> Lanjutkan';
+            } else {
+                if (statusText) statusText.textContent = progress.progress === 0 ? 'Belum dimulai' : `${progress.progress}%`;
+                if (actionBtn && path === 'beginner') {
+                    actionBtn.innerHTML = '<i class="fas fa-play"></i> Mulai Path';
+                }
+            }
+            
+            // Update timer display
+            const timeDisplay = document.getElementById(`${path}TimeLeft`);
+            if (timeDisplay) {
+                timeDisplay.textContent = formatTime(pathConfigs[path].totalTime);
+            }
+        }
+    }
+
+    // Format time (seconds to HH:MM:SS)
+    function formatTime(seconds) {
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const secs = seconds % 60;
+        
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    // Show notification
+    function showNotification(message, type = 'info') {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            z-index: 10000;
+            animation: slideIn 0.5s ease;
+            max-width: 300px;
+        `;
+        
+        notification.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i>
+                <div>${message}</div>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Remove after 3 seconds
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.5s ease';
+            setTimeout(() => notification.remove(), 500);
+        }, 3000);
+    }
+
+    // Add CSS for notifications
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+{% endblock %}
