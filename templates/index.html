@@ -4,250 +4,384 @@
 
 {% block extra_css %}
 <style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+        --glass-bg: rgba(255, 255, 255, 0.03);
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --text-muted: #94a3b8;
+    }
+
+    /* Hero Section Enhancements */
     .hero {
+        position: relative;
         text-align: center;
-        padding: 4rem 2rem;
-        margin-bottom: 4rem;
-        color: white;
+        padding: 6rem 1rem;
+        overflow: hidden;
+    }
+
+    .hero::before {
+        content: '';
+        position: absolute;
+        top: -10%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+        z-index: -1;
     }
 
     .hero-title {
-        font-size: 3.5rem;
+        font-size: clamp(2.5rem, 8vw, 4.5rem);
         font-weight: 800;
+        line-height: 1.1;
         margin-bottom: 1.5rem;
-        --webkit-background-clip: text;
+        background: linear-gradient(to right, #fff, #94a3b8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .hero-icon-box {
+        display: inline-flex;
+        padding: 1rem;
+        border-radius: 20px;
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        margin-bottom: 2rem;
+        color: #6366f1;
+        font-size: 2.5rem;
+        box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
     }
 
     .hero-subtitle {
         font-size: 1.25rem;
         color: var(--text-muted);
-        margin-bottom: 2rem;
+        max-width: 700px;
+        margin: 0 auto 2.5rem;
+        line-height: 1.6;
     }
 
-    .hero-buttons {
+    /* Custom Button Styles */
+    .btn-custom {
+        padding: 0.875rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        text-decoration: none;
+    }
+
+    .btn-primary-gradient {
+        background: var(--primary-gradient);
+        color: white;
+        box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-primary-gradient:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 25px -5px rgba(99, 102, 241, 0.5);
+        filter: brightness(1.1);
+    }
+
+    .btn-outline-glass {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        color: white;
+        backdrop-filter: blur(10px);
+    }
+
+    .btn-outline-glass:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.3);
+        transform: translateY(-3px);
+    }
+
+    /* Grid & Cards Enhancements */
+    .section-header {
+        margin-top: 4rem;
+        margin-bottom: 3rem;
         display: flex;
-        gap: 1rem;
-        justify-content: center;
-        flex-wrap: wrap;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .section-header h2 {
+        font-size: 1.875rem;
+        font-weight: 700;
+        margin: 0;
+        white-space: nowrap;
+    }
+
+    .section-header::after {
+        content: '';
+        height: 1px;
+        background: var(--glass-border);
+        width: 100%;
     }
 
     .features-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 2rem;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.5rem;
         margin-bottom: 4rem;
     }
 
     .feature-card {
-        background: rgba(30, 41, 59, 0.5);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 16px;
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
         padding: 2rem;
-        text-align: center;
-        transition: all 0.3s;
-        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .feature-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--primary-gradient);
+        opacity: 0;
+        transition: opacity 0.4s;
+        z-index: 0;
     }
 
     .feature-card:hover {
-        border-color: var(--primary);
-        transform: translateY(-10px);
-        box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2);
+        border-color: #6366f1;
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
     }
 
-    .feature-icon {
-        font-size: 3rem;
-        margin-bottom: 1rem;
-        --webkit-background-clip: text;
+    .feature-card:hover::before {
+        opacity: 0.03;
+    }
+
+    .card-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .feature-icon-wrapper {
+        width: 60px;
+        height: 60px;
+        border-radius: 16px;
+        background: rgba(99, 102, 241, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        color: #818cf8;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s;
+    }
+
+    .feature-card:hover .feature-icon-wrapper {
+        background: #6366f1;
+        color: white;
+        transform: rotate(-5deg) scale(1.1);
     }
 
     .feature-title {
-        font-size: 1.5rem;
+        font-size: 1.35rem;
         font-weight: 700;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.75rem;
+        color: #f8fafc;
     }
 
     .feature-desc {
         color: var(--text-muted);
+        line-height: 1.5;
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+        flex-grow: 1;
     }
 
+    /* Badges */
     .locked-badge {
-        display: inline-block;
-        background: rgba(239, 68, 68, 0.2);
-        color: var(--danger);
-        padding: 0.25rem 0.75rem;
-        border-radius: 20px;
-        font-size: 0.875rem;
-        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        padding: 0.5rem 1rem;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        width: fit-content;
+        border: 1px solid rgba(239, 68, 68, 0.2);
     }
 
-    .section-title {
-        font-size: 2.5rem;
-        font-weight: 700;
-        text-align: center;
-        margin-bottom: 3rem;
-        --webkit-background-clip: text;
+    .free-badge {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(34, 197, 94, 0.1);
+        color: #22c55e;
+        padding: 0.5rem 1rem;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        width: fit-content;
+        border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    /* Modal Styling */
+    .custom-alert {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #1e293b;
+        border-left: 4px solid #ef4444;
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        z-index: 9999;
+        display: none;
+        animation: slideIn 0.3s ease forwards;
+    }
+
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
     }
 
     @media (max-width: 768px) {
-        .hero-title {
-            font-size: 2rem;
-        }
-
-        .hero-subtitle {
-            font-size: 1rem;
-        }
+        .hero { padding: 4rem 1rem; }
+        .hero-title { font-size: 2.5rem; }
+        .section-header h2 { font-size: 1.5rem; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
+<!-- Custom Alert Replacement for Native alert() -->
+<div id="authAlert" class="custom-alert">
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <i class="fas fa-exclamation-circle"></i>
+        <span>Anda harus login untuk mengakses fitur ini!</span>
+    </div>
+</div>
+
 <div class="hero">
+    <div class="hero-icon-box">
+        <i class="fas fa-shield-halved"></i>
+    </div>
     <h1 class="hero-title">
-        <i class="fas fa-shield-halved"></i><br>
         Belajar Kriptografi<br>Secara Interaktif
     </h1>
     <p class="hero-subtitle">
-        Eksplorasi berbagai algoritma enkripsi klasik dan modern<br>
-        dengan simulasi real-time yang mudah dipahami
+        Platform edukasi modern untuk mengeksplorasi seni menyembunyikan pesan. Dari algoritma klasik hingga standar enkripsi masa depan.
     </p>
     <div class="hero-buttons">
         {% if not current_user.is_authenticated %}
-        <a href="/register" class="btn btn-primary">
+        <a href="/register" class="btn-custom btn-primary-gradient">
             <i class="fas fa-rocket"></i> Mulai Sekarang
         </a>
-        <a href="/caesar" class="btn btn-outline">
+        <a href="/caesar" class="btn-custom btn-outline-glass">
             <i class="fas fa-play"></i> Coba Demo
         </a>
         {% else %}
-        <a href="/dashboard" class="btn btn-primary">
-            <i class="fas fa-gauge"></i> Dashboard
+        <a href="/dashboard" class="btn-custom btn-primary-gradient">
+            <i class="fas fa-gauge"></i> Dashboard Saya
         </a>
         {% endif %}
     </div>
 </div>
 
-<h2 class="section-title">Fitur Gratis (Tanpa Login)</h2>
+<div class="section-header">
+    <h2>Fitur Gratis</h2>
+</div>
 
 <div class="features-grid">
+    <!-- Caesar -->
     <a href="/caesar" style="text-decoration: none; color: inherit;">
         <div class="feature-card">
-            <div class="feature-icon">
-                <i class="fas fa-lock"></i>
+            <div class="card-content">
+                <div class="feature-icon-wrapper"><i class="fas fa-lock"></i></div>
+                <h3 class="feature-title">Caesar Cipher</h3>
+                <p class="feature-desc">Pelajari dasar kriptografi melalui metode pergeseran alfabet yang digunakan oleh kaisar Romawi.</p>
+                <span class="free-badge"><i class="fas fa-unlock"></i> Akses Terbuka</span>
             </div>
-            <h3 class="feature-title">Caesar Cipher</h3>
-            <p class="feature-desc">
-                Algoritma enkripsi klasik dengan pergeseran karakter sederhana
-            </p>
         </div>
     </a>
 
+    <!-- Vigenere -->
     <a href="/vigenere" style="text-decoration: none; color: inherit;">
         <div class="feature-card">
-            <div class="feature-icon">
-                <i class="fas fa-key"></i>
+            <div class="card-content">
+                <div class="feature-icon-wrapper"><i class="fas fa-key"></i></div>
+                <h3 class="feature-title">Vigenere Cipher</h3>
+                <p class="feature-desc">Tingkatkan keamanan dengan enkripsi polyalphabetic yang menggunakan kunci rahasia tertentu.</p>
+                <span class="free-badge"><i class="fas fa-unlock"></i> Akses Terbuka</span>
             </div>
-            <h3 class="feature-title">Vigenere Cipher</h3>
-            <p class="feature-desc">
-                Enkripsi polyalphabetic menggunakan keyword
-            </p>
         </div>
     </a>
 
+    <!-- Bruteforce -->
     <a href="/bruteforce" style="text-decoration: none; color: inherit;">
         <div class="feature-card">
-            <div class="feature-icon">
-                <i class="fas fa-hammer"></i>
+            <div class="card-content">
+                <div class="feature-icon-wrapper"><i class="fas fa-hammer"></i></div>
+                <h3 class="feature-title">Bruteforce Attack</h3>
+                <p class="feature-desc">Simulasikan bagaimana peretas mencoba memecahkan kode dengan mencoba segala kemungkinan secara otomatis.</p>
+                <span class="free-badge"><i class="fas fa-unlock"></i> Akses Terbuka</span>
             </div>
-            <h3 class="feature-title">Bruteforce Attack</h3>
-            <p class="feature-desc">
-                Coba semua kemungkinan untuk memecahkan enkripsi Caesar
-            </p>
         </div>
     </a>
 </div>
 
-<h2 class="section-title">Fitur Premium (Butuh Login)</h2>
+<div class="section-header">
+    <h2>Fitur Premium</h2>
+</div>
 
 <div class="features-grid">
-    <div class="feature-card" onclick="checkLogin('/substitution')">
-        <div class="feature-icon">
-            <i class="fas fa-shuffle"></i>
-        </div>
-        <h3 class="feature-title">Substitution Cipher</h3>
-        <p class="feature-desc">
-            Substitusi alphabet dengan pola custom atau keyword
-        </p>
-        <span class="locked-badge"><i class="fas fa-lock"></i> Login Required</span>
-    </div>
+    {% set premium_tools = [
+        ('Substitution', 'shuffle', 'Substitusi alphabet dengan pola custom atau keyword kompleks.', '/substitution'),
+        ('Transposition', 'arrows-rotate', 'Metode pengacakan urutan karakter seperti Rail Fence & Columnar.', '/transposition'),
+        ('Playfair', 'table-cells', 'Enkripsi berbasis pasangan huruf (digraph) dengan matriks 5x5.', '/playfair'),
+        ('Hill Cipher', 'mountain', 'Enkripsi matematis tingkat lanjut menggunakan aljabar matriks.', '/hill'),
+        ('RSA Encryption', 'shield', 'Asymmetric cryptography yang mengamankan transaksi internet modern.', '/rsa'),
+        ('Hash Functions', 'hashtag', 'Verifikasi integritas data dengan MD5, SHA-256, dan standar modern lainnya.', '/hash')
+    ] %}
 
-    <div class="feature-card" onclick="checkLogin('/transposition')">
-        <div class="feature-icon">
-            <i class="fas fa-arrows-rotate"></i>
+    {% for title, icon, desc, url in premium_tools %}
+    <div class="feature-card" style="cursor: pointer;" onclick="checkLogin('{{ url }}')">
+        <div class="card-content">
+            <div class="feature-icon-wrapper"><i class="fas fa-{{ icon }}"></i></div>
+            <h3 class="feature-title">{{ title }}</h3>
+            <p class="feature-desc">{{ desc }}</p>
+            <span class="locked-badge"><i class="fas fa-lock"></i> Butuh Login</span>
         </div>
-        <h3 class="feature-title">Transposition Cipher</h3>
-        <p class="feature-desc">
-            Rail Fence, Columnar, dan Route Cipher
-        </p>
-        <span class="locked-badge"><i class="fas fa-lock"></i> Login Required</span>
     </div>
-
-    <div class="feature-card" onclick="checkLogin('/playfair')">
-        <div class="feature-icon">
-            <i class="fas fa-table-cells"></i>
-        </div>
-        <h3 class="feature-title">Playfair Cipher</h3>
-        <p class="feature-desc">
-            Enkripsi digraph menggunakan matriks 5x5
-        </p>
-        <span class="locked-badge"><i class="fas fa-lock"></i> Login Required</span>
-    </div>
-
-    <div class="feature-card" onclick="checkLogin('/hill')">
-        <div class="feature-icon">
-            <i class="fas fa-mountain"></i>
-        </div>
-        <h3 class="feature-title">Hill Cipher</h3>
-        <p class="feature-desc">
-            Enkripsi matematis menggunakan matriks aljabar linear
-        </p>
-        <span class="locked-badge"><i class="fas fa-lock"></i> Login Required</span>
-    </div>
-
-    <div class="feature-card" onclick="checkLogin('/rsa')">
-        <div class="feature-icon">
-            <i class="fas fa-shield"></i>
-        </div>
-        <h3 class="feature-title">RSA Encryption</h3>
-        <p class="feature-desc">
-            Public key cryptography dengan prime numbers
-        </p>
-        <span class="locked-badge"><i class="fas fa-lock"></i> Login Required</span>
-    </div>
-
-    <div class="feature-card" onclick="checkLogin('/hash')">
-        <div class="feature-icon">
-            <i class="fas fa-hashtag"></i>
-        </div>
-        <h3 class="feature-title">Hash Functions</h3>
-        <p class="feature-desc">
-            MD5, SHA-256, SHA-512, BLAKE2, dan lainnya
-        </p>
-        <span class="locked-badge"><i class="fas fa-lock"></i> Login Required</span>
-    </div>
+    {% endfor %}
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
     function checkLogin(url) {
+        // Mengambil status auth dari body (pastikan base.html Anda menyertakan ini)
         const isAuth = document.body.getAttribute('data-authenticated') === 'true';
         
         if (isAuth) {
             window.location.href = url;
         } else {
-            alert('Anda harus login terlebih dahulu untuk mengakses fitur ini!');
-            window.location.href = '/login';
+            // Animasi Alert Kustom daripada alert() browser
+            const alertBox = document.getElementById('authAlert');
+            alertBox.style.display = 'block';
+            
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 2000);
         }
     }
 </script>
