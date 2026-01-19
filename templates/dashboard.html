@@ -1918,6 +1918,216 @@
             opacity: 0;
         }
     }
+    .certificates {
+    padding: 2rem;
+}
+
+.cert-title {
+    font-size: 1.4rem;
+    margin-bottom: .5rem;
+}
+
+.cert-subtitle {
+    opacity: .8;
+    margin-bottom: 2rem;
+}
+
+.highlight {
+    color: #4f8cff;
+}
+
+.cert-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+}
+
+.cert-card {
+    background: #151c2c;
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,.3);
+}
+
+.cert-card img {
+    width: 100%;
+    max-width: 220px;
+    margin-bottom: 1rem;
+    filter: brightness(0.9);
+}
+
+.cert-card h3 {
+    margin-bottom: 1rem;
+}
+
+.cert-card.locked img {
+    filter: grayscale(100%) brightness(0.6);
+}
+
+.lock-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+    font-size: 2.5rem;
+}
+
+.progress {
+    height: 8px;
+    background: #2a3350;
+    border-radius: 10px;
+    margin: .8rem 0;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #4f8cff, #6aa9ff);
+    border-radius: 10px;
+}
+
+.progress-text {
+    font-size: .85rem;
+    opacity: .8;
+    margin-bottom: .8rem;
+}
+
+.btn-primary {
+    background: #f59e0b;
+    border: none;
+    padding: .7rem 1.2rem;
+    border-radius: 10px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    margin-bottom: .6rem;
+}
+
+.btn-linkedin {
+    background: #0a66c2;
+    border: none;
+    padding: .6rem;
+    border-radius: 10px;
+    color: white;
+    width: 100%;
+    cursor: pointer;
+}
+
+.btn-disabled {
+    background: #2a3350;
+    border: none;
+    padding: .7rem;
+    border-radius: 10px;
+    color: #9aa4c7;
+    cursor: not-allowed;
+    width: 100%;
+}
+/* ================= SAFE PREMIUM CARD ================= */
+.premium-info {
+    background: linear-gradient(180deg,#121a2f,#0c1325);
+    border-radius: 16px;
+    padding: 1.2rem;
+}
+
+/* DETAILS RESET */
+.premium-wrapper summary {
+    list-style: none;
+    cursor: pointer;
+}
+.premium-wrapper summary::-webkit-details-marker {
+    display: none;
+}
+
+/* BADGE */
+.badge-gold {
+    background: linear-gradient(135deg,#f59e0b,#fbbf24);
+    color: #111;
+    font-size: .7rem;
+    padding: .25rem .6rem;
+    border-radius: 999px;
+    font-weight: 600;
+}
+
+/* ICON */
+.gold-icon {
+    background: linear-gradient(135deg,#f59e0b,#fbbf24);
+    color: #111;
+}
+
+/* DETAIL PANEL */
+.premium-detail {
+    margin-top: 1rem;
+}
+
+/* STATUS */
+.status {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    color: #22c55e;
+    font-weight: 600;
+    margin-bottom: .8rem;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    background: #22c55e;
+    border-radius: 50%;
+}
+
+/* GRID */
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: .6rem;
+    margin-bottom: 1rem;
+}
+
+.detail-grid .box {
+    background: #0e1629;
+    padding: .7rem;
+    border-radius: 12px;
+    font-size: .85rem;
+}
+
+.detail-grid .label {
+    font-size: .7rem;
+    color: #94a3b8;
+}
+
+.detail-grid .highlight .value {
+    color: #fbbf24;
+    font-weight: 600;
+}
+
+/* PROGRESS */
+.progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: .75rem;
+    margin-bottom: .3rem;
+    color: #cbd5f5;
+}
+
+.progress-bar {
+    height: 7px;
+    background: #1e293b;
+    border-radius: 10px;
+}
+
+.progress-fill {
+    width: 65%;
+    height: 100%;
+    background: linear-gradient(90deg,#f59e0b,#fbbf24);
+    border-radius: 10px;
+}
+
 </style>
 {% endblock %}
 
@@ -3327,21 +3537,56 @@
                 </div>
             </section>
 
-            <!-- CERTIFICATES SECTION (Premium) -->
-            <section id="certificates-section" class="dashboard-section">
-                <div class="premium-banner" style="text-align: center; flex-direction: column;">
-                    <div class="premium-icon" style="font-size: 4rem; margin-bottom: 1rem;">
-                        <i class="fas fa-certificate"></i>
-                    </div>
-                    <h2 style="color: var(--warning); margin-bottom: 1rem;">Sertifikat Premium</h2>
-                    <p style="color: var(--text); margin-bottom: 1.5rem; max-width: 600px;">
-                        Dapatkan sertifikat digital yang bisa diverifikasi setelah menyelesaikan setiap learning path. Tunjukkan keahlian kriptografi Anda!
-                    </p>
-                    <button onclick="showUpgradeModal()" style="padding: 1rem 2rem; background: var(--premium-gold); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 1.1rem;">
-                        <i class="fas fa-crown"></i> Upgrade untuk Dapatkan Sertifikat
-                    </button>
-                </div>
-            </section>
+        <!-- CERTIFICATES SECTION (Premium) -->
+             <section id="certificates-section" class="dashboard-section certificates">
+            <h1 class="cert-title">
+          Achievement Unlocked
+    </h1>
+    <p class="cert-subtitle">🏅 1 Sertifikat Dikoleksi</p>
+
+    <div class="cert-grid">
+
+        <!-- PEMULA -->
+        <div class="cert-card active">
+            <img src="{{ url_for('static', filename='images/serti1.png') }}" 
+     alt="Sertifikat Pemula">
+            <h3>Beginner</h3>
+            <button class="btn-primary">Download PDF</button>
+            <button class="btn-linkedin">
+                <i class="fab fa-linkedin"></i> Bagikan ke LinkedIn
+            </button>
+        </div>
+
+        <!-- MENENGAH -->
+        <div class="cert-card locked">
+            <div class="lock-overlay">
+                <i class="fas fa-lock"></i>
+            </div>
+                        <img src="{{ url_for('static', filename='images/serti2.png') }}" 
+     alt="Sertifikat Pemula">
+            <h3>Intermediate</h3>
+            <div class="progress">
+                <div class="progress-bar" style="width: 50%"></div>
+            </div>
+            <p class="progress-text">5/10 Cipher Selesai</p>
+            <button class="btn-disabled">Selesaikan Materi</button>
+        </div>
+
+        <!-- LANJUTAN -->
+        <div class="cert-card locked">
+            <div class="lock-overlay">
+                <i class="fas fa-lock"></i>
+            </div>
+                        <img src="{{ url_for('static', filename='images/serti3.png') }}" 
+     alt="Sertifikat Pemula">
+            <h3>Advanced</h3>
+            <p class="progress-text">Selesaikan 10 Cipher untuk membuka</p>
+            <button class="btn-disabled">Selesaikan Materi</button>
+        </div>
+
+    </div>
+</section>
+
 
             <!-- COMMUNITY SECTION -->
             <section id="community-section" class="dashboard-section">
@@ -3428,34 +3673,72 @@
                         </div>
                     </a>
 
-                    <div class="tool-card premium" onclick="unlockCipher('premium-settings')">
-                        <div class="card-badges">
-                            <span class="badge badge-premium">
-                                <i class="fas fa-crown"></i> PREMIUM
-                            </span>
-                        </div>
-                        <div class="card-header">
-                            <div class="cipher-icon">
-                                <div class="icon-circle tdes-icon">
-                                    <i class="fas fa-crown"></i>
-                                </div>
-                            </div>
-                            <div class="cipher-meta">
-                                <div class="cipher-name">
-                                    <h3>Premium Settings</h3>
-                                    <span class="cipher-code">PREMIUM</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="cipher-desc">
-                            Kelola langganan premium dan fitur eksklusif.
-                        </div>
+                    <div class="tool-card premium-info">
+    <details class="premium-wrapper">
+        <summary class="premium-summary">
+
+            <div class="card-badges">
+                <span class="badge badge-gold">
+                    <i class="fas fa-crown"></i> PREMIUM
+                </span>
+            </div>
+
+            <div class="card-header">
+                <div class="cipher-icon">
+                    <div class="icon-circle gold-icon">
+                        <i class="fas fa-crown"></i>
                     </div>
                 </div>
-            </section>
-        </main>
-    </div>
+                <div class="cipher-meta">
+                    <div class="cipher-name">
+                        <h3>Premium</h3>
+                        <span class="cipher-code">SUBSCRIPTION</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cipher-desc">
+                Informasi status langganan premium Anda.
+            </div>
+
+        </summary>
+
+        <!-- DETAIL (MUNCUL DI SINI, BUKAN PAGE) -->
+        <div class="premium-detail">
+            <div class="status">
+                <span class="dot"></span> Premium Aktif
+            </div>
+
+            <div class="detail-grid">
+                <div class="box">
+                    <span class="label">Paket</span>
+                    <span class="value">Premium Pro</span>
+                </div>
+                <div class="box">
+                    <span class="label">Mulai</span>
+                    <span class="value">12 Januari 2026</span>
+                </div>
+                <div class="box">
+                    <span class="label">Berakhir</span>
+                    <span class="value">12 Februari 2026</span>
+                </div>
+                <div class="box highlight">
+                    <span class="label">Sisa</span>
+                    <span class="value">17 Hari</span>
+                </div>
+            </div>
+
+            <div class="progress">
+                
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+            </div>
+        </div>
+
+    </details>
 </div>
+
 
 <!-- Upgrade Modal -->
 <div class="upgrade-modal" id="upgradeModal">
