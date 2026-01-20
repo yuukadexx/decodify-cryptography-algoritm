@@ -14,7 +14,7 @@ def index():
 @main_bp.route('/dashboard')
 @login_required
 def dashboard():
-    from models.cipher_models import CipherUsage, UserProgress
+    from app import CipherUsage, UserProgress
     
     # Get user progress
     progress = UserProgress.query.filter_by(user_id=current_user.id).first()
