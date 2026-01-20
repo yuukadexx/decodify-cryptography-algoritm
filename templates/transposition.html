@@ -342,79 +342,95 @@
     }
 
     async function performRailFence(mode) {
-        const text = document.getElementById('railfenceText').value;
-        const rails = parseInt(document.getElementById('railsInput').value);
+    const text = document.getElementById('railfenceText').value;
+    const rails = parseInt(document.getElementById('railsInput').value);
 
-        if (!text.trim()) {
-            alert('Masukkan teks!');
-            return;
-        }
-
-        try {
-            const response = await fetch('/api/transposition/railfence', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text, rails, mode })
-            });
-
-            const data = await response.json();
-            const resultBox = document.getElementById('railfenceResult');
-            resultBox.textContent = data.result;
-            resultBox.classList.add('show');
-        } catch (error) {
-            alert('Error: ' + error.message);
-        }
+    if (!text.trim()) {
+        alert('Masukkan teks!');
+        return;
     }
 
-    async function performColumnar(mode) {
-        const text = document.getElementById('columnarText').value;
-        const key = document.getElementById('columnarKey').value;
+    try {
+        const response = await fetch('/api/transposition', {  // ← Ubah URL
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                text, 
+                rails, 
+                mode,
+                type: 'railfence'  // ← Tambah ini
+            })
+        });
 
-        if (!text.trim() || !key.trim()) {
-            alert('Masukkan teks dan keyword!');
-            return;
-        }
+        const data = await response.json();
+        const resultBox = document.getElementById('railfenceResult');
+        resultBox.textContent = data.result;
+        resultBox.classList.add('show');
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}
 
-        try {
-            const response = await fetch('/api/transposition/columnar', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text, key, mode })
-            });
+async function performColumnar(mode) {
+    const text = document.getElementById('columnarText').value;
+    const key = document.getElementById('columnarKey').value;
 
-            const data = await response.json();
-            const resultBox = document.getElementById('columnarResult');
-            resultBox.textContent = data.result;
-            resultBox.classList.add('show');
-        } catch (error) {
-            alert('Error: ' + error.message);
-        }
+    if (!text.trim() || !key.trim()) {
+        alert('Masukkan teks dan keyword!');
+        return;
     }
 
-    async function performRoute(mode) {
-        const text = document.getElementById('routeText').value;
-        const rows = parseInt(document.getElementById('routeRows').value);
-        const cols = parseInt(document.getElementById('routeCols').value);
+    try {
+        const response = await fetch('/api/transposition', {  // ← Ubah URL
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                text, 
+                key, 
+                mode,
+                type: 'columnar'  // ← Tambah ini
+            })
+        });
 
-        if (!text.trim()) {
-            alert('Masukkan teks!');
-            return;
-        }
-
-        try {
-            const response = await fetch('/api/transposition/route', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text, rows, cols, mode })
-            });
-
-            const data = await response.json();
-            const resultBox = document.getElementById('routeResult');
-            resultBox.textContent = data.result;
-            resultBox.classList.add('show');
-        } catch (error) {
-            alert('Error: ' + error.message);
-        }
+        const data = await response.json();
+        const resultBox = document.getElementById('columnarResult');
+        resultBox.textContent = data.result;
+        resultBox.classList.add('show');
+    } catch (error) {
+        alert('Error: ' + error.message);
     }
+}
+
+async function performRoute(mode) {
+    const text = document.getElementById('routeText').value;
+    const rows = parseInt(document.getElementById('routeRows').value);
+    const cols = parseInt(document.getElementById('routeCols').value);
+
+    if (!text.trim()) {
+        alert('Masukkan teks!');
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/transposition', {  // ← Ubah URL
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                text, 
+                rows, 
+                cols, 
+                mode,
+                type: 'route'  // ← Tambah ini
+            })
+        });
+
+        const data = await response.json();
+        const resultBox = document.getElementById('routeResult');
+        resultBox.textContent = data.result;
+        resultBox.classList.add('show');
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}
 </script>
 {% endblock %}
