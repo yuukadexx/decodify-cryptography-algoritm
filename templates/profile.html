@@ -146,6 +146,93 @@
         gap: 0.5rem;
     }
 
+    .skill-input-group {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .skill-input-group input {
+        flex: 1;
+    }
+
+    .btn-primary {
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, var(--secondary), var(--primary));
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .btn-secondary {
+        padding: 0.75rem 1.5rem;
+        background: transparent;
+        border: 1px solid var(--glass);
+        color: var(--text);
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .account-settings {
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--glass);
+    }
+
+    .settings-btn {
+        width: 100%;
+        text-align: left;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass);
+        border-radius: 10px;
+        color: var(--text);
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .settings-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: var(--primary);
+    }
+
+    .danger-btn {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        color: var(--danger);
+    }
+
+    .danger-btn:hover {
+        background: rgba(239, 68, 68, 0.2);
+        border-color: var(--danger);
+    }
+
+    .bio-textarea {
+        width: 100%;
+        min-height: 100px;
+        padding: 0.75rem 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass);
+        border-radius: 10px;
+        color: var(--text);
+        font-size: 1rem;
+        font-family: inherit;
+        resize: vertical;
+    }
+
+    .bio-textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+    }
+
     @media (max-width: 768px) {
         .profile-content {
             grid-template-columns: 1fr;
@@ -157,6 +244,10 @@
         
         .profile-main {
             order: 1;
+        }
+        
+        .skill-input-group {
+            flex-direction: column;
         }
     }
 </style>
@@ -179,48 +270,59 @@
             <!-- Avatar -->
             <div class="profile-avatar">
                 <div class="avatar-large" onclick="changeAvatar()">
-                    <i class="fas fa-user-shield"></i>
+                    <i class="fas {{ avatar|default('fa-user-shield') }}"></i>
                 </div>
                 <h3 style="color: var(--text); text-align: center; margin-bottom: 0.25rem;">{{ username }}</h3>
                 <div style="color: var(--text-muted); text-align: center; font-size: 0.9rem;">
-                    Member sejak {{ join_date|default("Januari 2024") }}
+                    Member sejak {{ join_date }}
                 </div>
+                {% if is_premium %}
+                <div style="margin-top: 0.5rem;">
+                    <span style="background: linear-gradient(135deg, #f59e0b, #fbbf24); color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">
+                        <i class="fas fa-crown"></i> PREMIUM
+                    </span>
+                </div>
+                {% endif %}
             </div>
 
             <!-- Stats -->
             <div class="profile-stats">
                 <div class="stat-item">
                     <span style="color: var(--text-muted);">Level</span>
-                    <span style="color: var(--text); font-weight: 600;">{{ user_level|default("1") }}</span>
+                    <span style="color: var(--text); font-weight: 600;">{{ user_level }}</span>
                 </div>
                 <div class="stat-item">
                     <span style="color: var(--text-muted);">XP</span>
-                    <span style="color: var(--text); font-weight: 600;">{{ xp_points|default("0") }}</span>
+                    <span style="color: var(--text); font-weight: 600;">{{ xp_points }}</span>
                 </div>
                 <div class="stat-item">
                     <span style="color: var(--text-muted);">Streak</span>
-                    <span style="color: var(--text); font-weight: 600;">{{ streak_days|default("0") }} hari</span>
+                    <span style="color: var(--text); font-weight: 600;">{{ streak_days }} hari</span>
                 </div>
                 <div class="stat-item">
                     <span style="color: var(--text-muted);">Cipher Selesai</span>
-                    <span style="color: var(--text); font-weight: 600;">{{ completed_ciphers|default("0") }}/20</span>
+                    <span style="color: var(--text); font-weight: 600;">{{ completed_ciphers }}/13</span>
                 </div>
             </div>
 
-            <!-- Premium Status -->
-            <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 10px; padding: 1rem; margin-bottom: 1.5rem;">
-                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-                    <i class="fas fa-crown" style="color: var(--warning);"></i>
-                    <span style="color: var(--text); font-weight: 600;">Status Premium</span>
+            <!-- Skills Section -->
+            <div>
+                <h4 style="color: var(--text); margin-bottom: 0.5rem;">Keahlian</h4>
+                <div class="badge-container" id="skillsContainer">
+                    {% for skill in skills %}
+                    <div class="badge-item" data-skill="{{ skill }}">
+                        {{ skill }}
+                        <i class="fas fa-times" onclick="removeSkillFromElement(this)" style="cursor: pointer;"></i>
+                    </div>
+                    {% endfor %}
                 </div>
-                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;" id="premiumStatusText">
-                    {% if is_premium %}Aktif hingga {{ premium_expiry }}{% else %}Gratis{% endif %}
-                </p>
-                {% if not is_premium %}
-                <button onclick="window.location.href='/premium'" style="width: 100%; padding: 0.5rem; background: var(--premium-gold); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
-                    Upgrade Premium
-                </button>
-                {% endif %}
+                
+                <div class="skill-input-group">
+                    <input type="text" id="skillInput" class="form-input" placeholder="Tambah keahlian" style="margin: 0;">
+                    <button onclick="addSkill()" class="btn-primary" style="padding: 0.75rem;">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -232,58 +334,84 @@
             <form id="profileForm">
                 <div class="form-group">
                     <label class="form-label">Nama Lengkap</label>
-                    <input type="text" class="form-input" value="{{ full_name|default('John Doe') }}" placeholder="Masukkan nama lengkap">
+                    <input type="text" class="form-input" value="{{ full_name }}" placeholder="Masukkan nama lengkap" id="fullName">
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Email</label>
-                    <input type="email" class="form-input" value="{{ email|default('user@example.com') }}" placeholder="Masukkan email">
+                    <input type="email" class="form-input" value="{{ email }}" placeholder="Masukkan email" id="email">
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Username</label>
-                    <input type="text" class="form-input" value="{{ username }}" placeholder="Masukkan username" readonly style="background: rgba(255, 255, 255, 0.02);">
+                    <input type="text" class="form-input" value="{{ username }}" placeholder="Username" readonly style="background: rgba(255, 255, 255, 0.02);">
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Bio</label>
-                    <textarea class="form-input" rows="3" placeholder="Ceritakan tentang diri Anda...">{{ bio|default('Penggemar kriptografi yang sedang belajar enkripsi modern.') }}</textarea>
+                    <label class="form-label">Bio (Tentang Saya)</label>
+                    <textarea class="bio-textarea" id="bio" placeholder="Ceritakan tentang diri Anda...">{{ bio }}</textarea>
                 </div>
 
-
                 <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-                    <button type="submit" style="padding: 0.75rem 2rem; background: linear-gradient(135deg, var(--secondary), var(--primary)); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">
+                    <button type="submit" class="btn-primary">
                         Simpan Perubahan
                     </button>
-                    <button type="button" onclick="resetForm()" style="padding: 0.75rem 2rem; background: transparent; border: 1px solid var(--glass); color: var(--text); border-radius: 10px; cursor: pointer;">
+                    <button type="button" onclick="resetForm()" class="btn-secondary">
                         Reset
                     </button>
                 </div>
             </form>
 
+            <!-- Account Statistics -->
+            <div class="account-settings">
+                <h2 style="color: var(--text); margin-bottom: 1.5rem;">Statistik Akun</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                    <div style="background: rgba(255, 255, 255, 0.05); padding: 1rem; border-radius: 10px;">
+                        <div style="color: var(--text-muted); font-size: 0.9rem;">Penggunaan Cipher</div>
+                        <div style="color: var(--text); font-size: 1.5rem; font-weight: 600;">{{ stats.cipher_usages|default(0) }}</div>
+                    </div>
+                    <div style="background: rgba(255, 255, 255, 0.05); padding: 1rem; border-radius: 10px;">
+                        <div style="color: var(--text-muted); font-size: 0.9rem;">Quiz Dikerjakan</div>
+                        <div style="color: var(--text); font-size: 1.5rem; font-weight: 600;">{{ stats.quiz_attempts|default(0) }}</div>
+                    </div>
+                    <div style="background: rgba(255, 255, 255, 0.05); padding: 1rem; border-radius: 10px;">
+                        <div style="color: var(--text-muted); font-size: 0.9rem;">Challenge Selesai</div>
+                        <div style="color: var(--text); font-size: 1.5rem; font-weight: 600;">{{ stats.challenge_completed|default(0) }}</div>
+                    </div>
+                    <div style="background: rgba(255, 255, 255, 0.05); padding: 1rem; border-radius: 10px;">
+                        <div style="color: var(--text-muted); font-size: 0.9rem;">Total XP Diperoleh</div>
+                        <div style="color: var(--text); font-size: 1.5rem; font-weight: 600;">{{ stats.total_xp_earned|default(0) }}</div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Account Settings -->
-            <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--glass);">
+            <div class="account-settings">
                 <h2 style="color: var(--text); margin-bottom: 1.5rem;">Pengaturan Akun</h2>
                 
-                <div style="display: flex; flex-direction: column; gap: 1rem;">
-                    <button onclick="window.location.href='/settings/password'" style="text-align: left; padding: 1rem; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass); border-radius: 10px; color: var(--text); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
-                        <span>Ubah Password</span>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <button onclick="goToSecurity()" class="settings-btn">
+                        <span>
+                            <i class="fas fa-shield-alt" style="margin-right: 0.5rem;"></i>
+                            Keamanan & Privasi
+                        </span>
                         <i class="fas fa-chevron-right"></i>
                     </button>
                     
-                    <button onclick="window.location.href='/settings/privacy'" style="text-align: left; padding: 1rem; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass); border-radius: 10px; color: var(--text); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
-                        <span>Privasi & Keamanan</span>
+                    <button onclick="exportData()" class="settings-btn">
+                        <span>
+                            <i class="fas fa-download" style="margin-right: 0.5rem;"></i>
+                            Ekspor Data
+                        </span>
                         <i class="fas fa-chevron-right"></i>
                     </button>
                     
-                    <button onclick="exportData()" style="text-align: left; padding: 1rem; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass); border-radius: 10px; color: var(--text); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
-                        <span>Ekspor Data</span>
-                        <i class="fas fa-download"></i>
-                    </button>
-                    
-                    <button onclick="deleteAccount()" style="text-align: left; padding: 1rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 10px; color: var(--danger); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
-                        <span>Hapus Akun</span>
-                        <i class="fas fa-trash"></i>
+                    <button onclick="deleteAccount()" class="settings-btn danger-btn">
+                        <span>
+                            <i class="fas fa-trash" style="margin-right: 0.5rem;"></i>
+                            Hapus Akun
+                        </span>
+                        <i class="fas fa-chevron-right"></i>
                     </button>
                 </div>
             </div>
@@ -293,6 +421,9 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Load user skills on page load
+        loadSkills();
+        
         // Handle form submission
         const profileForm = document.getElementById('profileForm');
         profileForm.addEventListener('submit', function(e) {
@@ -300,142 +431,387 @@
             saveProfile();
         });
         
-        // Check premium status
-        checkPremiumStatus();
+        // Set avatar icon based on user's avatar
+        const userAvatar = '{{ avatar|default("fa-user-shield") }}';
+        const avatarIcon = document.querySelector('.avatar-large i');
+        if (avatarIcon && userAvatar) {
+            avatarIcon.className = `fas ${userAvatar}`;
+        }
     });
     
-    function checkPremiumStatus() {
-        const isPremium = localStorage.getItem('cryptolab_premium') === 'true';
-        const expiry = localStorage.getItem('cryptolab_premium_expiry');
+    // Fungsi untuk menghapus skill dari elemen
+    function removeSkillFromElement(element) {
+        const skillItem = element.closest('.badge-item');
+        const skill = skillItem.getAttribute('data-skill') || 
+                     skillItem.textContent.trim().replace('×', '').trim();
         
-        const statusText = document.getElementById('premiumStatusText');
-        if (isPremium && expiry) {
-            const expiryDate = new Date(expiry);
-            statusText.textContent = `Aktif hingga ${expiryDate.toLocaleDateString('id-ID')}`;
-        } else {
-            statusText.textContent = 'Gratis';
-        }
+        if (!confirm(`Hapus skill "${skill}"?`)) return;
+        
+        fetch('/api/profile/skills/remove', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ skill: skill })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                skillItem.remove();
+                showNotification('Skill berhasil dihapus', 'success');
+            } else {
+                showNotification(data.error || 'Gagal menghapus skill', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error removing skill:', error);
+            showNotification('Terjadi kesalahan', 'error');
+        });
+    }
+    
+    function loadSkills() {
+        fetch('/api/profile/skills')
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('skillsContainer');
+                if (data.success && data.skills) {
+                    container.innerHTML = '';
+                    data.skills.forEach(skill => {
+                        const badge = document.createElement('div');
+                        badge.className = 'badge-item';
+                        badge.setAttribute('data-skill', skill);
+                        badge.innerHTML = `
+                            ${skill}
+                            <i class="fas fa-times" onclick="removeSkillFromElement(this)" style="cursor: pointer;"></i>
+                        `;
+                        container.appendChild(badge);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error loading skills:', error);
+            });
     }
     
     function changeAvatar() {
-        const avatars = ['fa-user-shield', 'fa-user-secret', 'fa-user-ninja', 'fa-user-astronaut', 'fa-user-tie'];
-        const current = document.querySelector('.avatar-large i');
-        const currentIndex = avatars.indexOf(current.className.split(' ')[1] || 'fa-user-shield');
+        const avatars = ['fa-user-shield', 'fa-user-secret', 'fa-user-ninja', 'fa-user-astronaut', 
+                        'fa-user-tie', 'fa-user-graduate', 'fa-user-cog', 'fa-user-check', 'fa-user-edit'];
+        const currentIcon = document.querySelector('.avatar-large i');
+        const currentClass = currentIcon.className.split(' ')[1];
+        const currentIndex = avatars.indexOf(currentClass);
         const nextIndex = (currentIndex + 1) % avatars.length;
+        const newAvatar = avatars[nextIndex];
         
-        current.className = `fas ${avatars[nextIndex]}`;
+        // Update UI first for better UX
+        currentIcon.className = `fas ${newAvatar}`;
         
-        showNotification('Avatar berhasil diubah!', 'success');
+        // Send to server
+        fetch('/api/profile/update-avatar', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ avatar: newAvatar })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Avatar berhasil diubah!', 'success');
+            } else {
+                showNotification(data.error || 'Gagal mengubah avatar', 'error');
+                // Revert UI on error
+                currentIcon.className = `fas ${currentClass}`;
+            }
+        })
+        .catch(error => {
+            showNotification('Terjadi kesalahan', 'error');
+            currentIcon.className = `fas ${currentClass}`;
+        });
     }
     
     function addSkill() {
         const input = document.getElementById('skillInput');
         const skill = input.value.trim();
         
-        if (skill && skill.length > 0) {
-            const container = document.getElementById('skillsContainer');
-            const badge = document.createElement('div');
-            badge.className = 'badge-item';
-            badge.innerHTML = `
-                ${skill}
-                <i class="fas fa-times" onclick="removeSkill(this)" style="cursor: pointer;"></i>
-            `;
-            container.appendChild(badge);
-            input.value = '';
-            
-            showNotification('Keahlian ditambahkan!', 'success');
+        if (!skill) {
+            showNotification('Keahlian tidak boleh kosong', 'warning');
+            return;
         }
+        
+        if (skill.length > 100) {
+            showNotification('Nama keahlian terlalu panjang', 'error');
+            return;
+        }
+        
+        fetch('/api/profile/skills/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ skill: skill })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Tambahkan skill ke UI
+                const container = document.getElementById('skillsContainer');
+                const badge = document.createElement('div');
+                badge.className = 'badge-item';
+                badge.setAttribute('data-skill', skill);
+                badge.innerHTML = `
+                    ${skill}
+                    <i class="fas fa-times" onclick="removeSkillFromElement(this)" style="cursor: pointer;"></i>
+                `;
+                container.appendChild(badge);
+                
+                input.value = '';
+                showNotification('Keahlian berhasil ditambahkan!', 'success');
+            } else {
+                showNotification(data.error || 'Gagal menambahkan keahlian', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error adding skill:', error);
+            showNotification('Terjadi kesalahan', 'error');
+        });
     }
     
-    function removeSkill(element) {
-        element.parentElement.remove();
+    // Fungsi lama untuk kompatibilitas (tidak dipakai langsung)
+    function removeSkill(skill) {
+        if (!confirm(`Hapus skill "${skill}"?`)) return;
+        
+        fetch('/api/profile/skills/remove', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ skill: skill })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Hapus dari UI dengan mencari elemen yang sesuai
+                document.querySelectorAll('.badge-item').forEach(item => {
+                    if (item.getAttribute('data-skill') === skill) {
+                        item.remove();
+                    }
+                });
+                showNotification('Keahlian berhasil dihapus', 'success');
+            } else {
+                showNotification(data.error || 'Gagal menghapus keahlian', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error removing skill:', error);
+            showNotification('Terjadi kesalahan', 'error');
+        });
     }
     
     function saveProfile() {
-        // Simulate saving
-        showNotification('Profil berhasil disimpan!', 'success');
+        const fullName = document.getElementById('fullName').value.trim();
+        const email = document.getElementById('email').value.trim().toLowerCase();
+        const bio = document.getElementById('bio').value.trim();
         
-        // In real app, send to server
-        setTimeout(() => {
-            // Reload page to show updated data
-            location.reload();
-        }, 1500);
+        // Basic validation
+        if (!email) {
+            showNotification('Email harus diisi', 'error');
+            return;
+        }
+        
+        // Email format validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            showNotification('Format email tidak valid', 'error');
+            return;
+        }
+        
+        fetch('/api/profile/update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                full_name: fullName,
+                email: email,
+                bio: bio
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Profil berhasil diperbarui!', 'success');
+                // Update displayed email if changed
+                document.getElementById('email').value = data.user.email || email;
+                // Refresh page after 1.5 seconds to show updated data
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                showNotification(data.error || 'Gagal menyimpan profil', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error saving profile:', error);
+            showNotification('Terjadi kesalahan', 'error');
+        });
     }
     
     function resetForm() {
-        if (confirm('Yakin ingin mengembalikan semua perubahan?')) {
-            document.getElementById('profileForm').reset();
-            showNotification('Form telah direset', 'info');
+        if (confirm('Yakin ingin mengembalikan semua perubahan ke nilai asli?')) {
+            window.location.reload();
         }
     }
     
     function exportData() {
         showNotification('Mempersiapkan data untuk diekspor...', 'info');
         
-        // Simulate export
-        setTimeout(() => {
-            const data = {
-                username: '{{ username }}',
-                level: '{{ user_level|default("1") }}',
-                xp: '{{ xp_points|default("0") }}',
-                completed_ciphers: '{{ completed_ciphers|default("0") }}',
-                join_date: '{{ join_date|default("2024") }}'
-            };
-            
-            const dataStr = JSON.stringify(data, null, 2);
-            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-            
-            const exportFileDefaultName = 'cryptolab_data.json';
-            const linkElement = document.createElement('a');
-            linkElement.setAttribute('href', dataUri);
-            linkElement.setAttribute('download', exportFileDefaultName);
-            linkElement.click();
-            
-            showNotification('Data berhasil diekspor!', 'success');
-        }, 2000);
+        fetch('/api/profile/export-data')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const dataStr = JSON.stringify(data.data, null, 2);
+                    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+                    
+                    const exportFileDefaultName = `cryptolab_data_${Date.now()}.json`;
+                    const linkElement = document.createElement('a');
+                    linkElement.setAttribute('href', dataUri);
+                    linkElement.setAttribute('download', exportFileDefaultName);
+                    document.body.appendChild(linkElement);
+                    linkElement.click();
+                    document.body.removeChild(linkElement);
+                    
+                    showNotification('Data berhasil diekspor!', 'success');
+                } else {
+                    showNotification(data.error || 'Gagal mengekspor data', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error exporting data:', error);
+                showNotification('Terjadi kesalahan saat mengekspor data', 'error');
+            });
     }
     
     function deleteAccount() {
-        if (confirm('Hapus akun permanen? Tindakan ini tidak dapat dibatalkan.')) {
-            if (prompt('Ketik "DELETE" untuk konfirmasi:') === 'DELETE') {
+        if (confirm('Hapus akun permanen? Semua data Anda akan dihapus dan tidak dapat dikembalikan.')) {
+            const password = prompt('Masukkan password Anda untuk konfirmasi:');
+            if (!password) return;
+            
+            if (prompt('Ketik "DELETE" untuk konfirmasi penghapusan permanen:') === 'DELETE') {
                 showNotification('Menghapus akun...', 'warning');
                 
-                // In real app, this would call server API
-                setTimeout(() => {
-                    localStorage.clear();
-                    window.location.href = '/';
-                }, 3000);
+                fetch('/api/profile/delete-account', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        password: password,
+                        confirm_text: 'DELETE'
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showNotification('Akun berhasil dihapus. Mengalihkan...', 'success');
+                        setTimeout(() => {
+                            window.location.href = '/';
+                        }, 2000);
+                    } else {
+                        showNotification(data.error || 'Gagal menghapus akun', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting account:', error);
+                    showNotification('Terjadi kesalahan', 'error');
+                });
             }
         }
     }
     
+    function goToSecurity() {
+        window.location.href = '/security';
+    }
+    
     function showNotification(message, type = 'info') {
-        // Notification implementation
+        // Remove existing notifications
+        document.querySelectorAll('.notification').forEach(n => n.remove());
+        
         const notification = document.createElement('div');
+        notification.className = 'notification';
         notification.style.cssText = `
             position: fixed;
             top: 20px;
             right: 20px;
-            background: ${type === 'success' ? 'var(--accent)' : type === 'warning' ? 'var(--warning)' : 'var(--secondary)'};
+            background: ${type === 'success' ? '#10b981' : 
+                        type === 'error' ? '#ef4444' : 
+                        type === 'warning' ? '#f59e0b' : '#6366f1'};
             color: white;
             padding: 1rem 1.5rem;
             border-radius: 10px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
             z-index: 1000;
-            animation: slideIn 0.5s ease;
+            animation: slideIn 0.3s ease;
+            max-width: 400px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         `;
+        
         notification.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle'}"></i>
-                <span>${message}</span>
-            </div>
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : 
+                          type === 'error' ? 'fa-exclamation-circle' :
+                          type === 'warning' ? 'fa-exclamation-triangle' : 
+                          'fa-info-circle'}"></i>
+            <span>${message}</span>
         `;
         
         document.body.appendChild(notification);
         
+        // Auto remove after 3 seconds
         setTimeout(() => {
-            notification.remove();
+            notification.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
         }, 3000);
     }
+    
+    // Add CSS animations for notifications
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+        @keyframes float {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            33% {
+                transform: translate(30px, -50px) rotate(120deg);
+            }
+            66% {
+                transform: translate(-20px, 20px) rotate(240deg);
+            }
+            100% {
+                transform: translate(0, 0) rotate(360deg);
+            }
+        }
+    `;
+    document.head.appendChild(style);
 </script>
 {% endblock %}

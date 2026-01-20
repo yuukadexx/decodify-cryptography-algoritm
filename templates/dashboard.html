@@ -2029,62 +2029,6 @@
                             <div class="stat-label">Cipher Dikuasai</div>
                         </div>
                     </div>
-
-                    <!-- XP Indicator - Untuk Sertifikat -->
-<div class="stat-card xp-indicator-certificate" id="xpIndicator">
-    <div class="stat-icon xp-icon">
-        <i class="fas fa-certificate"></i>
-    </div>
-    <div class="stat-content">
-        <div class="xp-progress-info">
-            <div class="xp-progress-header">
-                <span class="xp-value">
-                    {% if user_xp is defined %}{{ user_xp|int }}{% else %}0{% endif %}/1000 XP
-                </span>
-                <span class="certificate-status">
-                    {% if user_xp is defined and user_xp >= 1000 %}
-                    <span class="status-unlocked">
-                        <i class="fas fa-unlock"></i> Sertifikat Terbuka
-                    </span>
-                    {% else %}
-                    <span class="status-locked">
-                        <i class="fas fa-lock"></i> Menuju Sertifikat
-                    </span>
-                    {% endif %}
-                </span>
-            </div>
-            <div class="xp-progress-bar-certificate">
-                <div class="xp-progress-fill-certificate" id="xpProgressFill"></div>
-                <div class="xp-milestone" style="left: 100%;">
-                    <div class="milestone-dot certificate-dot">
-                        <i class="fas fa-certificate"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="xp-progress-text-certificate">
-                {% set xp_current = user_xp|default(0)|int %}
-                {% set xp_needed = 1000 - xp_current %}
-                {% set progress_percent = (xp_current / 1000) * 100 %}
-                
-                {% if xp_current >= 1000 %}
-                <span class="certificate-ready">
-                    <i class="fas fa-trophy"></i> Sertifikat siap diunduh!
-                    <button class="download-certificate-btn" onclick="showCertificate()">
-                        <i class="fas fa-download"></i> Lihat Sertifikat
-                    </button>
-                </span>
-                {% else %}
-                <div class="xp-remaining-info">
-                    <span class="xp-remaining">
-                        <i class="fas fa-bullseye"></i> {{ xp_needed }} XP lagi untuk sertifikat
-                    </span>
-                    <span class="xp-percentage">{{ progress_percent|round|int }}%</span>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-</div>
                 </div>
 
                 <!-- Progress Section -->
@@ -2221,7 +2165,7 @@
                                 <i class="fas fa-unlock"></i> GRATIS
                             </span>
                             <span class="difficulty-badge medium">
-                                <i class="fas fa-signal"></i> MENENGAH
+                                <i class="fas fa-signal"></i> MUDAH
                             </span>
                         </div>
                         <div class="card-header">
@@ -2379,7 +2323,7 @@
                                     <i class="fas fa-unlock"></i> GRATIS
                                 </span>
                                 <span class="difficulty-badge medium">
-                                    <i class="fas fa-signal"></i> MENENGAH
+                                    <i class="fas fa-signal"></i> MUDAH
                                 </span>
                             </div>
                             
@@ -2437,7 +2381,7 @@
                                     <i class="fas fa-crosshairs"></i> ATTACK
                                 </span>
                                 <span class="difficulty-badge medium">
-                                    <i class="fas fa-signal"></i> MENENGAH
+                                    <i class="fas fa-signal"></i> MUDAH
                                 </span>
                             </div>
                             
@@ -2967,67 +2911,6 @@
                         </a>
                     </div>
 
-                    <!-- Blowfish -->
-                    <div class="cipher-card-wrapper" data-category="premium modern" data-difficulty="medium">
-                        <a href="/blowfish" class="cipher-card premium">
-                            <div class="card-badges">
-                                <span class="badge badge-premium">
-                                    <i class="fas fa-crown"></i> PREMIUM
-                                </span>
-                            </div>
-                            
-                            <div class="card-header">
-                                <div class="cipher-icon">
-                                    <div class="icon-circle blowfish-icon">
-                                        <i class="fas fa-fish"></i>
-                                        <div class="fish-bubbles">
-                                            <span class="bubble"></span>
-                                            <span class="bubble"></span>
-                                            <span class="bubble"></span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="cipher-meta">
-                                    <div class="cipher-name">
-                                        <h3>Blowfish Encryption</h3>
-                                        <span class="cipher-code">BF</span>
-                                    </div>
-                                    <div class="cipher-year">1993</div>
-                                </div>
-                            </div>
-                            
-                            <div class="cipher-desc">
-                                Fast block cipher dengan key length variabel hingga 448-bit. Dikenal untuk kecepatan dan keamanan.
-                            </div>
-                            
-                            <div class="cipher-specs">
-                                <div class="spec-item">
-                                    <i class="fas fa-tachometer-alt"></i>
-                                    <div>
-                                        <span class="spec-label">Kecepatan</span>
-                                        <span class="spec-value">High</span>
-                                    </div>
-                                </div>
-                                <div class="spec-item">
-                                    <i class="fas fa-ruler"></i>
-                                    <div>
-                                        <span class="spec-label">Key Size</span>
-                                        <span class="spec-value">32-448 bit</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="category-tags">
-                                <span class="category-tag">
-                                    <i class="fas fa-cube"></i> Block Cipher
-                                </span>
-                                <span class="category-tag">
-                                    <i class="fas fa-bolt"></i> Fast
-                                </span>
-                            </div>
-                        </a>
-                    </div>
-
                     <!-- Hash Functions -->
                     <div class="cipher-card-wrapper" data-category="premium modern" data-difficulty="medium">
                         <a href="/hash" class="cipher-card premium">
@@ -3102,7 +2985,7 @@
                             <i class="fas fa-book-open"></i>
                         </div>
                         <div>
-                            <h3 style="color: var(--text); margin-bottom: 0.5rem;">Tutorial</h3>
+                            <h3 style="color: var(--text); margin-bottom: 0.5rem;">Learning</h3>
                             <p style="color: var(--text-muted); font-size: 0.9rem;">Pelajari teori kriptografi dasar</p>
                         </div>
                     </a>
@@ -3128,137 +3011,6 @@
                     </a>
                 </div>
 
-                <!-- Learning Paths -->
-                <h2 class="section-title" style="margin-top: 3rem;">
-                    <i class="fas fa-road"></i>
-                    Learning Path
-                </h2>
-
-                <div class="cipher-grid">
-                    <a href="/path/beginner" class="cipher-card free">
-                        <div class="card-badges">
-                            <span class="badge badge-free">
-                                <i class="fas fa-user-graduate"></i> Free
-                            </span>
-                        </div>
-                        <div class="card-header">
-                            <div class="cipher-icon">
-                                <div class="icon-circle shift-icon">
-                                    <i class="fas fa-baby"></i>
-                                </div>
-                            </div>
-                            <div class="cipher-meta">
-                                <div class="cipher-name">
-                                    <h3>Path untuk Pemula</h3>
-                                    <span class="cipher-code">BEGINNER</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="cipher-desc">
-                            Mulai dari nol. Pelajari cipher dasar dan konsep kriptografi sederhana.
-                        </div>
-                        <div class="cipher-specs">
-                            <div class="spec-item">
-                                <i class="fas fa-book"></i>
-                                <div>
-                                    <span class="spec-label">Modul</span>
-                                    <span class="spec-value">4</span>
-                                </div>
-                            </div>
-                            <div class="spec-item">
-                                <i class="fas fa-clock"></i>
-                                <div>
-                                    <span class="spec-label">Waktu</span>
-                                    <span class="spec-value">2 Jam</span>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-
-                    <div class="cipher-card premium" onclick="unlockCipher('intermediate')">
-                        <div class="card-badges">
-                            <span class="badge badge-premium">
-                                <i class="fas fa-crown"></i> PREMIUM
-                            </span>
-                        </div>
-                        <div class="card-header">
-                            <div class="cipher-icon">
-                                <div class="icon-circle hill-icon">
-                                    <i class="fas fa-user-tie"></i>
-                                </div>
-                            </div>
-                            <div class="cipher-meta">
-                                <div class="cipher-name">
-                                    <h3>Path Menengah</h3>
-                                    <span class="cipher-code">INTERMEDIATE</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="cipher-desc">
-                            Tingkatkan skill ke cipher yang lebih kompleks dan teknik analisis.
-                        </div>
-                        <div class="cipher-specs">
-                            <div class="spec-item">
-                                <i class="fas fa-book"></i>
-                                <div>
-                                    <span class="spec-label">Modul</span>
-                                    <span class="spec-value">6</span>
-                                </div>
-                            </div>
-                            <div class="spec-item">
-                                <i class="fas fa-clock"></i>
-                                <div>
-                                    <span class="spec-label">Waktu</span>
-                                    <span class="spec-value">4 Jam</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="cipher-card premium" onclick="unlockCipher('advanced')">
-                        <div class="card-badges">
-                            <span class="badge badge-premium">
-                                <i class="fas fa-crown"></i> PREMIUM
-                            </span>
-                            <span class="badge badge-new">
-                                <i class="fas fa-star"></i> POPULAR
-                            </span>
-                        </div>
-                        <div class="card-header">
-                            <div class="cipher-icon">
-                                <div class="icon-circle rsa-icon">
-                                    <i class="fas fa-user-ninja"></i>
-                                </div>
-                            </div>
-                            <div class="cipher-meta">
-                                <div class="cipher-name">
-                                    <h3>Path Lanjutan</h3>
-                                    <span class="cipher-code">ADVANCED</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="cipher-desc">
-                            Kuasai enkripsi modern, kriptanalisis, dan keamanan sistem.
-                        </div>
-                        <div class="cipher-specs">
-                            <div class="spec-item">
-                                <i class="fas fa-book"></i>
-                                <div>
-                                    <span class="spec-label">Modul</span>
-                                    <span class="spec-value">8</span>
-                                </div>
-                            </div>
-                            <div class="spec-item">
-                                <i class="fas fa-clock"></i>
-                                <div>
-                                    <span class="spec-label">Waktu</span>
-                                    <span class="spec-value">6 Jam</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
 
             <!-- PRACTICE SECTION -->
             <section id="practice-section" class="dashboard-section">
