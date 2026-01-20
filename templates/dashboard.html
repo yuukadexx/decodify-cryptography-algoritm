@@ -3160,7 +3160,12 @@
         if (isPremiumUser) {
             isPremium = true;
             
-            // Update premium banner
+            // Hide premium banner for premium users
+            if (premiumBanner) {
+                premiumBanner.style.display = 'none';
+            }
+            
+            // Update premium banner styling if shown
             premiumBanner.style.background = 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2))';
             premiumBanner.style.borderColor = 'rgba(16, 185, 129, 0.3)';
             premiumTitle.textContent = '🎉 Anda adalah Member Premium!';
@@ -3179,8 +3184,19 @@
                     };
                 }
             });
+            
+            // Hide upgrade button in sidebar
+            const upgradeSection = document.querySelector('.dashboard-sidebar > div:last-of-type');
+            if (upgradeSection && upgradeSection.querySelector('.upgrade-btn, button[onclick*="showUpgradeModal"]')) {
+                upgradeSection.style.display = 'none';
+            }
         } else {
             isPremium = false;
+            
+            // Show premium banner for free users
+            if (premiumBanner) {
+                premiumBanner.style.display = 'flex';
+            }
             
             // Lock premium cards without href
             document.querySelectorAll('.cipher-card.premium:not([href]), .tool-card.premium:not([href])').forEach(card => {
@@ -3190,6 +3206,12 @@
                     showUpgradeModal();
                 };
             });
+            
+            // Show upgrade button in sidebar
+            const upgradeSection = document.querySelector('.dashboard-sidebar > div:last-of-type');
+            if (upgradeSection) {
+                upgradeSection.style.display = 'block';
+            }
         }
     }
 
