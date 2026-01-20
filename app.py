@@ -1376,7 +1376,7 @@ def add_security_headers(response):
 def index():
     if current_user.is_authenticated:
         return redirect(url_for('dashboard'))
-    return render_template('index.html')
+    return render_template('index.html')    
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():

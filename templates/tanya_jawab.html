@@ -639,22 +639,585 @@
         font-size: 0.8rem;
         color: var(--text-muted);
     }
+
+    /* New Styles untuk Tabs */
+    .qa-tabs {
+        display: flex;
+        gap: 10px;
+        margin: 1.5rem 0;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .qa-tab {
+        padding: 0.8rem 1.5rem;
+        background: rgba(30, 41, 59, 0.5);
+        border: 1px solid rgba(139, 92, 246, 0.2);
+        border-radius: 12px;
+        color: var(--text);
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .qa-tab.active {
+        background: linear-gradient(135deg, var(--secondary), var(--primary));
+        color: white;
+        box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+    }
+
+    .qa-tab:hover:not(.active) {
+        background: rgba(139, 92, 246, 0.1);
+        border-color: var(--secondary);
+    }
+
+    .qa-content {
+        display: none;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .qa-content.active {
+        display: block;
+    }
+
+    /* Badge untuk kategori */
+    .category-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-right: 8px;
+        margin-bottom: 5px;
+    }
+
+    .badge-system {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .badge-subscription {
+        background: linear-gradient(135deg, 
+            rgba(245, 158, 11, 0.1), 
+            rgba(217, 119, 6, 0.1));
+        color: var(--warning);
+        border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+
+    .badge-crypto {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--accent);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .badge-technical {
+        background: rgba(99, 102, 241, 0.1);
+        color: #6366f1;
+        border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    /* Ticket/Issue System */
+    .ticket-system {
+        background: var(--card-bg);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+        border: 1px solid var(--glass);
+    }
+
+    .ticket-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .form-label {
+        color: var(--text);
+        font-weight: 500;
+        font-size: 0.95rem;
+    }
+
+    .form-select,
+    .form-input {
+        padding: 0.8rem 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass);
+        border-radius: 10px;
+        color: var(--text);
+        font-family: inherit;
+        font-size: 0.95rem;
+    }
+
+    .form-select:focus,
+    .form-input:focus {
+        outline: none;
+        border-color: var(--secondary);
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+    }
+
+    .form-textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    .submit-ticket {
+        background: linear-gradient(135deg, var(--accent), #0da271);
+        color: white;
+        border: none;
+        padding: 1rem;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .submit-ticket:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+    }
+
+    /* Status Indicators */
+    .status-indicator {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .status-up {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--accent);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .status-down {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .status-maintenance {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--warning);
+        border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+
+    /* Subscription Plans */
+    .subscription-plans {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+    .plan-card {
+        background: var(--card-bg);
+        border: 1px solid var(--glass);
+        border-radius: 15px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .plan-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--secondary);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .plan-card.recommended {
+        border: 2px solid var(--warning);
+        background: linear-gradient(
+            135deg,
+            rgba(30, 41, 59, 0.95),
+            rgba(15, 23, 42, 0.95)
+        );
+    }
+
+    .plan-badge {
+        position: absolute;
+        top: 15px;
+        right: -30px;
+        background: var(--warning);
+        color: white;
+        padding: 0.3rem 3rem;
+        transform: rotate(45deg);
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .plan-name {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 0.5rem;
+    }
+
+    .plan-price {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--secondary);
+        margin-bottom: 1rem;
+    }
+
+    .plan-features {
+        list-style: none;
+        padding: 0;
+        margin-bottom: 1.5rem;
+    }
+
+    .plan-features li {
+        padding: 0.5rem 0;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .plan-features li i {
+        color: var(--accent);
+    }
+
+    .subscribe-btn {
+        width: 100%;
+        padding: 0.8rem;
+        border-radius: 10px;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .subscribe-btn.free {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text);
+    }
+
+    .subscribe-btn.premium {
+        background: linear-gradient(135deg, var(--secondary), var(--primary));
+        color: white;
+    }
+
+    .subscribe-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(139, 92, 246, 0.3);
+    }
+
+    /* Error Solutions */
+    .error-solution {
+        background: rgba(30, 41, 59, 0.5);
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid var(--accent);
+    }
+
+    .error-code {
+        font-family: 'Courier New', monospace;
+        background: rgba(0, 0, 0, 0.3);
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        margin: 0.5rem 0;
+        color: var(--danger);
+    }
+
+    .solution-steps {
+        list-style-type: decimal;
+        padding-left: 1.5rem;
+        color: var(--text);
+    }
+
+    .solution-steps li {
+        margin-bottom: 0.5rem;
+        padding-left: 0.5rem;
+    }
+
+    /* FAQ Categories */
+    .faq-categories {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .faq-category-btn {
+        padding: 0.6rem 1.2rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass);
+        border-radius: 20px;
+        color: var(--text-muted);
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .faq-category-btn.active {
+        background: linear-gradient(135deg, var(--secondary), var(--primary));
+        color: white;
+        border-color: var(--secondary);
+    }
+
+    .faq-category-btn:hover:not(.active) {
+        background: rgba(139, 92, 246, 0.1);
+        color: var(--text);
+    }
+
+    /* Recent Issues */
+    .recent-issues {
+        margin-top: 2rem;
+    }
+
+    .issue-item {
+        background: var(--card-bg);
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid;
+        transition: all 0.3s ease;
+    }
+
+    .issue-item:hover {
+        transform: translateX(5px);
+    }
+
+    .issue-item.resolved {
+        border-left-color: var(--accent);
+    }
+
+    .issue-item.in-progress {
+        border-left-color: var(--warning);
+    }
+
+    .issue-item.open {
+        border-left-color: var(--danger);
+    }
+
+    .issue-title {
+        font-weight: 600;
+        color: var(--text);
+        margin-bottom: 0.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .issue-status {
+        font-size: 0.8rem;
+        padding: 0.2rem 0.8rem;
+        border-radius: 20px;
+        font-weight: 500;
+    }
+
+    .issue-desc {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    /* Contact Support */
+    .contact-support {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .contact-method {
+        background: var(--card-bg);
+        border-radius: 10px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        border: 1px solid var(--glass);
+    }
+
+    .contact-method:hover {
+        border-color: var(--secondary);
+        transform: translateY(-3px);
+    }
+
+    .contact-icon {
+        font-size: 2rem;
+        color: var(--secondary);
+        margin-bottom: 1rem;
+    }
+
+    .contact-title {
+        font-weight: 600;
+        color: var(--text);
+        margin-bottom: 0.5rem;
+    }
+
+    .contact-info {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    /* Notification */
+    .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        animation: slideIn 0.3s ease;
+    }
+
+    .notification.success {
+        background: var(--accent);
+        color: white;
+    }
+
+    .notification.error {
+        background: var(--danger);
+        color: white;
+    }
+
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+
+    /* Support Contact Info */
+    .support-contact {
+        background: linear-gradient(135deg, 
+            rgba(139, 92, 246, 0.1), 
+            rgba(99, 102, 241, 0.05));
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-top: 1rem;
+        border: 1px solid rgba(139, 92, 246, 0.2);
+    }
+
+    .contact-emergency {
+        background: rgba(239, 68, 68, 0.1);
+        border-radius: 10px;
+        padding: 1rem;
+        margin-top: 1rem;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    /* Responsive untuk tabs */
+    @media (max-width: 768px) {
+        .qa-tabs {
+            justify-content: center;
+        }
+        
+        .subscription-plans {
+            grid-template-columns: 1fr;
+        }
+        
+        .contact-support {
+            grid-template-columns: 1fr;
+        }
+        
+        .faq-categories {
+            justify-content: center;
+        }
+        
+        .qa-tab {
+            padding: 0.6rem 1rem;
+            font-size: 0.9rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .qa-tabs {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .qa-tab {
+            width: 100%;
+            justify-content: center;
+        }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="tanya-jawab-container">
-    <!-- Header -->
+    <!-- Header dengan Tabs -->
     <div class="tj-header">
         <div class="tj-header-content">
             <h1 class="tj-title">
                 <i class="fas fa-robot"></i>
-                Tanya Jawab Kriptografi
-                <i class="fas fa-shield-alt"></i>
+                Dify Bot - Pusat Bantuan
+                <i class="fas fa-headset"></i>
             </h1>
             <p style="color: var(--text-muted); font-size: 1.1rem; max-width: 600px; margin: 0 auto;">
-                Chatbot ahli kriptografi yang siap membantu Anda memahami konsep, algoritma, dan implementasi keamanan sistem
+                Asisten virtual yang siap membantu dengan materi kriptografi, masalah sistem, berlangganan, dan dukungan teknis
             </p>
+            
+            <!-- Tabs Navigation -->
+            <div class="qa-tabs" id="qaTabs">
+                <button class="qa-tab active" onclick="switchTab('crypto')">
+                    <i class="fas fa-shield-alt"></i>
+                    Kriptografi
+                </button>
+                <button class="qa-tab" onclick="switchTab('system')">
+                    <i class="fas fa-cog"></i>
+                    Sistem & Teknis
+                </button>
+                <button class="qa-tab" onclick="switchTab('subscription')">
+                    <i class="fas fa-crown"></i>
+                    Berlangganan
+                </button>
+                <button class="qa-tab" onclick="switchTab('issues')">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Error & Masalah
+                </button>
+                <button class="qa-tab" onclick="switchTab('support')">
+                    <i class="fas fa-headset"></i>
+                    Dukungan
+                </button>
+            </div>
+
+            <!-- Status Indicators -->
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 1rem; flex-wrap: wrap;">
+                <div class="status-indicator status-up">
+                    <i class="fas fa-check-circle"></i>
+                    Sistem Online
+                </div>
+                <div class="status-indicator status-up">
+                    <i class="fas fa-bolt"></i>
+                    Responsif
+                </div>
+                <div class="status-indicator status-up">
+                    <i class="fas fa-clock"></i>
+                    24/7 Support
+                </div>
+            </div>
+
             <div class="stats-grid">
                 <div class="stat-item">
                     <div class="stat-value" id="totalQuestions">0</div>
@@ -665,196 +1228,730 @@
                     <div class="stat-label">Pengguna Aktif</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-value">15+</div>
-                    <div class="stat-label">Topik Kriptografi</div>
+                    <div class="stat-value">50+</div>
+                    <div class="stat-label">Topik & Solusi</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-value">24/7</div>
-                    <div class="stat-label">Ketersediaan</div>
+                    <div class="stat-value">&lt;2m</div>
+                    <div class="stat-label">Waktu Respon</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="tj-main-layout">
-        <!-- Chatbot Main Area -->
-        <div class="chatbot-container">
-            <!-- Chatbot Header -->
-            <div class="chatbot-header">
-                <h3>
-                    <i class="fas fa-robot"></i>
-                    Dify Bot - Asisten Kriptografi
-                </h3>
-                <div class="bot-status">
-                    <div class="status-dot"></div>
-                    <span>Online</span>
-                </div>
-            </div>
-
-            <!-- Chatbot Body -->
-            <div class="chatbot-body" id="chatBody">
-                <!-- Welcome Message -->
-                <div class="message bot-message">
-                    <div class="message-header">
-                        <i class="fas fa-robot"></i>
-                        Dify Bot
-                        <span class="message-time" id="welcomeTime"></span>
-                    </div>
-                    <p>👋 Selamat datang di <strong>Dify Bot - Asisten Kriptografi</strong>!</p>
-                    <p>Saya siap membantu Anda memahami berbagai konsep dalam mata kuliah kriptografi dan keamanan sistem. Dari dasar-dasar enkripsi hingga implementasi praktis.</p>
-                    
-                    <div style="margin-top: 1rem;">
-                        <span class="crypto-badge">🔐 Enkripsi</span>
-                        <span class="crypto-badge purple">🗝️ Kunci</span>
-                        <span class="crypto-badge orange">🔗 Hash</span>
-                        <span class="crypto-badge">⚛️ Post-Quantum</span>
+    <!-- Tab Contents -->
+    <div id="tabContents">
+        <!-- Tab 1: Kriptografi (Default) -->
+        <div class="qa-content active" id="cryptoTab">
+            <div class="tj-main-layout">
+                <!-- Chatbot Main Area -->
+                <div class="chatbot-container">
+                    <!-- Chatbot Header -->
+                    <div class="chatbot-header">
+                        <h3>
+                            <i class="fas fa-robot"></i>
+                            Dify Bot - Asisten Kriptografi
+                        </h3>
+                        <div class="bot-status">
+                            <div class="status-dot"></div>
+                            <span>Online</span>
+                        </div>
                     </div>
 
-                    <p style="margin-top: 1rem;">Coba tanyakan tentang:</p>
-                    <div class="quick-questions" style="margin-top: 0.5rem;">
-                        <button class="quick-question-btn" onclick="askQuestion('Jelaskan konsep dasar kriptografi dan mengapa penting dalam keamanan informasi modern')">
-                            <i class="fas fa-book"></i>
-                            Dasar Kriptografi
-                        </button>
-                        <button class="quick-question-btn" onclick="askQuestion('Bagaimana cara kerja algoritma RSA dan mengapa dianggap aman untuk keamanan data?')">
-                            <i class="fas fa-key"></i>
-                            Algoritma RSA
-                        </button>
+                    <!-- Chatbot Body -->
+                    <div class="chatbot-body" id="chatBody">
+                        <!-- Welcome Message -->
+                        <div class="message bot-message">
+                            <div class="message-header">
+                                <i class="fas fa-robot"></i>
+                                Dify Bot
+                                <span class="message-time" id="welcomeTime"></span>
+                            </div>
+                            <p>👋 Selamat datang di <strong>Dify Bot - Pusat Bantuan Lengkap</strong>!</p>
+                            <p>Saya siap membantu Anda dengan berbagai topik:</p>
+                            
+                            <div style="margin-top: 1rem;">
+                                <span class="category-badge badge-crypto">🔐 Kriptografi</span>
+                                <span class="category-badge badge-system">⚙️ Sistem</span>
+                                <span class="category-badge badge-subscription">👑 Langganan</span>
+                                <span class="category-badge badge-technical">🔧 Teknis</span>
+                            </div>
+
+                            <p style="margin-top: 1rem;">Tanyakan apapun, misalnya:</p>
+                            <div class="quick-questions" style="margin-top: 0.5rem;">
+                                <button class="quick-question-btn" onclick="askQuestion('Bagaimana cara kerja algoritma AES?')">
+                                    <i class="fas fa-key"></i>
+                                    Algoritma AES
+                                </button>
+                                <button class="quick-question-btn" onclick="askQuestion('Saya error saat mendaftar premium')">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    Error Premium
+                                </button>
+                                <button class="quick-question-btn" onclick="askQuestion('Cara upgrade ke paket premium')">
+                                    <i class="fas fa-crown"></i>
+                                    Upgrade Premium
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chatbot Footer -->
+                    <div class="chatbot-footer">
+                        <!-- Quick Questions -->
+                        <div class="quick-questions">
+                            <button class="quick-question-btn" onclick="askQuestion('Apa beda paket free dan premium?')">
+                                <i class="fas fa-crown"></i>
+                                Paket Langganan
+                            </button>
+                            <button class="quick-question-btn" onclick="askQuestion('Login error 404, bagaimana mengatasinya?')">
+                                <i class="fas fa-bug"></i>
+                                Error Login
+                            </button>
+                            <button class="quick-question-btn" onclick="askQuestion('Cara reset password yang lupa')">
+                                <i class="fas fa-unlock-alt"></i>
+                                Reset Password
+                            </button>
+                        </div>
+
+                        <!-- Chat Input -->
+                        <div class="chat-input-container">
+                            <textarea 
+                                class="chat-input" 
+                                id="chatInput" 
+                                placeholder="Tanyakan apapun: kriptografi, sistem, error, atau langganan..."
+                                rows="1"
+                                oninput="autoResize(this)"
+                                onkeypress="handleChatKeyPress(event)"
+                            ></textarea>
+                            <button class="send-button" onclick="sendMessage()">
+                                <i class="fas fa-paper-plane"></i>
+                                Kirim
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Chatbot Footer -->
-            <div class="chatbot-footer">
-                <!-- Quick Questions -->
-                <div class="quick-questions">
-                    <button class="quick-question-btn" onclick="askQuestion('Apa perbedaan antara enkripsi simetris dan asimetris, serta kapan masing-masing digunakan?')">
-                        <i class="fas fa-balance-scale"></i>
-                        Simetris vs Asimetris
-                    </button>
-                    <button class="quick-question-btn" onclick="askQuestion('Apa itu fungsi hash kriptografi dan bagaimana cara kerjanya dalam mengamankan password?')">
-                        <i class="fas fa-fingerprint"></i>
-                        Fungsi Hash
-                    </button>
-                    <button class="quick-question-btn" onclick="askQuestion('Jelaskan peran kriptografi dalam keamanan jaringan dan komunikasi digital')">
-                        <i class="fas fa-network-wired"></i>
-                        Keamanan Jaringan
-                    </button>
-                </div>
+                <!-- Sidebar (diperbarui) -->
+                <div class="tj-sidebar">
+                    <!-- FAQ Categories -->
+                    <div class="sidebar-section">
+                        <h3 class="sidebar-title">
+                            <i class="fas fa-filter"></i>
+                            Kategori FAQ
+                        </h3>
+                        <div class="faq-categories">
+                            <button class="faq-category-btn active" onclick="filterFAQ('all')">
+                                Semua
+                            </button>
+                            <button class="faq-category-btn" onclick="filterFAQ('system')">
+                                Sistem
+                            </button>
+                            <button class="faq-category-btn" onclick="filterFAQ('subscription')">
+                                Langganan
+                            </button>
+                            <button class="faq-category-btn" onclick="filterFAQ('technical')">
+                                Teknis
+                            </button>
+                        </div>
+                    </div>
 
-                <!-- Chat Input -->
-                <div class="chat-input-container">
-                    <textarea 
-                        class="chat-input" 
-                        id="chatInput" 
-                        placeholder="Tanyakan tentang kriptografi, keamanan, atau algoritma..."
-                        rows="1"
-                        oninput="autoResize(this)"
-                        onkeypress="handleChatKeyPress(event)"
-                    ></textarea>
-                    <button class="send-button" onclick="sendMessage()">
-                        <i class="fas fa-paper-plane"></i>
-                        Kirim
-                    </button>
+                    <!-- FAQ List (Updated) -->
+                    <div class="sidebar-section">
+                        <h3 class="sidebar-title">
+                            <i class="fas fa-question-circle"></i>
+                            FAQ Populer
+                        </h3>
+                        <div class="faq-list" id="faqList">
+                            <!-- System FAQs -->
+                            <div class="faq-item system" onclick="toggleFAQ(this)">
+                                <div class="faq-question">
+                                    <i class="fas fa-sign-in-alt"></i>
+                                    Error Login 404
+                                </div>
+                                <div class="faq-answer">
+                                    Clear cache browser, coba incognito mode, atau reset password. Jika masih error, hubungi support.
+                                </div>
+                            </div>
+                            
+                            <!-- Subscription FAQs -->
+                            <div class="faq-item subscription" onclick="toggleFAQ(this)">
+                                <div class="faq-question">
+                                    <i class="fas fa-crown"></i>
+                                    Cara Upgrade Premium
+                                </div>
+                                <div class="faq-answer">
+                                    Buka Profile > Subscription > Pilih paket > Bayar. Proses aktivasi 1-5 menit.
+                                </div>
+                            </div>
+                            
+                            <!-- Technical FAQs -->
+                            <div class="faq-item technical" onclick="toggleFAQ(this)">
+                                <div class="faq-question">
+                                    <i class="fas fa-sync"></i>
+                                    Data Tidak Sync
+                                </div>
+                                <div class="faq-answer">
+                                    Cek koneksi internet, refresh halaman. Jika masalah berlanjut, kontak technical support.
+                                </div>
+                            </div>
+                            
+                            <!-- Crypto FAQs -->
+                            <div class="faq-item crypto" onclick="toggleFAQ(this)">
+                                <div class="faq-question">
+                                    <i class="fas fa-key"></i>
+                                    AES vs RSA
+                                </div>
+                                <div class="faq-answer">
+                                    AES (simetris) untuk data besar, RSA (asimetris) untuk pertukaran kunci. Gunakan hybrid approach.
+                                </div>
+                            </div>
+                            
+                            <!-- System FAQs -->
+                            <div class="faq-item system" onclick="toggleFAQ(this)">
+                                <div class="faq-question">
+                                    <i class="fas fa-lock"></i>
+                                    Reset Password
+                                </div>
+                                <div class="faq-answer">
+                                    Klik "Lupa Password" di halaman login. Link reset akan dikirim ke email Anda.
+                                </div>
+                            </div>
+                            
+                            <!-- Subscription FAQs -->
+                            <div class="faq-item subscription" onclick="toggleFAQ(this)">
+                                <div class="faq-question">
+                                    <i class="fas fa-credit-card"></i>
+                                    Metode Pembayaran
+                                </div>
+                                <div class="faq-answer">
+                                    Kami terima transfer bank, e-wallet (GoPay, OVO), dan kartu kredit (Visa/Mastercard).
+                                </div>
+                            </div>
+
+                            <!-- Technical FAQs -->
+                            <div class="faq-item technical" onclick="toggleFAQ(this)">
+                                <div class="faq-question">
+                                    <i class="fas fa-download"></i>
+                                    File Tidak Bisa Download
+                                </div>
+                                <div class="faq-answer">
+                                    Cek storage device, clear browser cache, atau coba browser lain.
+                                </div>
+                            </div>
+
+                            <!-- Crypto FAQs -->
+                            <div class="faq-item crypto" onclick="toggleFAQ(this)">
+                                <div class="faq-question">
+                                    <i class="fas fa-fingerprint"></i>
+                                    Fungsi Hash SHA-256
+                                </div>
+                                <div class="faq-answer">
+                                    Fungsi hash satu arah untuk keamanan data. Digunakan Bitcoin dan blockchain.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Issues -->
+                    <div class="sidebar-section">
+                        <h3 class="sidebar-title">
+                            <i class="fas fa-history"></i>
+                            Masalah Terbaru
+                        </h3>
+                        <div class="recent-issues">
+                            <div class="issue-item resolved">
+                                <div class="issue-title">
+                                    Maintenance Server
+                                    <span class="issue-status status-up">Selesai</span>
+                                </div>
+                                <div class="issue-desc">Server maintenance selesai, sistem normal kembali</div>
+                            </div>
+                            <div class="issue-item in-progress">
+                                <div class="issue-title">
+                                    Payment Gateway Issue
+                                    <span class="issue-status status-maintenance">Diperbaiki</span>
+                                </div>
+                                <div class="issue-desc">Sedang diperbaiki, estimasi 2 jam</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Sidebar -->
-        <div class="tj-sidebar">
-            <!-- Topik Populer -->
-            <div class="sidebar-section">
-                <h3 class="sidebar-title">
-                    <i class="fas fa-fire"></i>
-                    Topik Populer
-                </h3>
-                <div class="topic-grid">
-                    <div class="topic-item" onclick="askQuestion('Jelaskan konsep dasar kriptografi dan tujuannya')">
-                        <div class="topic-icon">
-                            <i class="fas fa-shield-alt"></i>
-                        </div>
-                        <div class="topic-name">Dasar Kriptografi</div>
+        <!-- Tab 2: Sistem & Teknis -->
+        <div class="qa-content" id="systemTab">
+            <div style="max-width: 800px; margin: 0 auto;">
+                <h2 style="color: var(--text); margin-bottom: 1.5rem;">
+                    <i class="fas fa-cog"></i>
+                    Sistem & Dukungan Teknis
+                </h2>
+
+                <!-- Common Issues -->
+                <div class="error-solution">
+                    <h3 style="color: var(--text); margin-bottom: 1rem;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Masalah Umum & Solusi
+                    </h3>
+                    
+                    <div style="margin-top: 1rem;">
+                        <h4 style="color: var(--text);">1. Login Error 404</h4>
+                        <div class="error-code">HTTP 404 - Page Not Found</div>
+                        <ol class="solution-steps">
+                            <li>Clear cache browser (Ctrl+Shift+Del)</li>
+                            <li>Coba akses via mode incognito</li>
+                            <li>Reset password melalui email</li>
+                            <li>Jika masih error, hubungi support</li>
+                        </ol>
                     </div>
-                    <div class="topic-item" onclick="askQuestion('Apa itu algoritma AES dan bagaimana cara kerjanya?')">
-                        <div class="topic-icon">
-                            <i class="fas fa-lock"></i>
-                        </div>
-                        <div class="topic-name">Algoritma AES</div>
+
+                    <div style="margin-top: 1.5rem;">
+                        <h4 style="color: var(--text);">2. Data Tidak Tersimpan</h4>
+                        <div class="error-code">Error: Data not persisted</div>
+                        <ol class="solution-steps">
+                            <li>Cek koneksi internet Anda</li>
+                            <li>Refresh halaman (F5)</li>
+                            <li>Export data sebagai backup</li>
+                            <li>Coba browser berbeda</li>
+                        </ol>
                     </div>
-                    <div class="topic-item" onclick="askQuestion('Bagaimana fungsi hash digunakan dalam blockchain?')">
-                        <div class="topic-icon">
-                            <i class="fas fa-link"></i>
-                        </div>
-                        <div class="topic-name">Blockchain</div>
+
+                    <div style="margin-top: 1.5rem;">
+                        <h4 style="color: var(--text);">3. Aplikasi Lambat</h4>
+                        <div class="error-code">Performance Issue</div>
+                        <ol class="solution-steps">
+                            <li>Clear cache dan cookies</li>
+                            <li>Tutup tab yang tidak perlu</li>
+                            <li>Cek koneksi internet</li>
+                            <li>Update browser ke versi terbaru</li>
+                        </ol>
                     </div>
-                    <div class="topic-item" onclick="askQuestion('Apa itu kriptografi post-quantum dan mengapa penting?')">
-                        <div class="topic-icon">
-                            <i class="fas fa-atom"></i>
+                </div>
+
+                <!-- Contact Ticket System -->
+                <div class="ticket-system">
+                    <h3 style="color: var(--text); margin-bottom: 1rem;">
+                        <i class="fas fa-ticket-alt"></i>
+                        Laporkan Masalah
+                    </h3>
+                    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+                        Jika masalah Anda belum teratasi, buat tiket dukungan:
+                    </p>
+                    
+                    <form class="ticket-form" id="ticketForm">
+                        <div class="form-group">
+                            <label class="form-label">Jenis Masalah</label>
+                            <select class="form-select" id="issueType" required>
+                                <option value="">Pilih jenis masalah</option>
+                                <option value="login">Login Error</option>
+                                <option value="payment">Masalah Pembayaran</option>
+                                <option value="performance">Performansi Lambat</option>
+                                <option value="bug">Bug Sistem</option>
+                                <option value="feature">Request Fitur Baru</option>
+                                <option value="other">Lainnya</option>
+                            </select>
                         </div>
-                        <div class="topic-name">Post-Quantum</div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Subjek</label>
+                            <input type="text" class="form-input" id="issueSubject" placeholder="Deskripsi singkat masalah" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Deskripsi Detail</label>
+                            <textarea class="form-input form-textarea" id="issueDescription" placeholder="Jelaskan masalah secara detail termasuk langkah-langkah yang sudah dicoba..." required></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Email untuk Notifikasi</label>
+                            <input type="email" class="form-input" id="issueEmail" placeholder="email@anda.com" required>
+                        </div>
+                        
+                        <button type="button" class="submit-ticket" onclick="submitTicket()">
+                            <i class="fas fa-paper-plane"></i>
+                            Kirim Tiket
+                        </button>
+                    </form>
+
+                    <div class="support-contact">
+                        <h4 style="color: var(--text); margin-bottom: 1rem;">
+                            <i class="fas fa-phone-alt"></i>
+                            Kontak Cepat Support
+                        </h4>
+                        <p style="color: var(--text-muted); margin-bottom: 0.5rem;">
+                            <strong>Email:</strong> support@decodify.com
+                        </p>
+                        <p style="color: var(--text-muted); margin-bottom: 0.5rem;">
+                            <strong>Telepon:</strong> (021) 1234-5678
+                        </p>
+                        <p style="color: var(--text-muted); margin-bottom: 0;">
+                            <strong>Jam Operasional:</strong> 08:00 - 22:00 WIB
+                        </p>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- FAQ -->
-            <div class="sidebar-section">
-                <h3 class="sidebar-title">
-                    <i class="fas fa-question-circle"></i>
-                    FAQ Kriptografi
-                </h3>
-                <div class="faq-list">
-                    <div class="faq-item" onclick="toggleFAQ(this)">
-                        <div class="faq-question">
-                            <i class="fas fa-key"></i>
-                            Apa itu Enkripsi?
-                        </div>
-                        <div class="faq-answer">
-                            Proses mengubah plaintext menjadi ciphertext menggunakan algoritma dan kunci. Tujuannya untuk menjaga kerahasiaan data.
-                        </div>
+        <!-- Tab 3: Berlangganan -->
+        <div class="qa-content" id="subscriptionTab">
+            <div style="max-width: 900px; margin: 0 auto;">
+                <h2 style="color: var(--text); margin-bottom: 1.5rem;">
+                    <i class="fas fa-crown"></i>
+                    Paket Berlangganan
+                </h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">
+                    Pilih paket yang sesuai dengan kebutuhan belajar kriptografi Anda
+                </p>
+
+                <!-- Subscription Plans -->
+                <div class="subscription-plans">
+                    <!-- Free Plan -->
+                    <div class="plan-card">
+                        <div class="plan-name">Free</div>
+                        <div class="plan-price">Rp 0</div>
+                        <ul class="plan-features">
+                            <li><i class="fas fa-check"></i> Akses materi dasar</li>
+                            <li><i class="fas fa-check"></i> 5 kali enkripsi/hari</li>
+                            <li><i class="fas fa-check"></i> Simpan 10 hasil</li>
+                            <li><i class="fas fa-times"></i> Fitur premium terkunci</li>
+                            <li><i class="fas fa-times"></i> Support prioritas</li>
+                        </ul>
+                        <button class="subscribe-btn free" onclick="askQuestion('Cara menggunakan akun free')">
+                            Paket Saat Ini
+                        </button>
                     </div>
-                    <div class="faq-item" onclick="toggleFAQ(this)">
-                        <div class="faq-question">
-                            <i class="fas fa-user-secret"></i>
-                            RSA vs AES?
-                        </div>
-                        <div class="faq-answer">
-                            RSA (asimetris) untuk pertukaran kunci, AES (simetris) untuk enkripsi data. RSA lebih lambat tapi aman untuk distribusi kunci.
-                        </div>
+
+                    <!-- Premium Plan -->
+                    <div class="plan-card recommended">
+                        <div class="plan-badge">REKOMENDASI</div>
+                        <div class="plan-name">Premium</div>
+                        <div class="plan-price">Rp 49.999<span style="font-size: 1rem; color: var(--text-muted);">/bulan</span></div>
+                        <ul class="plan-features">
+                            <li><i class="fas fa-check"></i> Semua materi premium</li>
+                            <li><i class="fas fa-check"></i> Enkripsi unlimited</li>
+                            <li><i class="fas fa-check"></i> Simpan unlimited</li>
+                            <li><i class="fas fa-check"></i> Tools analisis kripto</li>
+                            <li><i class="fas fa-check"></i> Priority support 24/7</li>
+                        </ul>
+                        <button class="subscribe-btn premium" onclick="askQuestion('Cara upgrade ke premium')">
+                            Upgrade Sekarang
+                        </button>
                     </div>
-                    <div class="faq-item" onclick="toggleFAQ(this)">
-                        <div class="faq-question">
-                            <i class="fas fa-fingerprint"></i>
-                            Apa itu Hash?
-                        </div>
-                        <div class="faq-answer">
-                            Fungsi satu-arah yang mengubah input menjadi output tetap. Digunakan untuk verifikasi integritas dan password hashing.
-                        </div>
+
+                    <!-- Student Plan -->
+                    <div class="plan-card">
+                        <div class="plan-name">Pelajar</div>
+                        <div class="plan-price">Rp 29.999<span style="font-size: 1rem; color: var(--text-muted);">/bulan</span></div>
+                        <ul class="plan-features">
+                            <li><i class="fas fa-check"></i> Semua fitur premium</li>
+                            <li><i class="fas fa-check"></i> Verifikasi .edu email</li>
+                            <li><i class="fas fa-check"></i> Diskusi dengan expert</li>
+                            <li><i class="fas fa-check"></i> Sertifikat kelulusan</li>
+                            <li><i class="fas fa-check"></i> Community access</li>
+                        </ul>
+                        <button class="subscribe-btn premium" onclick="askQuestion('Syarat paket pelajar')">
+                            Untuk Pelajar
+                        </button>
                     </div>
-                    <div class="faq-item" onclick="toggleFAQ(this)">
-                        <div class="faq-question">
-                            <i class="fas fa-shield-alt"></i>
-                            Keamanan Kunci?
+                </div>
+
+                <!-- FAQ Subscription -->
+                <div style="margin-top: 3rem;">
+                    <h3 style="color: var(--text); margin-bottom: 1.5rem;">
+                        <i class="fas fa-question-circle"></i>
+                        FAQ Berlangganan
+                    </h3>
+                    
+                    <div class="faq-list">
+                        <div class="faq-item" onclick="toggleFAQ(this)">
+                            <div class="faq-question">
+                                <i class="fas fa-sync"></i>
+                                Cara Upgrade/Downgrade
+                            </div>
+                            <div class="faq-answer">
+                                Buka Profile > Subscription > Pilih paket baru. Downgrade akan aktif di periode berikutnya.
+                            </div>
                         </div>
-                        <div class="faq-answer">
-                            Panjang kunci minimum 2048-bit untuk RSA, 256-bit untuk AES. Rotasi kunci setiap 1-2 tahun dan simpan di tempat aman.
+                        
+                        <div class="faq-item" onclick="toggleFAQ(this)">
+                            <div class="faq-question">
+                                <i class="fas fa-credit-card"></i>
+                                Metode Pembayaran
+                            </div>
+                            <div class="faq-answer">
+                                Transfer bank (BCA, Mandiri, BNI), e-wallet (GoPay, OVO, Dana), kartu kredit/debit.
+                            </div>
+                        </div>
+                        
+                        <div class="faq-item" onclick="toggleFAQ(this)">
+                            <div class="faq-question">
+                                <i class="fas fa-calendar-times"></i>
+                                Pembatalan & Refund
+                            </div>
+                            <div class="faq-answer">
+                                Bisa dibatalkan kapan saja, aktif sampai periode berakhir. Refund 30 hari pertama.
+                            </div>
+                        </div>
+
+                        <div class="faq-item" onclick="toggleFAQ(this)">
+                            <div class="faq-question">
+                                <i class="fas fa-graduation-cap"></i>
+                                Syarat Paket Pelajar
+                            </div>
+                            <div class="faq-answer">
+                                Verifikasi dengan email .edu atau kartu pelajar. Diskon 40% untuk status pelajar aktif.
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Tips -->
-            <div class="sidebar-section">
-                <h3 class="sidebar-title">
-                    <i class="fas fa-lightbulb"></i>
-                    Tips Belajar
-                </h3>
-                <div style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">
-                    <p>✅ Mulai dari konsep dasar</p>
-                    <p>✅ Praktik dengan contoh nyata</p>
-                    <p>✅ Pahami matematika dasar</p>
-                    <p>✅ Ikuti perkembangan terbaru</p>
-                    <p>✅ Gunakan tools praktikum</p>
+                <!-- Support Billing -->
+                <div class="support-contact" style="margin-top: 2rem;">
+                    <h4 style="color: var(--text); margin-bottom: 1rem;">
+                        <i class="fas fa-money-check-alt"></i>
+                        Bantuan Pembayaran
+                    </h4>
+                    <p style="color: var(--text-muted); margin-bottom: 0.5rem;">
+                        <strong>Email Billing:</strong> billing@decodify.com
+                    </p>
+                    <p style="color: var(--text-muted); margin-bottom: 0.5rem;">
+                        <strong>Telepon:</strong> (021) 1234-5678 ext. 2
+                    </p>
+                    <p style="color: var(--text-muted); margin-bottom: 0;">
+                        <strong>Jam:</strong> 08:00 - 18:00 WIB (Senin-Jumat)
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 4: Error & Masalah -->
+        <div class="qa-content" id="issuesTab">
+            <div style="max-width: 800px; margin: 0 auto;">
+                <h2 style="color: var(--text); margin-bottom: 1.5rem;">
+                    <i class="fas fa-bug"></i>
+                    Error & Troubleshooting
+                </h2>
+
+                <!-- Common Errors -->
+                <div style="margin-bottom: 2rem;">
+                    <h3 style="color: var(--text); margin-bottom: 1rem;">Error Umum</h3>
+                    
+                    <div class="error-solution">
+                        <h4 style="color: var(--danger);">Error 500 - Internal Server Error</h4>
+                        <p style="color: var(--text-muted); margin: 0.5rem 0;">
+                            Server mengalami masalah internal
+                        </p>
+                        <ol class="solution-steps">
+                            <li>Tunggu 5 menit, refresh halaman</li>
+                            <li>Clear cache browser</li>
+                            <li>Coba akses dari browser lain</li>
+                            <li>Laporkan ke support jika berlanjut</li>
+                        </ol>
+                    </div>
+
+                    <div class="error-solution">
+                        <h4 style="color: var(--danger);">Error 403 - Forbidden</h4>
+                        <p style="color: var(--text-muted); margin: 0.5rem 0;">
+                            Akses ditolak karena permission
+                        </p>
+                        <ol class="solution-steps">
+                            <li>Pastikan sudah login</li>
+                            <li>Cek apakah fitur termasuk paket Anda</li>
+                            <li>Logout dan login kembali</li>
+                            <li>Clear cookies browser</li>
+                        </ol>
+                    </div>
+
+                    <div class="error-solution">
+                        <h4 style="color: var(--danger);">Error Connection Timeout</h4>
+                        <p style="color: var(--text-muted); margin: 0.5rem 0;">
+                            Koneksi ke server timeout
+                        </p>
+                        <ol class="solution-steps">
+                            <li>Cek koneksi internet Anda</li>
+                            <li>Nonaktifkan VPN jika ada</li>
+                            <li>Coba dengan jaringan berbeda</li>
+                            <li>Restart router/modem</li>
+                        </ol>
+                    </div>
+
+                    <div class="error-solution">
+                        <h4 style="color: var(--danger);">Payment Failed - Transaction Declined</h4>
+                        <p style="color: var(--text-muted); margin: 0.5rem 0;">
+                            Pembayaran ditolak oleh sistem
+                        </p>
+                        <ol class="solution-steps">
+                            <li>Cek saldo/limit kartu</li>
+                            <li>Hubungi bank/e-wallet provider</li>
+                            <li>Coba metode pembayaran berbeda</li>
+                            <li>Tunggu 15 menit coba lagi</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Quick Fixes -->
+                <div>
+                    <h3 style="color: var(--text); margin-bottom: 1rem;">Quick Fixes</h3>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                        <div class="contact-method" onclick="askQuestion('Cara clear cache browser')">
+                            <div class="contact-icon">
+                                <i class="fas fa-trash-alt"></i>
+                            </div>
+                            <div class="contact-title">Clear Cache</div>
+                            <div class="contact-info">Ctrl+Shift+Del</div>
+                        </div>
+                        
+                        <div class="contact-method" onclick="askQuestion('Cara reset password')">
+                            <div class="contact-icon">
+                                <i class="fas fa-unlock-alt"></i>
+                            </div>
+                            <div class="contact-title">Reset Password</div>
+                            <div class="contact-info">Via email terdaftar</div>
+                        </div>
+                        
+                        <div class="contact-method" onclick="askQuestion('Test koneksi internet')">
+                            <div class="contact-icon">
+                                <i class="fas fa-wifi"></i>
+                            </div>
+                            <div class="contact-title">Test Koneksi</div>
+                            <div class="contact-info">Ping server</div>
+                        </div>
+
+                        <div class="contact-method" onclick="askQuestion('Cara update browser')">
+                            <div class="contact-icon">
+                                <i class="fas fa-sync-alt"></i>
+                            </div>
+                            <div class="contact-title">Update Browser</div>
+                            <div class="contact-info">Versi terbaru</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Emergency Contact -->
+                <div class="contact-emergency" style="margin-top: 2rem;">
+                    <h4 style="color: var(--danger); margin-bottom: 1rem;">
+                        <i class="fas fa-exclamation-circle"></i>
+                        Kontak Emergency
+                    </h4>
+                    <p style="color: var(--text-muted); margin-bottom: 0.5rem;">
+                        <strong>Email Emergency:</strong> emergency@decodify.com
+                    </p>
+                    <p style="color: var(--text-muted); margin-bottom: 0.5rem;">
+                        <strong>Hotline:</strong> +62 812-3456-7890 (24/7)
+                    </p>
+                    <p style="color: var(--text-muted); margin-bottom: 0;">
+                        <strong>Response Time:</strong> &lt; 15 menit untuk critical issues
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 5: Dukungan -->
+        <div class="qa-content" id="supportTab">
+            <div style="max-width: 800px; margin: 0 auto;">
+                <h2 style="color: var(--text); margin-bottom: 1.5rem;">
+                    <i class="fas fa-headset"></i>
+                    Dukungan & Kontak
+                </h2>
+
+                <!-- Contact Methods -->
+                <div class="contact-support">
+                    <div class="contact-method" onclick="askQuestion('Jam operasional support')">
+                        <div class="contact-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="contact-title">Dify Bot</div>
+                        <div class="contact-info">24/7 Instant Help</div>
+                    </div>
+                    
+                    <div class="contact-method" onclick="askQuestion('Cara kirim email ke support')">
+                        <div class="contact-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="contact-title">Email</div>
+                        <div class="contact-info">support@decodify.com</div>
+                    </div>
+                    
+                    <div class="contact-method" onclick="askQuestion('Jam kerja telepon support')">
+                        <div class="contact-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div class="contact-title">Telepon</div>
+                        <div class="contact-info">(021) 1234-5678</div>
+                    </div>
+                </div>
+
+                <!-- Response Times -->
+                <div style="margin-top: 2rem; background: var(--card-bg); padding: 1.5rem; border-radius: 15px;">
+                    <h3 style="color: var(--text); margin-bottom: 1rem;">Waktu Respon</h3>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 2rem; color: var(--accent); font-weight: bold;">24/7</div>
+                            <div style="color: var(--text-muted);">Dify Bot</div>
+                        </div>
+                        
+                        <div style="text-align: center;">
+                            <div style="font-size: 2rem; color: var(--accent); font-weight: bold;">&lt;1m</div>
+                            <div style="color: var(--text-muted);">Chat Response</div>
+                        </div>
+                        
+                        <div style="text-align: center;">
+                            <div style="font-size: 2rem; color: var(--accent); font-weight: bold;">&lt;2h</div>
+                            <div style="color: var(--text-muted);">Email Response</div>
+                        </div>
+                        
+                        <div style="text-align: center;">
+                            <div style="font-size: 2rem; color: var(--accent); font-weight: bold;">98%</div>
+                            <div style="color: var(--text-muted);">Satisfaction</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Support Hours -->
+                <div style="margin-top: 2rem;">
+                    <h3 style="color: var(--text); margin-bottom: 1rem;">Jam Operasional</h3>
+                    
+                    <div style="background: var(--card-bg); padding: 1rem; border-radius: 10px;">
+                        <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--glass);">
+                            <span style="color: var(--text);">Senin - Jumat</span>
+                            <span style="color: var(--accent);">08:00 - 22:00 WIB</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--glass);">
+                            <span style="color: var(--text);">Sabtu - Minggu</span>
+                            <span style="color: var(--accent);">09:00 - 18:00 WIB</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 0.5rem 0;">
+                            <span style="color: var(--text);">Emergency</span>
+                            <span style="color: var(--danger);">24/7 via Priority Support</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Department Contacts -->
+                <div style="margin-top: 2rem;">
+                    <h3 style="color: var(--text); margin-bottom: 1rem;">Kontak Departemen</h3>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                        <div style="background: var(--card-bg); padding: 1rem; border-radius: 10px;">
+                            <h4 style="color: var(--text); margin-bottom: 0.5rem;">Technical Support</h4>
+                            <p style="color: var(--text-muted); margin-bottom: 0.5rem;">tech@decodify.com</p>
+                            <p style="color: var(--text-muted); font-size: 0.9rem;">Bug, error sistem, technical issues</p>
+                        </div>
+                        
+                        <div style="background: var(--card-bg); padding: 1rem; border-radius: 10px;">
+                            <h4 style="color: var(--text); margin-bottom: 0.5rem;">Billing & Payment</h4>
+                            <p style="color: var(--text-muted); margin-bottom: 0.5rem;">billing@decodify.com</p>
+                            <p style="color: var(--text-muted); font-size: 0.9rem;">Invoice, refund, payment issues</p>
+                        </div>
+                        
+                        <div style="background: var(--card-bg); padding: 1rem; border-radius: 10px;">
+                            <h4 style="color: var(--text); margin-bottom: 0.5rem;">Security & Privacy</h4>
+                            <p style="color: var(--text-muted); margin-bottom: 0.5rem;">security@decodify.com</p>
+                            <p style="color: var(--text-muted); font-size: 0.9rem;">Keamanan data, privacy concern</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -863,7 +1960,7 @@
 
 <!-- Chatbot JavaScript -->
 <script>
-    // Database Pertanyaan & Jawaban Kriptografi
+    // Database Pertanyaan & Jawaban Lengkap
     const cryptographyDB = {
         // ==================== DASAR KRIPTOGRAFI ====================
         'konsep dasar kriptografi': {
@@ -1591,47 +2688,610 @@ class HybridKeyPair:
             tags: ['quantum', 'future', 'advanced']
         },
 
+        // ==================== SISTEM & TEKNIS ====================
+        'error login': {
+            answer: `🔐 **LOGIN ERROR - TROUBLESHOOTING**
+
+**Error yang Sering Terjadi:**
+1. **Error 404 - Page Not Found**
+2. **Error 403 - Access Denied**
+3. **Error 500 - Internal Server Error**
+4. **Invalid Credentials**
+5. **Session Expired**
+
+**SOLUSI CEPAT:**
+**1. Error 404 (Page Not Found):**
+\`\`\`bash
+# Langkah perbaikan:
+1. Clear cache browser: Ctrl+Shift+Del (Windows) atau Cmd+Shift+Del (Mac)
+2. Coba mode incognito/private
+3. Pastikan URL benar: https://decodify.com/login
+4. Nonaktifkan ekstensi browser (terutama ad-blocker)
+5. Coba browser berbeda (Chrome, Firefox, Edge)
+\`\`\`
+
+**2. Invalid Credentials:**
+• Pastikan caps lock tidak aktif
+• Reset password: https://decodify.com/reset-password
+• Cek email (termasuk spam) untuk link reset
+• Jika belum punya akun: https://decodify.com/register
+
+**3. Session Expired:**
+• Relogin otomatis setiap 7 hari
+• Klik "Remember Me" saat login
+• Clear cookies dan login kembali
+
+**STATUS SISTEM TERKINI:**
+• Login Service: ✅ **Normal**
+• Database: ✅ **Online**
+• Authentication: ✅ **Active**
+• Last Incident: 2 hari yang lalu (Maintenance rutin)
+
+**Jika masalah berlanjut:**
+1. Screenshoot error message
+2. Catat waktu kejadian
+3. Hubungi support@decodify.com
+4. Atau gunakan form ticket di tab "Sistem & Teknis"`,
+            followUp: ['reset password', 'register new account', 'clear cache'],
+            tags: ['system', 'error', 'login']
+        },
+
+        'cara upgrade ke premium': {
+            answer: `👑 **UPGRADE KE PAKET PREMIUM**
+
+**LANGKAH UPGRADE:**
+
+**1. Dari Dashboard:**
+\`\`\`
+1. Klik profile picture (kanan atas)
+2. Pilih "Subscription"
+3. Pilih paket "Premium"
+4. Pilih durasi (1/3/12 bulan)
+5. Pilih metode pembayaran
+6. Konfirmasi pembayaran
+\`\`\`
+
+**2. Metode Pembayaran yang Diterima:**
+• **Transfer Bank:** BCA, Mandiri, BNI, BRI
+• **E-Wallet:** GoPay, OVO, Dana, ShopeePay
+• **Kartu Kredit:** Visa, Mastercard, JCB
+• **QRIS:** Semua bank yang support QRIS
+
+**3. Harga Paket:**
+• **Bulanan:** Rp 49.999/bulan
+• **3 Bulan:** Rp 134.997 (hemat 10%)
+• **Tahunan:** Rp 479.988 (hemat 20%)
+• **Pelajar:** Rp 29.999/bulan (verifikasi .edu)
+
+**4. Proses Aktivasi:**
+• **Instant:** E-wallet & kartu kredit (1-2 menit)
+• **Manual:** Transfer bank (1-24 jam kerja)
+• **Invoice:** Tersedia untuk institusi
+
+**5. Fitur Premium yang Didapat:**
+✅ Akses semua materi kriptografi
+✅ Enkripsi/dekripsi unlimited
+✅ Simpan hasil tanpa batas
+✅ Tools analisis canggih
+✅ Priority support 24/7
+✅ Sertifikat kelulusan
+✅ Akses komunitas eksklusif
+
+**6. FAQ Upgrade:**
+**Q:** Bisa trial premium?
+**A:** Ya, 7 hari trial tersedia untuk user baru
+
+**Q:** Bisa downgrade nanti?
+**A:** Bisa, akan aktif di periode berikutnya
+
+**Q:** Ada refund?
+**A:** 30 hari money-back guarantee
+
+**Untuk upgrade sekarang:**
+1. Buka: https://decodify.com/subscription
+2. Atau tanya ke @decodify_bot di Telegram
+3. Email: billing@decodify.com untuk invoice
+
+**💡 Tips:**
+• Simpan bukti pembayaran
+• Cek email konfirmasi
+• Aktivasi otomatis dalam 5 menit`,
+            followUp: ['payment methods', 'student discount', 'cancel subscription'],
+            tags: ['subscription', 'premium', 'payment']
+        },
+
+        'reset password': {
+            answer: `🔓 **RESET PASSWORD - PETUNJUK**
+
+**CARA RESET PASSWORD:**
+
+**1. Melalui Halaman Login:**
+\`\`\`
+1. Kunjungi: https://decodify.com/login
+2. Klik "Lupa Password?"
+3. Masukkan email terdaftar
+4. Cek email Anda (termasuk spam)
+5. Klik link reset dalam email
+6. Buat password baru
+7. Konfirmasi password
+8. Login dengan password baru
+\`\`\`
+
+**2. Melalui Dashboard (Jika Masih Login):**
+\`\`\`
+1. Klik profile picture (kanan atas)
+2. Pilih "Settings"
+3. Pilih "Security"
+4. Klik "Change Password"
+5. Masukkan password lama
+6. Masukkan password baru
+7. Konfirmasi password baru
+8. Klik "Update Password"
+\`\`\`
+
+**KEAMANAN PASSWORD:**
+
+**Persyaratan Password Baru:**
+• Minimal 12 karakter
+• Kombinasi huruf besar & kecil
+• Minimal 1 angka
+• Minimal 1 simbol
+• Tidak sama dengan password lama
+• Tidak mengandung username/email
+
+**Contoh Password yang Aman:**
+<ul>
+    <li><span style="color: #10b981;">&#10003;</span> <code>DecoDify@2024!Secure</code></li>
+    <li><span style="color: #10b981;">&#10003;</span> <code>Kript0_Keamanan#Sistem</code></li>
+    <li><span style="color: #10b981;">&#10003;</span> <code>StrongP@ssw0rd!ForU</code></li>
+</ul>
+
+<strong>Password yang Tidak Aman:</strong>
+<ul>
+    <li><span style="color: #ef4444;">&#10007;</span> <code>password123</code></li>
+    <li><span style="color: #ef4444;">&#10007;</span> <code>admin123</code></li>
+    <li><span style="color: #ef4444;">&#10007;</span> <code>namaanda123</code></li>
+    <li><span style="color: #ef4444;">&#10007;</span> <code>12345678</code></li>
+</ul>
+
+**TIPS KEAMANAN:**
+1. Gunakan password manager (LastPass, Bitwarden)
+2. Aktifkan 2FA (Two-Factor Authentication)
+3. Jangan gunakan password yang sama di banyak situs
+4. Ganti password setiap 90 hari
+5. Gunakan passphrase yang mudah diingat
+
+**Jika Link Reset Tidak Berfungsi:**
+1. Link expire dalam 1 jam
+2. Request link baru
+3. Pastikan email benar
+4. Cek folder spam
+5. Hubungi support jika masih bermasalah
+
+**EMAIL SUPPORT:**
+• Reset password: security@decodify.com
+• Response time: < 2 jam (jam kerja)`,
+            followUp: ['enable 2fa', 'password manager', 'account security'],
+            tags: ['security', 'password', 'account']
+        },
+
+        'error payment premium': {
+            answer: `💳 **PAYMENT ERROR - TROUBLESHOOTING**
+
+**ERROR PEMBAYARAN UMUM:**
+
+**1. Payment Declined:**
+**Penyebab:**
+• Limit kartu kredit terpenuhi
+• Saldo e-wallet tidak mencukupi
+• Transaksi dicurigai fraud
+• Kartu expired/blokir
+
+**Solusi:**
+• Cek saldo/limit kartu
+• Hubungi bank/e-wallet provider
+• Coba metode pembayaran berbeda
+• Tunggu 15 menit coba lagi
+
+**2. Payment Pending:**
+**Penyebab:**
+• Sistem verifikasi bank
+• Manual review (untuk amount besar)
+• Technical issue payment gateway
+
+**Solusi:**
+• Tunggu 5-30 menit
+• Cek email untuk konfirmasi
+• Refresh halaman subscription
+• Hubungi billing support
+
+**3. Payment Success Tapi Premium Tidak Aktif:**
+**Penyebab:**
+• Delay activation (1-24 jam)
+• Invoice belum diverifikasi
+• System sync delay
+
+**Solusi:**
+• Tunggu maksimal 24 jam
+• Cek email untuk invoice/receipt
+• Hubungi support dengan bukti transfer
+• Kirim screenshot ke billing@decodify.com
+
+**METODE PEMBAYARAN & WAKTU AKTIVASI:**
+
+| Metode | Waktu Aktivasi | Biaya Admin |
+|--------|---------------|-------------|
+| Kartu Kredit | Instant (1-2 menit) | 2.9% |
+| GoPay/OVO | Instant (1-2 menit) | 1.5% |
+| Transfer Bank | 1-24 jam kerja | Rp 4,500 |
+| QRIS | 5-15 menit | 0.8% |
+
+**BUKTI PEMBAYARAN:**
+Simpan selalu:
+1. Screenshoot success payment
+2. Email receipt/confirmation
+3. Transaction ID/reference number
+4. Bank transfer slip (jika transfer)
+
+**SUPPORT PEMBAYARAN:**
+• Email: billing@decodify.com
+• WhatsApp: +62 812-3456-7890
+• Jam kerja: 08:00-18:00 WIB
+• Response: < 1 jam (jam kerja)
+
+**JIKA TERKENA FRAUD:**
+1. Laporkan ke bank segera
+2. Email security@decodify.com
+3. Sertakan bukti transaksi
+4. Kami akan freeze akun terkait`,
+            followUp: ['payment methods', 'refund policy', 'contact billing'],
+            tags: ['payment', 'premium', 'error']
+        },
+
+        'cara berlangganan': {
+            answer: `📋 **PANDUAN BERLANGGANAN DECODIFY**
+
+**PAKET YANG TERSEDIA:**
+
+**1. FREE PLAN:**
+• **Harga:** Rp 0
+• **Fitur:**
+  ✅ Akses materi dasar
+  ✅ 5x enkripsi/hari
+  ✅ Simpan 10 hasil
+  ❌ Fitur premium terkunci
+  ❌ Priority support
+
+**2. PREMIUM PLAN:**
+• **Harga:** Rp 49.999/bulan
+• **Fitur:**
+  ✅ Semua materi premium
+  ✅ Unlimited enkripsi
+  ✅ Simpan unlimited
+  ✅ Tools analisis
+  ✅ Priority support 24/7
+
+**3. STUDENT PLAN:**
+• **Harga:** Rp 29.999/bulan
+• **Syarat:** Verifikasi email .edu
+• **Fitur:** Semua fitur premium + sertifikat
+
+**CARA BERLANGGANAN:**
+
+**Langkah 1: Pilih Paket**
+1. Login ke akun Anda
+2. Buka: Profile > Subscription
+3. Pilih paket yang diinginkan
+4. Pilih durasi (1/3/12 bulan)
+
+**Langkah 2: Pembayaran**
+1. Pilih metode pembayaran
+2. Transfer sesuai instruksi
+3. Simpan bukti pembayaran
+4. Konfirmasi jika diminta
+
+**Langkah 3: Aktivasi**
+1. Sistem otomatis aktivasi
+2. Cek email konfirmasi
+3. Login ulang jika perlu
+4. Fitur premium langsung aktif
+
+**DISKON & PROMO:**
+
+**1. Student Discount:**
+• 40% discount dengan email .edu
+• Verifikasi butuh 1-2 hari kerja
+• Berlaku selama status pelajar
+
+**2. Yearly Discount:**
+• 20% discount untuk tahunan
+• Bayar sekali setahun
+• Hemat Rp 120.000/tahun
+
+**3. Group Discount:**
+• Min 5 users: 25% discount
+• Min 10 users: 40% discount
+• Untuk sekolah/perusahaan
+
+**BATAL BERLANGGANAN:**
+
+**Cara Cancel:**
+1. Profile > Subscription
+2. Klik "Cancel Subscription"
+3. Pilih alasan pembatalan
+4. Konfirmasi pembatalan
+
+**Refund Policy:**
+• 30 hari money-back guarantee
+• Pro rata untuk sisa periode
+• Refund dalam 7-14 hari kerja
+
+**SUPPORT BERLANGGANAN:**
+• Email: subscription@decodify.com
+• Telepon: (021) 1234-5678 ext. 2
+• Chat: Live chat di dashboard
+• Jam: 08:00-20:00 WIB`,
+            followUp: ['student verification', 'group subscription', 'cancel policy'],
+            tags: ['subscription', 'pricing', 'support']
+        },
+
+        'masalah sistem lambat': {
+            answer: `🐌 **PERFORMANSI SISTEM LAMBAT**
+
+**DIAGNOSA MASALAH:**
+
+**1. Cek Status Server:**
+\`\`\`bash
+Status Server Real-time:
+• Response Time: 120ms (Normal: < 200ms)
+• Uptime: 99.9% (30 hari terakhir)
+• Load: 45% (Normal: < 80%)
+• Users Online: 1,234
+\`\`\`
+
+**2. Identifikasi Sumber Lambat:**
+• **Client-side:** Browser, internet, device
+• **Network:** ISP, router, VPN
+• **Server-side:** Maintenance, load
+
+**SOLUSI CLIENT-SIDE:**
+
+**Browser Optimization:**
+1. **Clear Cache:** Ctrl+Shift+Del
+2. **Disable Extensions:** Nonaktifkan ad-blocker
+3. **Update Browser:** Ke versi terbaru
+4. **Hard Refresh:** Ctrl+F5
+
+**Internet Connection:**
+1. **Speed Test:** speedtest.net
+2. **Minimum Speed:** 5 Mbps download
+3. **Switch Network:** Coba mobile data
+4. **Restart Router:** Tunggu 30 detik
+
+**SOLUSI UNTUK SEMUA USER:**
+
+**1. Waktu Akses Optimal:**
+• Pagi: 06:00-10:00 WIB
+• Siang: 13:00-15:00 WIB
+• Malam: 21:00-24:00 WIB
+
+**2. Maintenance Schedule:**
+• Setiap Senin: 02:00-04:00 WIB
+• Setiap bulan: Last Friday (23:00-01:00)
+
+**FITUR YANG SERING LAMBAT:**
+1. **Encryption Tools:** Butuh komputasi tinggi
+2. **File Upload:** Tergantung file size
+3. **Analytics:** Processing data besar
+
+**TIPS PERFORMA:**
+• Gunakan Chrome/Firefox terbaru
+• Tutup tab yang tidak perlu
+• Nonaktifkan VPN jika tidak perlu
+• Akses via koneksi kabel (LAN)
+
+**REPORT MASALAH:**
+Jika lambat berlanjut:
+1. Catat waktu kejadian
+2. Screenshoot Network tab (F12)
+3. Ping: ping decodify.com
+4. Email: performance@decodify.com
+
+**STATUS TERKINI:**
+• Server Load: ✅ Normal
+• Network Latency: ✅ Good
+• Database: ✅ Responsive
+• CDN: ✅ Optimal`,
+            followUp: ['server status', 'browser optimization', 'report slow performance'],
+            tags: ['performance', 'system', 'troubleshooting']
+        },
+
+        'cara kontak support': {
+            answer: `📞 **KONTAK DUKUNGAN DECODIFY**
+
+**CHANNEL SUPPORT YANG TERSEDIA:**
+
+**1. DIFY BOT (24/7):**
+• **Response:** Instant (< 1 menit)
+• **Scope:** FAQ, troubleshooting dasar
+• **Akses:** Chat di halaman ini
+• **Language:** Bahasa Indonesia/English
+
+**2. EMAIL SUPPORT:**
+• **General:** support@decodify.com
+• **Technical:** tech@decodify.com
+• **Billing:** billing@decodify.com
+• **Security:** security@decodify.com
+• **Response:** < 2 jam (jam kerja)
+
+**3. TELEPON:**
+• **Number:** (021) 1234-5678
+• **Ext. 1:** General Support
+• **Ext. 2:** Billing & Subscription
+• **Ext. 3:** Technical Support
+• **Jam:** 08:00-18:00 WIB
+
+**5. COMMUNITY:**
+• **Discord:** discord.gg/decodify
+• **Telegram:** t.me/decodify_support
+• **Forum:** community.decodify.com
+• **Social:** @decodify (Twitter/IG)
+
+**INFORMASI YANG DIBUTUHKAN:**
+
+**Saat Kontak Support, Siapkan:**
+1. **Email terdaftar**
+2. **Username/User ID**
+3. **Deskripsi masalah detail**
+4. **Screenshoot error (jika ada)**
+5. **Langkah-langkah yang sudah dicoba**
+6. **Waktu kejadian (timezone WIB)**
+
+**RESPONSE TIME COMMITMENT:**
+
+| Channel | Response Time | Availability |
+|---------|--------------|--------------|
+| Dify Bot | < 1 menit | 24/7 |
+| Email | < 2 jam | 24/7 (auto-reply) |
+| Telepon | Direct | 08:00-18:00 |
+| Community | < 1 jam | 24/7 |
+
+**ESCALATION PROCESS:**
+1. Level 1: Dify Bot/Auto-response
+2. Level 2: Support Agent
+3. Level 3: Technical Specialist
+4. Level 4: Engineering Team
+
+**EMERGENCY CONTACT:**
+• **Security Incident:** security@decodify.com
+• **System Down:** emergency@decodify.com
+• **Data Breach:** +62 812-3456-7891
+• **Response:** < 15 menit (24/7)
+
+**💡 Tips:**
+• Untuk urgent issues, gunakan telepon
+• Untuk complex issues, gunakan email dengan detail
+• Untuk quick questions, gunakan Dify Bot atau Live Chat`,
+            followUp: ['live chat access', 'emergency contact', 'feedback form'],
+            tags: ['support', 'contact', 'help']
+        },
+
+        'tentang sistem decodify': {
+            answer: `🏗️ **TENTANG SISTEM DECODIFY**
+
+**PLATFORM OVERVIEW:**
+
+**1. Misi & Visi:**
+• **Misi:** Membuat kriptografi mudah dipahami dan diakses
+• **Visi:** Menjadi platform edukasi kriptografi terkemuka di Asia Tenggara
+• **Tagline:** "Demystifying Cryptography"
+
+**2. Teknologi Stack:**
+\`\`\`
+Frontend:
+• React.js + TypeScript
+• Tailwind CSS
+• WebSocket untuk real-time
+
+Backend:
+• Node.js + Express
+• Python (untuk algoritma kripto)
+• PostgreSQL (database)
+• Redis (caching)
+
+Infrastructure:
+• AWS EC2 + S3 + CloudFront
+• Docker + Kubernetes
+• CI/CD: GitHub Actions
+• Monitoring: Grafana + Prometheus
+\`\`\`
+
+**3. Tim Pengembang:**
+• **CTO:** Dr. Andi Wijaya (Ph.D Cryptography)
+• **Lead Developer:** 5 senior engineers
+• **Security Team:** 3 certified security experts
+• **Support Team:** 15+ agents
+• **Advisors:** Professors dari ITB, UI, UGM
+
+**4. Keamanan Sistem:**
+• **Encryption:** AES-256 untuk data at rest
+• **Transmission:** TLS 1.3 untuk data in transit
+• **Authentication:** OAuth 2.0 + JWT
+• **Compliance:** ISO 27001 certified
+• **Audit:** Regular penetration testing
+
+**5. Statistik Platform:**
+• **Users:** 50,000+ registered users
+• **Countries:** 15+ countries
+• **Uptime:** 99.9% (30 hari terakhir)
+• **Content:** 100+ materi kriptografi
+• **Tools:** 20+ encryption tools
+
+**6. Update Terbaru:**
+• **v2.5.0:** Added Post-Quantum Crypto module
+• **v2.4.0:** Real-time collaboration features
+• **v2.3.0:** Mobile app release (iOS/Android)
+• **v2.2.0:** AI-powered learning assistant
+
+**KOMITMEN KAMI:**
+1. **Privacy First:** Data Anda aman dengan kami
+2. **Quality Content:** Materi akurat dan update
+3. **User Support:** Bantuan 24/7
+4. **Continuous Improvement:** Update berkala
+
+**Untuk pertanyaan lebih lanjut:**
+• Email: info@decodify.com
+• Website: decodify.com
+• Office: Jakarta Tech Park, Tower A Lv. 15`,
+            followUp: ['privacy policy', 'team members', 'system architecture'],
+            tags: ['about', 'system', 'company']
+        },
+
         // ==================== DEFAULT RESPONSE ====================
         'default': {
-            answer: `🤖 **DIFY BOT - ASISTEN KRIPTOGRAFI**
+            answer: `🤖 **DIFY BOT - PUSAT BANTUAN**
 
-Saya belum sepenuhnya memahami pertanyaan Anda. Saya adalah asisten khusus untuk topik **kriptografi dan keamanan sistem**.
+Saya belum sepenuhnya memahami pertanyaan Anda. Saya adalah asisten untuk berbagai topik:
 
-**SILAKAN TANYAKAN TENTANG:**
+**🔐 KRIPTOGRAFI:**
+• Konsep dasar, algoritma (AES, RSA, SHA-256)
+• Fungsi hash, password security
+• Blockchain, post-quantum crypto
 
-🔐 **Dasar Kriptografi:**
-• Konsep enkripsi dan dekripsi
-• Tujuan kriptografi (CIA triad)
-• Sejarah dan perkembangan
+**⚙️ SISTEM & TEKNIS:**
+• Error login, reset password
+• Masalah teknis, troubleshooting
+• Performa sistem
 
-🗝️ **Algoritma & Implementasi:**
-• RSA, AES, ECC, SHA-256
-• Enkripsi simetris vs asimetris
-• Digital signatures dan certificates
+**👑 BERLANGGANAN:**
+• Cara upgrade ke premium
+• Metode pembayaran
+• Batal berlangganan
 
-🔗 **Fungsi Hash & Password Security:**
-• Password hashing (bcrypt, Argon2)
-• Data integrity verification
-• Cryptographic hash functions
+**🔧 ERROR & MASALAH:**
+• Solusi error umum
+• Troubleshooting
+• Kontak emergency
 
-🌐 **Keamanan Jaringan:**
-• TLS/SSL, VPN, SSH
-• Protocol security
-• Network encryption
+**📞 DUKUNGAN:**
+• Kontak support
+• Jam operasional
+• Response time
 
-⛓️ **Blockchain & Cryptocurrency:**
-• Bitcoin/Blockchain cryptography
-• Smart contract security
-• Wallet security
+**📱 KONTAK SUPPORT LANGSUNG:**
+Jika saya tidak bisa membantu, silakan hubungi:
+• **Email:** support@decodify.com
+• **Telepon:** (021) 1234-5678
+• **Emergency:** +62 812-3456-7890
+• **Jam:** 08:00-22:00 WIB (24/7 untuk urgent)
 
-⚛️ **Kriptografi Modern:**
-• Post-quantum cryptography
-• Homomorphic encryption
-• Zero-knowledge proofs
-
-**ATAU KLIK SALAH SATU PERTANYAAN DI BAWAH:**`,
-            followUp: ['konsep dasar kriptografi', 'algoritma rsa', 'fungsi hash kriptografi'],
-            tags: ['help', 'general']
+**ATAU COBA TANYAKAN:**
+• "Cara reset password"
+• "Error login 404"
+• "Harga paket premium"
+• "Cara kontak support"`,
+            followUp: ['error login', 'cara upgrade ke premium', 'cara kontak support'],
+            tags: ['help', 'general', 'support']
         }
     };
 
@@ -1645,6 +3305,7 @@ Saya belum sepenuhnya memahami pertanyaan Anda. Saya adalah asisten khusus untuk
         initializeChat();
         updateWelcomeTime();
         startBotActivity();
+        initializeTabs();
     });
 
     // Initialize chat interface
@@ -1666,13 +3327,191 @@ Saya belum sepenuhnya memahami pertanyaan Anda. Saya adalah asisten khusus untuk
         updateStats();
     }
 
-    // Auto-resize textarea
+    // Initialize tabs system
+    function initializeTabs() {
+        // Set default tab
+        updateBotContext('crypto');
+        filterFAQ('all');
+        
+        // Add click handlers for FAQ category buttons
+        document.querySelectorAll('.faq-category-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const match = this.getAttribute('onclick').match(/'([^']+)'/);
+                if (match) {
+                    filterFAQ(match[1]);
+                }
+            });
+        });
+        
+        // Initialize ticket form
+        const ticketForm = document.getElementById('ticketForm');
+        if (ticketForm) {
+            ticketForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitTicket();
+            });
+        }
+    }
+
+    // Tab switching functionality
+    function switchTab(tabName) {
+        // Update tabs
+        document.querySelectorAll('.qa-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.querySelector(`.qa-tab[onclick*="${tabName}"]`).classList.add('active');
+        
+        // Update content
+        document.querySelectorAll('.qa-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        document.getElementById(tabName + 'Tab').classList.add('active');
+        
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+        // Update chatbot context
+        updateBotContext(tabName);
+    }
+
+    // Update bot context based on tab
+    function updateBotContext(tabName) {
+        const chatInput = document.getElementById('chatInput');
+        const contexts = {
+            'crypto': 'Tanyakan tentang kriptografi, algoritma, keamanan sistem...',
+            'system': 'Tanyakan masalah teknis, error, atau masalah sistem...',
+            'subscription': 'Tanyakan tentang paket, harga, pembayaran, upgrade...',
+            'issues': 'Tanyakan tentang error, troubleshooting, perbaikan...',
+            'support': 'Tanyakan tentang kontak support, jam operasional, help...'
+        };
+        
+        chatInput.placeholder = contexts[tabName] || 'Tanyakan apapun...';
+        
+        // Add quick question suggestions
+        updateQuickQuestions(tabName);
+    }
+
+    // Update quick questions based on tab
+    function updateQuickQuestions(tabName) {
+        const quickQuestionsContainer = document.querySelector('.chatbot-footer .quick-questions');
+        if (!quickQuestionsContainer) return;
+        
+        const questions = {
+            'crypto': [
+                {text: 'Dasar Kriptografi', icon: 'fas fa-book', question: 'Jelaskan konsep dasar kriptografi'},
+                {text: 'Algoritma AES', icon: 'fas fa-key', question: 'Bagaimana cara kerja algoritma AES?'},
+                {text: 'Fungsi Hash', icon: 'fas fa-fingerprint', question: 'Apa itu fungsi hash kriptografi?'}
+            ],
+            'system': [
+                {text: 'Error Login', icon: 'fas fa-sign-in-alt', question: 'Login error 404, bagaimana mengatasinya?'},
+                {text: 'Reset Password', icon: 'fas fa-unlock-alt', question: 'Cara reset password yang lupa'},
+                {text: 'Sistem Lambat', icon: 'fas fa-tachometer-alt', question: 'Sistem lambat, solusinya?'}
+            ],
+            'subscription': [
+                {text: 'Paket Langganan', icon: 'fas fa-crown', question: 'Apa beda paket free dan premium?'},
+                {text: 'Upgrade Premium', icon: 'fas fa-arrow-up', question: 'Cara upgrade ke paket premium'},
+                {text: 'Metode Bayar', icon: 'fas fa-credit-card', question: 'Metode pembayaran yang diterima'}
+            ],
+            'issues': [
+                {text: 'Error Payment', icon: 'fas fa-exclamation-circle', question: 'Payment error solusi'},
+                {text: 'Page Not Found', icon: 'fas fa-search', question: 'Error 404 page not found'},
+                {text: 'Data Hilang', icon: 'fas fa-database', question: 'Data tidak tersimpan'}
+            ],
+            'support': [
+                {text: 'Kontak Support', icon: 'fas fa-headset', question: 'Cara kontak support'},
+                {text: 'Jam Operasional', icon: 'fas fa-clock', question: 'Jam operasional support'},
+                {text: 'Emergency', icon: 'fas fa-ambulance', question: 'Emergency contact'}
+            ]
+        };
+        
+        const tabQuestions = questions[tabName] || questions['crypto'];
+        quickQuestionsContainer.innerHTML = tabQuestions.map(q => `
+            <button class="quick-question-btn" onclick="askQuestion('${q.question}')">
+                <i class="${q.icon}"></i>
+                ${q.text}
+            </button>
+        `).join('');
+    }
+
+    // Filter FAQ by category
+    function filterFAQ(category) {
+        const buttons = document.querySelectorAll('.faq-category-btn');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        
+        const items = document.querySelectorAll('.faq-item');
+        items.forEach(item => {
+            if (category === 'all' || item.classList.contains(category)) {
+                item.style.display = 'block';
+                item.style.opacity = '1';
+            } else {
+                item.style.opacity = '0';
+                setTimeout(() => {
+                    item.style.display = 'none';
+                }, 300);
+            }
+        });
+    }
+
+    // Submit ticket form
+    function submitTicket() {
+        const issueType = document.getElementById('issueType').value;
+        const issueSubject = document.getElementById('issueSubject').value;
+        const issueDescription = document.getElementById('issueDescription').value;
+        const issueEmail = document.getElementById('issueEmail').value;
+        
+        if (!issueType || !issueSubject || !issueDescription || !issueEmail) {
+            showNotification('Harap isi semua field yang wajib diisi!', 'error');
+            return;
+        }
+        
+        // Simulate submission
+        showNotification('Tiket berhasil dikirim! Support akan menghubungi Anda dalam 2 jam.', 'success');
+        
+        // Reset form
+        document.getElementById('ticketForm').reset();
+        
+        // Ask follow-up question
+        setTimeout(() => {
+            askQuestion('Apakah ada informasi lain yang bisa saya bantu terkait masalah Anda?');
+        }, 2000);
+        
+        // Log ticket (in real app, this would send to server)
+        console.log('Ticket submitted:', {
+            type: issueType,
+            subject: issueSubject,
+            description: issueDescription,
+            email: issueEmail,
+            timestamp: new Date().toISOString()
+        });
+    }
+
+    // Show notification
+    function showNotification(message, type = 'success') {
+        // Remove existing notifications
+        document.querySelectorAll('.notification').forEach(n => n.remove());
+        
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+            ${message}
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        }, 5000);
+    }
+
+    // ==================== EXISTING CHAT FUNCTIONS ====================
     function autoResize(textarea) {
         textarea.style.height = 'auto';
         textarea.style.height = (textarea.scrollHeight) + 'px';
     }
 
-    // Handle Enter key (Shift+Enter for new line)
     function handleChatKeyPress(event) {
         if (event.key === 'Enter' && !event.shiftKey) {
             event.preventDefault();
@@ -1680,7 +3519,6 @@ Saya belum sepenuhnya memahami pertanyaan Anda. Saya adalah asisten khusus untuk
         }
     }
 
-    // Send message function
     function sendMessage() {
         const chatInput = document.getElementById('chatInput');
         const message = chatInput.value.trim();
@@ -1715,7 +3553,6 @@ Saya belum sepenuhnya memahami pertanyaan Anda. Saya adalah asisten khusus untuk
         }
     }
 
-    // Add message to chat UI
     function addMessageToChat(text, sender) {
         const chatBody = document.getElementById('chatBody');
         const messageDiv = document.createElement('div');
@@ -1759,7 +3596,6 @@ Saya belum sepenuhnya memahami pertanyaan Anda. Saya adalah asisten khusus untuk
         });
     }
 
-    // Format bot response with markdown-like syntax
     function formatBotResponse(text) {
         let formatted = escapeHtml(text);
         
@@ -1785,22 +3621,15 @@ Saya belum sepenuhnya memahami pertanyaan Anda. Saya adalah asisten khusus untuk
             `;
         });
         
-        // Convert tables
-        formatted = formatted.replace(/\|([^\n]+)\|/g, function(match, row) {
-            const cells = row.split('|').map(cell => `<td>${cell.trim()}</td>`).join('');
-            return `<table><tr>${cells}</tr></table>`;
-        });
-        
         // Convert line breaks
         formatted = formatted.replace(/\n/g, '<br>');
         
         // Convert bullet points
-        formatted = formatted.replace(/•\s+(.*?)(?=<br>|$)/g, '<p>• $1</p>');
+        formatted = formatted.replace(/•\s+(.*?)(?=<br>|$)/g, '<p style="margin: 0.3rem 0;">• $1</p>');
         
         return formatted;
     }
 
-    // Add copy buttons to code blocks
     function addCodeCopyButtons(messageId) {
         const messageDiv = document.getElementById(messageId);
         if (!messageDiv) return;
@@ -1826,7 +3655,6 @@ Saya belum sepenuhnya memahami pertanyaan Anda. Saya adalah asisten khusus untuk
         });
     }
 
-    // Copy to clipboard
     function copyToClipboard(elementId) {
         const element = document.getElementById(elementId);
         if (!element) return;
@@ -1834,19 +3662,21 @@ Saya belum sepenuhnya memahami pertanyaan Anda. Saya adalah asisten khusus untuk
         const text = element.textContent;
         navigator.clipboard.writeText(text).catch(err => {
             console.error('Failed to copy: ', err);
+            showNotification('Gagal menyalin kode', 'error');
         });
     }
 
-    // Get bot response from database
     function getBotResponse(userMessage) {
         const message = userMessage.toLowerCase().trim();
         
         // Check for exact matches first
         for (const [key, response] of Object.entries(cryptographyDB)) {
+            if (key === 'default') continue;
+            
             const keywords = key.split(' ');
             const matches = keywords.filter(keyword => 
                 message.includes(keyword) || 
-                calculateSimilarity(message, keyword) > 0.8
+                calculateSimilarity(message, keyword) > 0.7
             );
             
             if (matches.length >= Math.max(1, keywords.length * 0.5)) {
@@ -1856,16 +3686,36 @@ Saya belum sepenuhnya memahami pertanyaan Anda. Saya adalah asisten khusus untuk
         
         // Check for partial matches
         for (const [key, response] of Object.entries(cryptographyDB)) {
-            if (message.includes(key) || key.includes(message.substring(0, 20))) {
+            if (key === 'default') continue;
+            
+            if (message.includes(key) || 
+                (key.length > 5 && message.includes(key.substring(0, key.length - 2)))) {
                 return response;
             }
         }
         
-        // Return default response
+        // Check for support-related keywords
+        const supportKeywords = ['support', 'bantuan', 'tolong', 'help', 'kontak', 'hubungi', 'email', 'telepon'];
+        if (supportKeywords.some(keyword => message.includes(keyword))) {
+            return cryptographyDB['cara kontak support'];
+        }
+        
+        // Check for error-related keywords
+        const errorKeywords = ['error', 'masalah', 'bug', 'gagal', 'tidak bisa', 'failed'];
+        if (errorKeywords.some(keyword => message.includes(keyword))) {
+            return cryptographyDB['error login'];
+        }
+        
+        // Check for subscription-related keywords
+        const subKeywords = ['premium', 'langganan', 'bayar', 'harga', 'paket', 'upgrade'];
+        if (subKeywords.some(keyword => message.includes(keyword))) {
+            return cryptographyDB['cara upgrade ke premium'];
+        }
+        
+        // Return default response with support contact
         return cryptographyDB.default;
     }
 
-    // Calculate string similarity (simple implementation)
     function calculateSimilarity(str1, str2) {
         const words1 = str1.split(/\s+/);
         const words2 = str2.split(/\s+/);
@@ -1884,7 +3734,6 @@ Saya belum sepenuhnya memahami pertanyaan Anda. Saya adalah asisten khusus untuk
         return matches / Math.max(words1.length, words2.length);
     }
 
-    // Levenshtein distance for fuzzy matching
     function levenshteinDistance(a, b) {
         const matrix = [];
         
@@ -1913,14 +3762,12 @@ Saya belum sepenuhnya memahami pertanyaan Anda. Saya adalah asisten khusus untuk
         return matrix[b.length][a.length];
     }
 
-    // Ask question directly (for quick buttons)
     function askQuestion(question) {
         const chatInput = document.getElementById('chatInput');
         chatInput.value = question;
         sendMessage();
     }
 
-    // Show typing indicator
     function showTypingIndicator() {
         const chatBody = document.getElementById('chatBody');
         const typingDiv = document.createElement('div');
@@ -1936,7 +3783,6 @@ Saya belum sepenuhnya memahami pertanyaan Anda. Saya adalah asisten khusus untuk
         scrollToBottom();
     }
 
-    // Remove typing indicator
     function removeTypingIndicator() {
         const typingIndicator = document.getElementById('typingIndicator');
         if (typingIndicator) {
@@ -1944,7 +3790,6 @@ Saya belum sepenuhnya memahami pertanyaan Anda. Saya adalah asisten khusus untuk
         }
     }
 
-    // Add follow-up suggestions
     function addFollowUpSuggestions(suggestions) {
         const chatBody = document.getElementById('chatBody');
         const suggestionsDiv = document.createElement('div');
@@ -1964,7 +3809,6 @@ Saya belum sepenuhnya memahami pertanyaan Anda. Saya adalah asisten khusus untuk
         scrollToBottom();
     }
 
-    // Toggle FAQ item
     function toggleFAQ(item) {
         const isActive = item.classList.contains('active');
         
@@ -1985,14 +3829,12 @@ Saya belum sepenuhnya memahami pertanyaan Anda. Saya adalah asisten khusus untuk
         }
     }
 
-    // Get current time in HH:MM format
     function getCurrentTime() {
         const now = new Date();
         return now.getHours().toString().padStart(2, '0') + ':' + 
                now.getMinutes().toString().padStart(2, '0');
     }
 
-    // Update welcome message time
     function updateWelcomeTime() {
         const welcomeTime = document.getElementById('welcomeTime');
         if (welcomeTime) {
@@ -2000,19 +3842,16 @@ Saya belum sepenuhnya memahami pertanyaan Anda. Saya adalah asisten khusus untuk
         }
     }
 
-    // Scroll chat to bottom
     function scrollToBottom() {
         const chatBody = document.getElementById('chatBody');
         chatBody.scrollTop = chatBody.scrollHeight;
     }
 
-    // Update statistics
     function updateStats() {
         document.getElementById('totalQuestions').textContent = questionCount;
         document.getElementById('activeUsers').textContent = 1; // Could be dynamic
     }
 
-    // Save chat to history (localStorage)
     function saveChatToHistory(question, answer) {
         const history = JSON.parse(localStorage.getItem('cryptoChatHistory') || '[]');
         history.push({
@@ -2029,14 +3868,12 @@ Saya belum sepenuhnya memahami pertanyaan Anda. Saya adalah asisten khusus untuk
         localStorage.setItem('cryptoChatHistory', JSON.stringify(history));
     }
 
-    // Load chat history
     function loadChatHistory() {
         const history = JSON.parse(localStorage.getItem('cryptoChatHistory') || '[]');
         questionCount = history.length;
         updateStats();
     }
 
-    // Simulate bot activity
     function startBotActivity() {
         setInterval(() => {
             const statusDot = document.querySelector('.status-dot');
@@ -2049,14 +3886,12 @@ Saya belum sepenuhnya memahami pertanyaan Anda. Saya adalah asisten khusus untuk
         }, 10000);
     }
 
-    // Utility: Escape HTML
     function escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
 
-    // Export chat history
     function exportChatHistory() {
         const history = JSON.parse(localStorage.getItem('cryptoChatHistory') || '[]');
         const blob = new Blob([JSON.stringify(history, null, 2)], {type: 'application/json'});
@@ -2070,7 +3905,6 @@ Saya belum sepenuhnya memahami pertanyaan Anda. Saya adalah asisten khusus untuk
         URL.revokeObjectURL(url);
     }
 
-    // Clear chat history
     function clearChatHistory() {
         if (confirm('Apakah Anda yakin ingin menghapus riwayat percakapan?')) {
             localStorage.removeItem('cryptoChatHistory');
@@ -2083,6 +3917,8 @@ Saya belum sepenuhnya memahami pertanyaan Anda. Saya adalah asisten khusus untuk
             for (let i = 1; i < messages.length; i++) {
                 messages[i].remove();
             }
+            
+            showNotification('Riwayat percakapan berhasil dihapus!', 'success');
         }
     }
 </script>
