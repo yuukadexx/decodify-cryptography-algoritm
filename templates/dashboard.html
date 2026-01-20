@@ -3197,31 +3197,27 @@
 
         <!-- CERTIFICATES SECTION (Premium) -->
              <section id="certificates-section" class="dashboard-section certificates">
-            <h1 class="cert-title">
-          Achievement Unlocked
-    </h1>
-    <p class="cert-subtitle">🏅 1 Sertifikat Dikoleksi</p>
+            <h1 class="cert-title">Achievement Unlocked</h1>
+            <p class="cert-subtitle">🏅 1 Sertifikat Dikoleksi</p>
 
-    <div class="cert-grid">
-
-        <!-- PEMULA -->
-        <div class="cert-card active">
-            <img src="{{ url_for('static', filename='images/serti1.png') }}" 
-     alt="Sertifikat Pemula">
-            <h3>Beginner</h3>
-            <button class="btn-primary">Download PDF</button>
-            <button class="btn-linkedin">
-                <i class="fab fa-linkedin"></i> Bagikan ke LinkedIn
-            </button>
-        </div>
+            
+            <!-- PEMULA -->
+        <div class="cert-grid">
+            <div class="cert-card active">
+                <img src="{{ url_for('static', filename='images/serti1.png') }}" alt="Sertifikat Pemula">
+                <h3>Beginner</h3>
+                <button class="btn-primary">Download PDF</button>
+                <button class="btn-linkedin">
+                    <i class="fab fa-linkedin"></i> Bagikan ke LinkedIn
+                </button>
+            </div>
 
         <!-- MENENGAH -->
         <div class="cert-card locked">
             <div class="lock-overlay">
                 <i class="fas fa-lock"></i>
             </div>
-                        <img src="{{ url_for('static', filename='images/serti2.png') }}" 
-     alt="Sertifikat Pemula">
+                        <img src="{{ url_for('static', filename='images/serti2.png') }}" alt="Sertifikat Pemula">
             <h3>Intermediate</h3>
             <div class="progress">
                 <div class="progress-bar" style="width: 50%"></div>
@@ -3235,17 +3231,13 @@
             <div class="lock-overlay">
                 <i class="fas fa-lock"></i>
             </div>
-                        <img src="{{ url_for('static', filename='images/serti3.png') }}" 
-     alt="Sertifikat Pemula">
+                        <img src="{{ url_for('static', filename='images/serti3.png') }}" alt="Sertifikat Pemula">
             <h3>Advanced</h3>
             <p class="progress-text">Selesaikan 10 Cipher untuk membuka</p>
             <button class="btn-disabled">Selesaikan Materi</button>
         </div>
-
     </div>
 </section>
-
-
             <!-- COMMUNITY SECTION -->
             <section id="community-section" class="dashboard-section">
                 <h1 class="section-title">
