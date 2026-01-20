@@ -21,6 +21,9 @@ from email.mime.multipart import MIMEMultipart
 from datetime import datetime, date, timedelta
 from collections import Counter
 
+from utils.modern_crypto import aes_decrypt, aes_encrypt
+from utils.rsa import ciphertext_to_string, generate_keypair, rsa_decrypt, rsa_encrypt
+
 
 # =============== INISIALISASI APLIKASI ===============
 app = Flask(__name__)
@@ -2011,6 +2014,123 @@ def triple_des_page():
 def blowfish_page():
     return render_template('blowfish.html')
 
+# ============ RSA ENDPOINTS ============
+@app.route('/api/rsa/generate', methods=['POST'])
+@login_required
+def api_rsa_generate():
+    try:
+        public_key, private_key = generate_keypair(bits=16)
+        
+        return jsonify({
+            'success': True,
+            'public_key': list(public_key),
+            'private_key': list(private_key)
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 400
+
+
+@app.route('/api/rsa/encrypt', methods=['POST'])
+@login_required
+def api_rsa_encrypt():
+    try:
+        data = request.get_json()
+        text = data.get('text', '')
+        public_key = tuple(data.get('public_key', []))
+        
+        ciphertext = rsa_encrypt(text, public_key)
+        ciphertext_string = ciphertext_to_string(ciphertext)
+        
+        return jsonify({
+            'success': True,
+            'ciphertext': ciphertext,
+            'ciphertext_string': ciphertext_string
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 400
+
+
+@app.route('/api/rsa/decrypt', methods=['POST'])
+@login_required
+def api_rsa_decrypt():
+    try:
+        data = request.get_json()
+        ciphertext = data.get('ciphertext', [])
+        private_key = tuple(data.get('private_key', []))
+        
+        plaintext = rsa_decrypt(ciphertext, private_key)
+        
+        return jsonify({
+            'success': True,
+            'plaintext': plaintext
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 400
+
+
+# ============== AES ENDPOINTS ===============
+
+# Tambahkan endpoint ini
+@app.route('/api/aes', methods=['POST'])
+@login_required
+def api_aes():
+    """AES Encryption/Decryption endpoint"""
+    try:
+        data = request.get_json()
+        text = data.get('text', '')
+        key = data.get('key', '')
+        mode = data.get('mode', 'encrypt')
+        
+        if not text or not key:
+            return jsonify({
+                'success': False,
+                'error': 'Text dan key harus diisi'
+            }), 400
+        
+        if len(key) < 16:
+            return jsonify({
+                'success': False,
+                'error': 'Key minimal 16 karakter'
+            }), 400
+        
+        if mode == 'encrypt':
+            ciphertext, iv = aes_encrypt(text, key)
+            return jsonify({
+                'success': True,
+                'result': ciphertext,
+                'iv': iv,
+                'mode': 'encrypt'
+            })
+        else:  # decrypt
+            iv = data.get('iv', '')
+            if not iv:
+                return jsonify({
+                    'success': False,
+                    'error': 'IV diperlukan untuk dekripsi'
+                }), 400
+            
+            plaintext = aes_decrypt(text, key, iv)
+            return jsonify({
+                'success': True,
+                'result': plaintext,
+                'mode': 'decrypt'
+            })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 400
+    
 # =============== API ENDPOINTS ===============
 
 @app.route('/api/user/score')
