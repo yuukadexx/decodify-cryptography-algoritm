@@ -622,20 +622,6 @@
         border: 2px solid rgba(59, 130, 246, 0.3);
     }
 
-    .certificate-course::after {
-        content: '📜 Sertifikat';
-        position: absolute;
-        top: 15px;
-        right: 15px;
-        background: var(--certificate-gradient);
-        color: white;
-        padding: 0.4rem 0.8rem;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        z-index: 3;
-    }
-
     /* Pagination */
     .pagination {
         display: flex;
@@ -937,7 +923,7 @@
     <!-- Header Section -->
     <div class="video-courses-header">
         <h1>🎬 Video Course Kriptografi Lengkap</h1>
-        <p>Pelajari kriptografi dari dasar hingga mahir melalui video tutorial interaktif dalam Bahasa Indonesia. Kursus lengkap dengan sertifikat dan sistem pembelajaran terstruktur.</p>
+        <p>Pelajari kriptografi dari dasar hingga mahir melalui video tutorial interaktif.</p>
         
         <div class="stats-container">
             <div class="stat-item">
@@ -947,10 +933,6 @@
             <div class="stat-item">
                 <span class="stat-number">25+</span>
                 <span class="stat-label">Jam Belajar</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-number">10+</span>
-                <span class="stat-label">Sertifikat</span>
             </div>
             <div class="stat-item">
                 <span class="stat-number">1000+</span>
@@ -1021,9 +1003,6 @@
             <button class="category-filter-btn" data-category="asymmetric">
                 <i class="fas fa-key"></i> Asimetris
             </button>
-            <button class="category-filter-btn" data-category="certificate">
-                <i class="fas fa-certificate"></i> Sertifikat
-            </button>
             <button class="category-filter-btn" data-category="premium">
                 <i class="fas fa-crown"></i> Premium
             </button>
@@ -1044,9 +1023,6 @@
             <div class="course-badges">
                 <span class="course-badge badge-popular">
                     <i class="fas fa-fire"></i> Populer
-                </span>
-                <span class="course-badge badge-certificate">
-                    <i class="fas fa-certificate"></i> Sertifikat
                 </span>
             </div>
             
@@ -1107,23 +1083,10 @@
                     </div>
                 </div>
                 
-                <div class="course-footer">
-                    <div class="course-progress">
-                        <div class="progress-info">
-                            <span class="progress-percentage">100% Selesai</span>
-                            <span class="progress-text">Sertifikat Tersedia</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 100%"></div>
-                        </div>
-                    </div>
                     
                     <div class="course-actions">
                         <button class="course-action" onclick="openYouTubeModal('https://www.youtube.com/embed/sMOZf4GN3oc', 'Pengantar Kriptografi Lengkap')">
                             <i class="fas fa-play-circle"></i> Tonton Ulang
-                        </button>
-                        <button class="course-action secondary" onclick="viewCertificate('intro-crypto')">
-                            <i class="fas fa-download"></i> Unduh Sertifikat
                         </button>
                     </div>
                 </div>
@@ -1212,14 +1175,6 @@
 
         <!-- Course 2: Vigenère Cipher (Premium) -->
         <div class="course-card premium" data-category="intermediate classical premium certificate">
-            <div class="course-badges">
-                <span class="course-badge badge-premium">
-                    <i class="fas fa-crown"></i> PREMIUM
-                </span>
-                <span class="course-badge badge-certificate">
-                    <i class="fas fa-certificate"></i> Sertifikat
-                </span>
-            </div>
             
             <div class="course-thumbnail">
                 <img src="https://img.youtube.com/vi/SkJcmCaHqS0/maxresdefault.jpg" alt="Vigenère Cipher">
@@ -1853,7 +1808,7 @@
                         <i class="fas fa-crown" style="font-size: 4rem; color: #FFD700; margin-bottom: 1rem;"></i>
                         <h3 style="color: var(--text); margin-bottom: 1rem;">Upgrade ke Premium</h3>
                         <p style="color: var(--text-muted); margin-bottom: 2rem;">
-                            Akses semua course premium, sertifikat, dan fitur eksklusif lainnya.
+                            Akses semua course premium, dan fitur eksklusif lainnya.
                         </p>
                         <div style="display: flex; gap: 1rem; justify-content: center;">
                             <button class="course-action" onclick="upgradeToPremium()">
@@ -1874,12 +1829,7 @@
     function upgradeToPremium() {
         localStorage.setItem('cryptolab_premium', 'true');
         alert('🎉 Selamat! Anda sekarang memiliki akses Premium!');
-        location.reload();
-    }
-
-    function viewCertificate(courseId) {
-        alert(`Sertifikat untuk course ${courseId} akan diunduh.`);
-        // In production, generate and download certificate
+        location.reload();11    
     }
 
     function showCourseDetails(courseId) {

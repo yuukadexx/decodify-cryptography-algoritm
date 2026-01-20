@@ -1,0 +1,144 @@
+# ============================================
+# DecoDify - Git Ignore Rules
+# ============================================
+
+# ⚠️ KEAMANAN - JANGAN PERNAH COMMIT!
+.env                    # File environment variables
+.env.local
+.env.*
+!.env.example          # Tapi keep file contoh
+secrets.json
+config_secret.py
+*.key
+*.pem
+*.crt
+
+# 🗄️ DATABASE & DATA
+*.db                    # SQLite database files
+*.db-journal           # SQLite journal files  
+*.db-wal               # SQLite WAL files
+*.db-shm               # SQLite shared memory
+*.sqlite
+*.sqlite3
+*.db3
+instance/              # Folder instance (tapi baca pengecualian di bawah)
+
+# Instance folder kita ingin kosong di repo,
+# tapi perlu folder structure
+!instance/.gitkeep     # Keep empty file untuk maintain folder structure
+
+# 📁 FOLDER DEVELOPMENT
+__pycache__/           # Python cache
+.pytest_cache/         # Pytest cache
+.mypy_cache/           # MyPy cache
+.coverage              # Test coverage
+htmlcov/               # Coverage reports
+.tox/                  # Tox environments
+
+# 🐍 PYTHON
+*.py[cod]              # Python compiled files
+*$py.class             # More Python compiled
+*.so                   # C extensions
+.Python                # Python environment
+env/                   # Virtual environments
+venv/
+ENV/
+env.bak/
+venv.bak/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# 🎨 EDITOR & IDE
+.vscode/               # VS Code settings
+.idea/                 # PyCharm/IntelliJ
+*.swp                  # Vim swap files
+*.swo
+*.swn
+.DS_Store             # macOS
+Thumbs.db             # Windows
+desktop.ini
+
+# 📊 LOGS & TEMPORARY
+*.log                  # Log files
+logs/                  # Log folder
+*.tmp                  # Temporary files
+*.temp
+*.bak                  # Backup files
+*.backup
+
+# 📦 PACKAGES & DEPENDENCIES
+# Versi Python
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+var/
+sdist/
+develop-eggs/
+.installed.cfg
+lib/
+lib64/
+__pycache__/
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# 🖼️ MEDIA & UPLOADS
+uploads/               # User uploads
+media/
+staticfiles/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.ico
+*.svg
+
+# 📁 PROJECT SPECIFIC
+backups/              # Database backups
+cache/                # Application cache
+temp/                 # Temporary files
+*.pdf                 # Generated PDFs
+*.xlsx                # Excel exports
+
+# 🚀 DEPLOYMENT
+docker-compose.override.yml
+.dockerignore
+*.dockerfile
+docker-compose.prod.yml
+
+# 📝 MISC
+*.orig                # Merge conflict files
+*.rej
+*~
+\#*#
+.#*
+*#
+session.sql
+dump.sql

@@ -1,0 +1,945 @@
+{% extends "base.html" %}
+
+{% block title %}{{ tutorial.title }} - DecoDify{% endblock %}
+
+{% block extra_css %}
+<style>
+    .tutorial-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    .tutorial-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--glass);
+    }
+
+    .tutorial-meta {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin: 1rem 0;
+        flex-wrap: wrap;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    .meta-item i {
+        width: 16px;
+        text-align: center;
+    }
+
+    .difficulty-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .difficulty-beginner {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+    }
+
+    .difficulty-intermediate {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+    }
+
+    .difficulty-advanced {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+    }
+
+    .back-navigation {
+        margin-bottom: 2rem;
+    }
+
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: transparent;
+        border: 1px solid var(--glass);
+        color: var(--text);
+        border-radius: 10px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .back-btn:hover {
+        background: rgba(255, 255, 255, 0.05);
+        transform: translateX(-3px);
+    }
+
+    .tutorial-content {
+        background: var(--card-bg);
+        border: 1px solid var(--glass);
+        border-radius: 16px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        position: relative;
+    }
+
+    .content-section {
+        margin-bottom: 3rem;
+    }
+
+    .content-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .content-section h2 {
+        color: var(--text);
+        font-size: 1.75rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid var(--glass);
+        position: relative;
+    }
+
+    .content-section h2::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 100px;
+        height: 2px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+    }
+
+    .content-section h3 {
+        color: var(--text);
+        font-size: 1.4rem;
+        margin: 1.5rem 0 1rem 0;
+    }
+
+    .content-section h4 {
+        color: var(--text);
+        font-size: 1.2rem;
+        margin: 1.25rem 0 0.75rem 0;
+        opacity: 0.9;
+    }
+
+    .content-section p {
+        color: var(--text-muted);
+        line-height: 1.8;
+        margin-bottom: 1.25rem;
+        font-size: 1.05rem;
+    }
+
+    .content-section ul, .content-section ol {
+        color: var(--text-muted);
+        margin-left: 2rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.8;
+    }
+
+    .content-section li {
+        margin-bottom: 0.75rem;
+        padding-left: 0.5rem;
+    }
+
+    .content-section li::marker {
+        color: var(--primary);
+    }
+
+    .code-block {
+        background: var(--bg-color);
+        border: 1px solid var(--glass);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+        overflow-x: auto;
+        position: relative;
+    }
+
+    .code-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--glass);
+    }
+
+    .code-language {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--primary);
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .copy-btn {
+        background: rgba(139, 92, 246, 0.1);
+        border: 1px solid rgba(139, 92, 246, 0.3);
+        color: var(--primary);
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .copy-btn:hover {
+        background: rgba(139, 92, 246, 0.2);
+    }
+
+    .copy-btn.copied {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        border-color: transparent;
+    }
+
+    .code-content {
+        color: #e2e8f0;
+        font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+
+    .code-content .keyword { color: #ff79c6; }
+    .code-content .function { color: #50fa7b; }
+    .code-content .string { color: #f1fa8c; }
+    .code-content .comment { color: #6272a4; }
+    .code-content .number { color: #bd93f9; }
+    .code-content .operator { color: #ff79c6; }
+
+    .info-box {
+        background: rgba(59, 130, 246, 0.1);
+        border-left: 4px solid #3b82f6;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin: 1.5rem 0;
+    }
+
+    .info-box h4 {
+        color: #3b82f6;
+        margin-top: 0 !important;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .warning-box {
+        background: rgba(245, 158, 11, 0.1);
+        border-left: 4px solid #f59e0b;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin: 1.5rem 0;
+    }
+
+    .warning-box h4 {
+        color: #f59e0b;
+        margin-top: 0 !important;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .success-box {
+        background: rgba(16, 185, 129, 0.1);
+        border-left: 4px solid #10b981;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin: 1.5rem 0;
+    }
+
+    .success-box h4 {
+        color: #10b981;
+        margin-top: 0 !important;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .table-container {
+        overflow-x: auto;
+        margin: 1.5rem 0;
+        border-radius: 12px;
+        border: 1px solid var(--glass);
+    }
+
+    .comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .comparison-table th {
+        background: rgba(139, 92, 246, 0.1);
+        color: var(--text);
+        font-weight: 600;
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 2px solid var(--glass);
+    }
+
+    .comparison-table td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--glass);
+        color: var(--text-muted);
+    }
+
+    .comparison-table tr:hover {
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    .example-box {
+        background: rgba(139, 92, 246, 0.05);
+        border: 1px solid rgba(139, 92, 246, 0.2);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+    }
+
+    .example-box h4 {
+        color: var(--primary);
+        margin-top: 0 !important;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .interactive-tool {
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(16, 185, 129, 0.1));
+        border: 1px solid var(--glass);
+        border-radius: 16px;
+        padding: 2rem;
+        margin: 2rem 0;
+    }
+
+    .tool-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .tool-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .tool-controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .input-group label {
+        color: var(--text);
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .input-group input,
+    .input-group select {
+        padding: 0.75rem 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass);
+        border-radius: 10px;
+        color: var(--text);
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .input-group input:focus,
+    .input-group select:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+    }
+
+    .tool-actions {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .action-btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex: 1;
+        justify-content: center;
+    }
+
+    .encrypt-btn {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+    }
+
+    .decrypt-btn {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .result-box {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--glass);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-top: 1rem;
+    }
+
+    .result-box h4 {
+        color: var(--text);
+        margin-top: 0 !important;
+        margin-bottom: 1rem;
+    }
+
+    .result-output {
+        color: var(--text);
+        font-family: 'Consolas', monospace;
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 8px;
+        min-height: 80px;
+        word-break: break-all;
+    }
+
+    .resources-section {
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--glass);
+    }
+
+    .resource-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+    .resource-card {
+        background: var(--card-bg);
+        border: 1px solid var(--glass);
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .resource-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-5px);
+    }
+
+    .resource-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .resource-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+    }
+
+    .resource-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+        margin-top: 1rem;
+        padding: 0.5rem 1rem;
+        background: rgba(139, 92, 246, 0.1);
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .resource-link:hover {
+        background: rgba(139, 92, 246, 0.2);
+        transform: translateX(5px);
+    }
+
+    .completion-section {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-top: 3rem;
+        text-align: center;
+    }
+
+    .completion-icon {
+        font-size: 3rem;
+        color: #10b981;
+        margin-bottom: 1rem;
+    }
+
+    .completion-section h3 {
+        color: var(--text);
+        margin-bottom: 1rem;
+    }
+
+    .complete-btn {
+        padding: 1rem 2rem;
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+    }
+
+    .complete-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+    }
+
+    @media (max-width: 768px) {
+        .tutorial-container {
+            padding: 1rem;
+        }
+
+        .tutorial-content {
+            padding: 1.5rem;
+        }
+
+        .tool-controls {
+            grid-template-columns: 1fr;
+        }
+
+        .resource-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .tutorial-content {
+        animation: fadeIn 0.6s ease;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="tutorial-container">
+    <!-- Back Navigation -->
+    <div class="back-navigation">
+        <a href="{{ url_for('learning_path') }}" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Kembali ke Learning Path
+        </a>
+    </div>
+
+    <!-- Tutorial Header -->
+    <div class="tutorial-header">
+        <h1>{{ tutorial.title }}</h1>
+        
+        <div class="tutorial-meta">
+            <div class="meta-item">
+                <i class="fas fa-clock"></i>
+                <span>Durasi: {{ tutorial.duration }}</span>
+            </div>
+            
+            <div class="meta-item">
+                <i class="fas fa-layer-group"></i>
+                <span>Level: {{ tutorial.level|title }}</span>
+            </div>
+            
+            <div class="meta-item">
+                <i class="fas fa-star"></i>
+                <span>Kesulitan: </span>
+                <span class="difficulty-badge difficulty-{{ tutorial.difficulty|lower }}">
+                    {{ tutorial.difficulty }}
+                </span>
+            </div>
+            
+            {% if tutorial.xp_reward %}
+            <div class="meta-item">
+                <i class="fas fa-trophy"></i>
+                <span>Hadiah: {{ tutorial.xp_reward }} XP</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Tutorial Content -->
+    <div class="tutorial-content">
+        {% if tutorial.sections %}
+            {% for section in tutorial.sections %}
+            <div class="content-section" id="section-{{ loop.index }}">
+                <h2>{{ section.title }}</h2>
+                
+                {% if section.content_type == 'text' %}
+                    {{ section.content|safe }}
+                
+                {% elif section.content_type == 'code' %}
+                    <div class="code-block">
+                        <div class="code-header">
+                            <div class="code-language">
+                                <i class="fab fa-{{ section.language|default('python')|lower }}"></i>
+                                <span>{{ section.language|default('Python') }}</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyCode(this)">
+                                <i class="fas fa-copy"></i>
+                                <span>Salin Kode</span>
+                            </button>
+                        </div>
+                        <div class="code-content">
+                            {{ section.content|highlight_code(section.language)|safe }}
+                        </div>
+                    </div>
+                
+                {% elif section.content_type == 'info' %}
+                    <div class="info-box">
+                        <h4><i class="fas fa-info-circle"></i> {{ section.title }}</h4>
+                        {{ section.content|safe }}
+                    </div>
+                
+                {% elif section.content_type == 'warning' %}
+                    <div class="warning-box">
+                        <h4><i class="fas fa-exclamation-triangle"></i> {{ section.title }}</h4>
+                        {{ section.content|safe }}
+                    </div>
+                
+                {% elif section.content_type == 'example' %}
+                    <div class="example-box">
+                        <h4><i class="fas fa-lightbulb"></i> {{ section.title }}</h4>
+                        {{ section.content|safe }}
+                    </div>
+                
+                {% elif section.content_type == 'table' %}
+                    <div class="table-container">
+                        <table class="comparison-table">
+                            {% for row in section.rows %}
+                            <tr>
+                                {% for cell in row %}
+                                <td>{{ cell }}</td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <!-- Fallback content jika tidak ada sections -->
+            <div class="content-section">
+                <h2>🎯 Tujuan Pembelajaran</h2>
+                <p>{{ tutorial.objective|default('Memahami konsep dasar dari topik ini.') }}</p>
+                
+                <h2>📖 Materi Pembelajaran</h2>
+                <p>{{ tutorial.description }}</p>
+            </div>
+        {% endif %}
+
+        <!-- Interactive Tools (contoh untuk Caesar Cipher) -->
+        {% if tutorial.topic == 'caesar' %}
+        <div class="interactive-tool">
+            <div class="tool-header">
+                <div class="tool-icon">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <div>
+                    <h3 style="margin: 0;">Caesar Cipher Simulator</h3>
+                    <p style="color: var(--text-muted); margin: 0.5rem 0 0 0;">Praktikkan enkripsi dan dekripsi Caesar Cipher</p>
+                </div>
+            </div>
+
+            <div class="tool-controls">
+                <div class="input-group">
+                    <label for="cipher-text"><i class="fas fa-font"></i> Teks</label>
+                    <input type="text" id="cipher-text" placeholder="Masukkan teks..." value="HELLO WORLD">
+                </div>
+                
+                <div class="input-group">
+                    <label for="cipher-shift"><i class="fas fa-exchange-alt"></i> Shift (0-25)</label>
+                    <input type="number" id="cipher-shift" min="0" max="25" value="3">
+                </div>
+            </div>
+
+            <div class="tool-actions">
+                <button class="action-btn encrypt-btn" onclick="encryptCaesar()">
+                    <i class="fas fa-lock"></i> Enkripsi
+                </button>
+                <button class="action-btn decrypt-btn" onclick="decryptCaesar()">
+                    <i class="fas fa-unlock"></i> Dekripsi
+                </button>
+            </div>
+
+            <div class="result-box">
+                <h4>Hasil:</h4>
+                <div id="cipher-result" class="result-output">
+                    Hasil akan muncul di sini...
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Resources Section -->
+        <div class="resources-section">
+            <h2>📚 Sumber Belajar Tambahan</h2>
+            <p>Pelajari lebih dalam dengan sumber-sumber berikut:</p>
+            
+            <div class="resource-grid">
+                <div class="resource-card">
+                    <div class="resource-header">
+                        <div class="resource-icon">
+                            <i class="fab fa-youtube"></i>
+                        </div>
+                        <h4 style="margin: 0;">Video Tutorial</h4>
+                    </div>
+                    <p>Pelajari dengan visual melalui video tutorial interaktif.</p>
+                    <a href="https://www.youtube.com/results?search_query={{ tutorial.topic }}+cipher+tutorial" 
+                       target="_blank" class="resource-link">
+                        <i class="fas fa-external-link-alt"></i> Tonton Video
+                    </a>
+                </div>
+                
+                <div class="resource-card">
+                    <div class="resource-header">
+                        <div class="resource-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <h4 style="margin: 0;">Artikel Detail</h4>
+                    </div>
+                    <p>Baca artikel mendalam tentang {{ tutorial.topic }} cipher.</p>
+                    <a href="https://en.wikipedia.org/wiki/{{ tutorial.topic|title }}_cipher" 
+                       target="_blank" class="resource-link">
+                        <i class="fas fa-external-link-alt"></i> Baca Artikel
+                    </a>
+                </div>
+                
+                <div class="resource-card">
+                    <div class="resource-header">
+                        <div class="resource-icon">
+                            <i class="fas fa-gamepad"></i>
+                        </div>
+                        <h4 style="margin: 0;">Latihan Interaktif</h4>
+                    </div>
+                    <p>Uji pemahaman Anda dengan latihan praktis.</p>
+                    <a href="{{ url_for('practice_challenge') }}" class="resource-link">
+                        <i class="fas fa-arrow-right"></i> Mulai Latihan
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Completion Section -->
+        {% if not tutorial.completed %}
+        <div class="completion-section">
+            <div class="completion-icon">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <h3>Selamat! Anda telah menyelesaikan modul ini</h3>
+            <p>Klik tombol di bawah untuk menandai modul ini sebagai selesai dan melanjutkan ke modul berikutnya.</p>
+            
+            <form method="POST" action="{{ url_for('complete_tutorial', tutorial_id=tutorial.id) }}">
+                <button type="submit" class="complete-btn">
+                    <i class="fas fa-check-circle"></i> Tandai Selesai
+                </button>
+            </form>
+            
+            {% if next_tutorial %}
+            <p style="margin-top: 1rem; color: var(--text-muted);">
+                Modul berikutnya: <a href="{{ url_for('tutorial_detail', tutorial_id=next_tutorial.id) }}" 
+                style="color: var(--primary); font-weight: 600;">{{ next_tutorial.title }}</a>
+            </p>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="success-box">
+            <h4><i class="fas fa-check-circle"></i> Modul Telah Diselesaikan</h4>
+            <p>Anda telah menyelesaikan modul ini pada {{ tutorial.completed_at|format_datetime }}.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Code Copy Functionality
+    function copyCode(button) {
+        const codeBlock = button.closest('.code-block').querySelector('.code-content');
+        const codeText = codeBlock.textContent;
+        
+        navigator.clipboard.writeText(codeText).then(() => {
+            const originalText = button.querySelector('span').textContent;
+            button.classList.add('copied');
+            button.innerHTML = '<i class="fas fa-check"></i><span>Tersalin!</span>';
+            
+            setTimeout(() => {
+                button.classList.remove('copied');
+                button.innerHTML = '<i class="fas fa-copy"></i><span>' + originalText + '</span>';
+            }, 2000);
+        });
+    }
+
+    // Caesar Cipher Functions
+    function encryptCaesar() {
+        const text = document.getElementById('cipher-text').value.toUpperCase();
+        const shift = parseInt(document.getElementById('cipher-shift').value);
+        let result = '';
+        
+        for (let i = 0; i < text.length; i++) {
+            let char = text[i];
+            if (char.match(/[A-Z]/)) {
+                let code = text.charCodeAt(i);
+                // A = 65, Z = 90
+                result += String.fromCharCode((code - 65 + shift) % 26 + 65);
+            } else {
+                result += char;
+            }
+        }
+        
+        document.getElementById('cipher-result').textContent = result;
+        document.getElementById('cipher-result').style.color = '#50fa7b';
+    }
+
+    function decryptCaesar() {
+        const text = document.getElementById('cipher-text').value.toUpperCase();
+        const shift = parseInt(document.getElementById('cipher-shift').value);
+        let result = '';
+        
+        for (let i = 0; i < text.length; i++) {
+            let char = text[i];
+            if (char.match(/[A-Z]/)) {
+                let code = text.charCodeAt(i);
+                // A = 65, Z = 90
+                result += String.fromCharCode((code - 65 - shift + 26) % 26 + 65);
+            } else {
+                result += char;
+            }
+        }
+        
+        document.getElementById('cipher-result').textContent = result;
+        document.getElementById('cipher-result').style.color = '#ff79c6';
+    }
+
+    // Initialize interactive tool if present
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-encrypt example text if tool exists
+        if (document.getElementById('cipher-text')) {
+            encryptCaesar();
+        }
+        
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if (targetId !== '#') {
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                }
+            });
+        });
+        
+        // Highlight current section while scrolling
+        const sections = document.querySelectorAll('.content-section');
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.3
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+        
+        sections.forEach(section => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(20px)';
+            section.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            observer.observe(section);
+        });
+    });
+
+    // Mark section as read
+    function markAsRead(sectionId) {
+        fetch(`/api/tutorial/read/${sectionId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(response => response.json())
+          .then(data => {
+              if (data.success) {
+                  const section = document.getElementById(`section-${sectionId}`);
+                  section.style.borderLeft = '4px solid #10b981';
+                  section.style.paddingLeft = '1rem';
+              }
+          });
+    }
+</script>
+{% endblock %}

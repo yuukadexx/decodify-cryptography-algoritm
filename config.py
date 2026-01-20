@@ -1,33 +1,19 @@
-import os
-from dotenv import load_dotenv
-
-
-# Load .env file
-load_dotenv()
-
+# config.py
+import secrets
 
 class Config:
-    """Base configuration"""
-
-    # Flask
-    ENV = os.getenv("FLASK_ENV", "production")
-    DEBUG = os.getenv("FLASK_DEBUG", "0") == "1"
-    SECRET_KEY = os.getenv("SECRET_KEY")
-
-    # Database
-    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
+    SECRET_KEY = secrets.token_hex(32)
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///crypto.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-
-    # Session / Cookies
-    SESSION_COOKIE_SECURE = os.getenv("SESSION_COOKIE_SECURE", "0") == "1"
-    SESSION_COOKIE_HTTPONLY = os.getenv("SESSION_COOKIE_HTTPONLY", "1") == "1"
-    SESSION_COOKIE_SAMESITE = os.getenv("SESSION_COOKIE_SAMESITE", "Lax")
-
-
-class DevelopmentConfig(Config):
-    DEBUG = True
-
-
-class ProductionConfig(Config):
-    DEBUG = False
-    SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    PERMANENT_SESSION_LIFETIME = 1800
+    
+    # Email configuration
+    MAIL_SERVER = 'sandbox.smtp.mailtrap.io'
+    MAIL_PORT = 2525
+    MAIL_USERNAME = '8af2cb84cfc5b6'
+    MAIL_PASSWORD = 'd1620a3c08deea'
+    MAIL_USE_TLS = True
+    MAIL_USE_SSL = False
+    MAIL_DEFAULT_SENDER = ('DecoDify', 'noreply@decodify.com')

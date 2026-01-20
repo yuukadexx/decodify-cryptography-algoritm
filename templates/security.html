@@ -1,0 +1,519 @@
+{% extends "base.html" %}
+
+{% block title %}Keamanan & Privasi - CryptoLab{% endblock %}
+
+{% block extra_css %}
+<style>
+    .security-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .security-card {
+        background: var(--card-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        color: var(--text);
+        margin-bottom: 1.5rem;
+        font-size: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        color: var(--text);
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass);
+        border-radius: 10px;
+        color: var(--text);
+        font-size: 1rem;
+    }
+
+    .toggle-group {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        margin-bottom: 1rem;
+    }
+
+    .toggle-label {
+        color: var(--text);
+    }
+
+    .toggle-switch {
+        position: relative;
+        width: 60px;
+        height: 30px;
+    }
+
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 34px;
+    }
+
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 22px;
+        width: 22px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked + .toggle-slider {
+        background-color: var(--primary);
+    }
+
+    input:checked + .toggle-slider:before {
+        transform: translateX(30px);
+    }
+    
+    .btn-primary {
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, var(--secondary), var(--primary));
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-danger {
+        padding: 0.75rem 1.5rem;
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        color: var(--danger);
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="security-container">
+    <h1 style="color: var(--text); margin-bottom: 2rem;">Keamanan & Privasi</h1>
+
+    <!-- Ubah Password -->
+    <div class="security-card">
+        <h2 class="section-title">Ubah Password</h2>
+        <form id="passwordForm">
+            <div class="form-group">
+                <label class="form-label">Password Saat Ini</label>
+                <input type="password" class="form-input" id="currentPassword" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Password Baru</label>
+                <input type="password" class="form-input" id="newPassword" required minlength="8">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Konfirmasi Password Baru</label>
+                <input type="password" class="form-input" id="confirmPassword" required>
+            </div>
+            <button type="submit" class="btn-primary" style="width: 100%;">
+                Ubah Password
+            </button>
+        </form>
+    </div>
+
+    <!-- Pengaturan Privasi -->
+    <div class="security-card">
+        <h2 class="section-title">Pengaturan Privasi</h2>
+        <form id="privacyForm">
+            <div class="toggle-group">
+                <span class="toggle-label">Notifikasi Email</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="emailNotifications" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="toggle-group">
+                <span class="toggle-label">Tampilkan Progress Publik</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="showProgress" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="toggle-group">
+                <span class="toggle-label">Tampilkan di Leaderboard</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="showLeaderboard" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="toggle-group">
+                <span class="toggle-label">Izinkan Pengumpulan Data</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="allowDataCollection" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="toggle-group">
+                <span class="toggle-label">Notifikasi Login</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="loginNotifications" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="toggle-group">
+                <span class="toggle-label">Two-Factor Authentication</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="twoFactorEnabled" {{ 'checked' if two_factor_enabled else '' }}>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Level Privasi</label>
+                <select class="form-input" id="privacyLevel">
+                    <option value="public" {{ 'selected' if privacy_level == 'public' else '' }}>Publik</option>
+                    <option value="friends" {{ 'selected' if privacy_level == 'friends' else '' }}>Teman Saja</option>
+                    <option value="private" {{ 'selected' if privacy_level == 'private' else '' }}>Privat</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-primary" style="width: 100%;">
+                Simpan Pengaturan
+            </button>
+        </form>
+    </div>
+
+    <!-- Sesi Aktif -->
+    <div class="security-card">
+        <h2 class="section-title">Sesi Aktif</h2>
+        <div id="activeSessions">
+            <p>Memuat sesi aktif...</p>
+        </div>
+    </div>
+
+    <!-- Hapus Akun -->
+    <div class="security-card" style="border-color: var(--danger);">
+        <h2 class="section-title" style="color: var(--danger);">Zona Bahaya</h2>
+        <p style="color: var(--text-muted); margin-bottom: 1rem;">
+            Tindakan ini akan menghapus akun Anda secara permanen. Semua data akan dihapus dan tidak dapat dikembalikan.
+        </p>
+        <button onclick="deleteAccount()" class="btn-danger" style="width: 100%;">
+            <i class="fas fa-trash"></i> Hapus Akun
+        </button>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load privacy settings
+        loadPrivacySettings();
+        
+        // Load active sessions
+        loadActiveSessions();
+        
+        // Password form
+        document.getElementById('passwordForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            changePassword();
+        });
+        
+        // Privacy form
+        document.getElementById('privacyForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            updatePrivacySettings();
+        });
+    });
+    
+    function loadPrivacySettings() {
+        fetch('/api/profile/settings')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('emailNotifications').checked = data.settings.email_notifications;
+                    document.getElementById('showProgress').checked = data.settings.show_progress;
+                    document.getElementById('showLeaderboard').checked = data.settings.show_leaderboard;
+                    document.getElementById('allowDataCollection').checked = data.settings.allow_data_collection;
+                    document.getElementById('loginNotifications').checked = data.settings.login_notifications;
+                    document.getElementById('twoFactorEnabled').checked = data.settings.two_factor_enabled;
+                    document.getElementById('privacyLevel').value = data.settings.privacy_level || 'public';
+                }
+            })
+            .catch(error => {
+                console.error('Error loading settings:', error);
+                showNotification('Gagal memuat pengaturan', 'error');
+            });
+    }
+    
+    function loadActiveSessions() {
+        fetch('/api/profile/sessions')
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('activeSessions');
+                if (data.success && data.sessions.length > 0) {
+                    let html = '';
+                    data.sessions.forEach(session => {
+                        html += `
+                            <div style="padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 10px; margin-bottom: 1rem;">
+                                <div style="display: flex; justify-content: space-between;">
+                                    <strong>${session.device}</strong>
+                                    ${session.is_current ? '<span style="color: var(--accent);">Saat Ini</span>' : ''}
+                                </div>
+                                <div style="color: var(--text-muted); font-size: 0.9rem;">
+                                    IP: ${session.ip_address || 'Tidak diketahui'}<br>
+                                    Login: ${new Date(session.login_time).toLocaleString()}<br>
+                                    ${session.location || 'Lokasi tidak diketahui'}
+                                </div>
+                                ${!session.is_current ? 
+                                    `<button onclick="terminateSession(${session.id})" style="margin-top: 0.5rem; padding: 0.25rem 0.75rem; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); color: var(--danger); border-radius: 5px; cursor: pointer;">
+                                        Akhiri Sesi
+                                    </button>` : 
+                                    ''
+                                }
+                            </div>
+                        `;
+                    });
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = '<p>Tidak ada sesi aktif</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Error loading sessions:', error);
+                container.innerHTML = '<p>Gagal memuat sesi aktif</p>';
+            });
+    }
+    
+    function changePassword() {
+        const currentPassword = document.getElementById('currentPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        
+        if (newPassword !== confirmPassword) {
+            showNotification('Password baru tidak cocok', 'error');
+            return;
+        }
+        
+        if (newPassword.length < 8) {
+            showNotification('Password minimal 8 karakter', 'error');
+            return;
+        }
+        
+        fetch('/api/profile/change-password', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                current_password: currentPassword,
+                new_password: newPassword,
+                confirm_password: confirmPassword
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Password berhasil diubah!', 'success');
+                document.getElementById('passwordForm').reset();
+            } else {
+                showNotification(data.error || 'Gagal mengubah password', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error changing password:', error);
+            showNotification('Terjadi kesalahan', 'error');
+        });
+    }
+    
+    function updatePrivacySettings() {
+        const settings = {
+            email_notifications: document.getElementById('emailNotifications').checked,
+            show_progress: document.getElementById('showProgress').checked,
+            show_leaderboard: document.getElementById('showLeaderboard').checked,
+            allow_data_collection: document.getElementById('allowDataCollection').checked,
+            login_notifications: document.getElementById('loginNotifications').checked,
+            two_factor_enabled: document.getElementById('twoFactorEnabled').checked,
+            privacy_level: document.getElementById('privacyLevel').value
+        };
+        
+        fetch('/api/profile/settings/update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(settings)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Pengaturan privasi berhasil disimpan!', 'success');
+            } else {
+                showNotification(data.error || 'Gagal menyimpan pengaturan', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error updating settings:', error);
+            showNotification('Terjadi kesalahan', 'error');
+        });
+    }
+    
+    function terminateSession(sessionId) {
+        if (confirm('Yakin ingin mengakhiri sesi ini?')) {
+            fetch('/api/profile/sessions/terminate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ session_id: sessionId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Sesi berhasil diakhiri', 'success');
+                    loadActiveSessions();
+                } else {
+                    showNotification(data.error || 'Gagal mengakhiri sesi', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error terminating session:', error);
+                showNotification('Terjadi kesalahan', 'error');
+            });
+        }
+    }
+    
+    function deleteAccount() {
+        if (confirm('Hapus akun permanen? Tindakan ini tidak dapat dibatalkan.')) {
+            const password = prompt('Masukkan password Anda untuk konfirmasi:');
+            if (!password) return;
+            
+            if (prompt('Ketik "DELETE" untuk konfirmasi:') === 'DELETE') {
+                showNotification('Menghapus akun...', 'warning');
+                
+                fetch('/api/profile/delete-account', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        password: password,
+                        confirm_text: 'DELETE'
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showNotification('Akun berhasil dihapus', 'success');
+                        setTimeout(() => {
+                            window.location.href = '/';
+                        }, 2000);
+                    } else {
+                        showNotification(data.error || 'Gagal menghapus akun', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting account:', error);
+                    showNotification('Terjadi kesalahan', 'error');
+                });
+            }
+        }
+    }
+    
+    function showNotification(message, type = 'info') {
+        // Remove existing notifications
+        document.querySelectorAll('.notification').forEach(n => n.remove());
+        
+        const notification = document.createElement('div');
+        notification.className = 'notification';
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${type === 'success' ? '#10b981' : 
+                        type === 'error' ? '#ef4444' : 
+                        type === 'warning' ? '#f59e0b' : '#6366f1'};
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+            max-width: 400px;
+        `;
+        
+        notification.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 
+                              type === 'error' ? 'fa-exclamation-circle' :
+                              type === 'warning' ? 'fa-exclamation-triangle' : 
+                              'fa-info-circle'}"></i>
+                <span>${message}</span>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
+    
+    // Add CSS animations
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+{% endblock %}

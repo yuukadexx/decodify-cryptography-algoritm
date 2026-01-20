@@ -1,0 +1,473 @@
+{% extends "base.html" %}
+
+{% block title %}Cipher Klasik - DecoDify{% endblock %}
+
+{% block extra_css %}
+<!-- Gunakan CSS yang sama seperti di dasar_kriptografi.html -->
+<style>
+    .learning-content {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+    
+    .content-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--glass);
+    }
+    
+    .back-btn {
+        padding: 0.75rem 1.5rem;
+        background: transparent;
+        border: 1px solid var(--glass);
+        color: var(--text);
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .back-btn:hover {
+        background: rgba(255, 255, 255, 0.05);
+    }
+    
+    .content-body {
+        background: var(--card-bg);
+        border: 1px solid var(--glass);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    /* ... (CSS lainnya sama seperti sebelumnya) ... */
+    
+    .cipher-demo {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 2rem 0;
+        border: 1px solid var(--glass);
+    }
+    
+    .cipher-input {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .input-group label {
+        color: var(--text);
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    
+    .input-group input, .input-group select {
+        padding: 0.75rem;
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--glass);
+        border-radius: 8px;
+        color: var(--text);
+        font-size: 1rem;
+    }
+    
+    .cipher-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .cipher-btn {
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .cipher-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
+    }
+    
+    .cipher-result {
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .result-label {
+        color: #10b981;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .result-value {
+        color: var(--text);
+        font-family: 'Courier New', monospace;
+        font-size: 1.1rem;
+        word-break: break-all;
+    }
+    
+    .machine-display {
+        background: linear-gradient(135deg, #1a1a2e, #16213e);
+        border-radius: 12px;
+        padding: 2rem;
+        margin: 2rem 0;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .machine-display::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--secondary), transparent);
+    }
+    
+    .machine-title {
+        color: #fff;
+        text-align: center;
+        margin-bottom: 1.5rem;
+        font-size: 1.5rem;
+    }
+    
+    .rotor-display {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin: 2rem 0;
+    }
+    
+    .rotor {
+        width: 60px;
+        height: 60px;
+        background: rgba(0, 0, 0, 0.5);
+        border: 2px solid var(--secondary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 1.2rem;
+        position: relative;
+    }
+    
+    .rotor::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 70%;
+        height: 70%;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="learning-content">
+    <div class="content-header">
+        <div>
+            <h1>🔤 Cipher Klasik</h1>
+            <p style="color: var(--text-muted); margin-top: 0.5rem;">Mengenal cipher bersejarah dari zaman Romawi hingga Perang Dunia II</p>
+        </div>
+        <a href="{{ url_for('learning_path') }}" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Kembali ke Learning Path
+        </a>
+    </div>
+
+    <div class="progress-indicator">
+        <span>Progress: 3/8 Tutorial</span>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 37.5%"></div>
+        </div>
+        <span>38%</span>
+    </div>
+
+    <div class="content-body">
+        <h2>📜 Pengantar Cipher Klasik</h2>
+        <p>Cipher klasik adalah teknik enkripsi yang digunakan sebelum era komputer modern. Meskipun sederhana menurut standar sekarang, cipher-cipher ini membentuk fondasi kriptografi modern dan banyak yang digunakan selama ribuan tahun.</p>
+        
+        <h2>1. Caesar Cipher (100-44 SM)</h2>
+        <div class="info-box">
+            <h3><i class="fas fa-history"></i> Sejarah</h3>
+            <p>Dikaitkan dengan Julius Caesar yang menggunakannya untuk komunikasi militer. Dalam bukunya "Life of Julius Caesar", Suetonius menyebutkan bahwa Caesar menggunakan cipher dengan geseran 3.</p>
+        </div>
+        
+        <div class="cipher-demo">
+            <h3 style="color: var(--text); margin-top: 0;">Demo Caesar Cipher</h3>
+            <div class="cipher-input">
+                <div class="input-group">
+                    <label for="caesarPlaintext">Plaintext:</label>
+                    <input type="text" id="caesarPlaintext" placeholder="Masukkan teks" value="HELLO">
+                </div>
+                <div class="input-group">
+                    <label for="caesarShift">Shift (0-25):</label>
+                    <input type="number" id="caesarShift" min="0" max="25" value="3">
+                </div>
+            </div>
+            <div class="cipher-buttons">
+                <button class="cipher-btn" onclick="encryptCaesar()">
+                    <i class="fas fa-lock"></i> Enkripsi
+                </button>
+                <button class="cipher-btn" onclick="decryptCaesar()">
+                    <i class="fas fa-lock-open"></i> Dekripsi
+                </button>
+            </div>
+            <div class="cipher-result">
+                <div class="result-label">Hasil:</div>
+                <div class="result-value" id="caesarResult">KHOOR</div>
+            </div>
+        </div>
+        
+        <div class="code-snippet">
+            // Algoritma Caesar Cipher (JavaScript)
+            function caesarCipher(text, shift, encrypt = true) {
+                let result = '';
+                const direction = encrypt ? 1 : -1;
+                
+                for (let i = 0; i < text.length; i++) {
+                    let char = text[i];
+                    
+                    if (char.match(/[A-Z]/)) {
+                        // Huruf kapital
+                        const code = char.charCodeAt(0);
+                        const shifted = ((code - 65 + direction * shift) % 26 + 26) % 26;
+                        result += String.fromCharCode(shifted + 65);
+                    } else if (char.match(/[a-z]/)) {
+                        // Huruf kecil
+                        const code = char.charCodeAt(0);
+                        const shifted = ((code - 97 + direction * shift) % 26 + 26) % 26;
+                        result += String.fromCharCode(shifted + 97);
+                    } else {
+                        // Karakter lain tetap
+                        result += char;
+                    }
+                }
+                return result;
+            }
+        </div>
+        
+        <h2>2. Vigenère Cipher (1553)</h2>
+        <div class="info-box">
+            <h3><i class="fas fa-user-tie"></i> Penemu: Blaise de Vigenère</h3>
+            <p>Meskipun ditemukan oleh Giovan Battista Bellaso, cipher ini populer dengan nama Vigenère. Digunakan selama 300 tahun sebagai "cipher yang tidak bisa dipecahkan".</p>
+        </div>
+        
+        <div class="cipher-demo">
+            <h3 style="color: var(--text); margin-top: 0;">Demo Vigenère Cipher</h3>
+            <div class="cipher-input">
+                <div class="input-group">
+                    <label for="vigenerePlaintext">Plaintext:</label>
+                    <input type="text" id="vigenerePlaintext" placeholder="Masukkan teks" value="ATTACKATDAWN">
+                </div>
+                <div class="input-group">
+                    <label for="vigenereKey">Kunci:</label>
+                    <input type="text" id="vigenereKey" placeholder="Masukkan kunci" value="LEMON">
+                </div>
+            </div>
+            <div class="cipher-buttons">
+                <button class="cipher-btn" onclick="encryptVigenere()">
+                    <i class="fas fa-lock"></i> Enkripsi
+                </button>
+                <button class="cipher-btn" onclick="decryptVigenere()">
+                    <i class="fas fa-lock-open"></i> Dekripsi
+                </button>
+            </div>
+            <div class="cipher-result">
+                <div class="result-label">Hasil:</div>
+                <div class="result-value" id="vigenereResult">LXFOPVEFRNHR</div>
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <table>
+                <caption>Square Vigenère</caption>
+                <tr>
+                    <th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th><th>G</th><th>H</th><th>I</th><th>J</th>
+                </tr>
+                <tr><td>A</td><td>B</td><td>C</td><td>D</td><td>E</td><td>F</td><td>G</td><td>H</td><td>I</td><td>J</td></tr>
+                <tr><td>B</td><td>C</td><td>D</td><td>E</td><td>F</td><td>G</td><td>H</td><td>I</td><td>J</td><td>K</td></tr>
+                <tr><td>C</td><td>D</td><td>E</td><td>F</td><td>G</td><td>H</td><td>I</td><td>J</td><td>K</td><td>L</td></tr>
+                <tr><td>D</td><td>E</td><td>F</td><td>G</td><td>H</td><td>I</td><td>J</td><td>K</td><td>L</td><td>M</td></tr>
+                <tr><td>E</td><td>F</td><td>G</td><td>H</td><td>I</td><td>J</td><td>K</td><td>L</td><td>M</td><td>N</td></tr>
+            </table>
+        </div>
+        
+        <h2>3. Playfair Cipher (1854)</h2>
+        <div class="info-box">
+            <h3><i class="fas fa-table"></i> Teknik Matriks 5x5</h3>
+            <p>Diciptakan oleh Charles Wheatstone tetapi dinamai menurut Lord Playfair. Digunakan dalam Perang Boer dan Perang Dunia I.</p>
+        </div>
+        
+        <h2>4. Mesin Enigma (1918-1945)</h2>
+        <div class="machine-display">
+            <h3 class="machine-title"><i class="fas fa-cogs"></i> MESIN ENIGMA</h3>
+            <p style="color: rgba(255, 255, 255, 0.8); text-align: center; margin-bottom: 2rem;">
+                Mesin enkripsi mekanik-elektrik yang digunakan Jerman Nazi dalam Perang Dunia II
+            </p>
+            
+            <div class="rotor-display">
+                <div class="rotor">I</div>
+                <div class="rotor">II</div>
+                <div class="rotor">III</div>
+            </div>
+            
+            <div style="color: rgba(255, 255, 255, 0.7); text-align: center;">
+                <p><strong>Konfigurasi:</strong> 3 Rotor (dari 5 pilihan) × Reflector × Plugboard</p>
+                <p><strong>Kombinasi:</strong> 158,962,555,217,826,360,000 kemungkinan</p>
+            </div>
+        </div>
+        
+        <div class="info-box">
+            <h3><i class="fas fa-user-ninja"></i> Pemecahan oleh Alan Turing</h3>
+            <p>Tim Bletchley Park yang dipimpin Alan Turing berhasil memecahkan Enigma dengan mesin "Bombe", memperpendek Perang Dunia II diperkirakan 2-4 tahun.</p>
+        </div>
+        
+        <h2>🎯 Kelemahan Cipher Klasik</h2>
+        <ul>
+            <li><strong>Analisis Frekuensi</strong>: Huruf dalam bahasa memiliki pola frekuensi tertentu</li>
+            <li><strong>Known-plaintext attack</strong>: Penyerang memiliki sampel plaintext-ciphertext</li>
+            <li><strong>Brute-force</strong]: Komputer modern dapat mencoba semua kemungkinan dengan cepat</li>
+            <li><strong>Kerumitan terbatas</strong>: Tidak didasarkan pada masalah matematika sulit</li>
+        </ul>
+        
+        <h2>💡 Latihan Praktik</h2>
+        <div class="example-box">
+            <h3>Coba Pecahkan Cipher Ini:</h3>
+            <p><strong>Ciphertext:</strong> XLI WLSYPH ERH CSY LEZI MR XLI ASVPH</p>
+            <p><strong>Petunjuk:</strong> Caesar Cipher dengan shift tertentu</p>
+            <button class="cipher-btn" onclick="showHint()" style="margin-top: 1rem;">
+                <i class="fas fa-lightbulb"></i> Tampilkan Petunjuk
+            </button>
+            <div id="hint" style="display: none; margin-top: 1rem; color: var(--text);">
+                Shift = 4. Plaintext: THE SCRIPT IS AWAY FROM THE WORD.
+            </div>
+        </div>
+    </div>
+
+    <div class="chapter-nav">
+        <a href="{{ url_for('dasar_kriptografi') }}" class="nav-btn prev-btn">
+            <i class="fas fa-chevron-left"></i> Kembali ke Dasar Kriptografi
+        </a>
+        <a href="{{ url_for('kriptografi_modern') }}" class="nav-btn next-btn">
+            Lanjut ke Kriptografi Modern <i class="fas fa-chevron-right"></i>
+        </a>
+    </div>
+</div>
+
+<script>
+    // Caesar Cipher Functions
+    function caesarCipher(text, shift, encrypt = true) {
+        let result = '';
+        const direction = encrypt ? 1 : -1;
+        
+        for (let i = 0; i < text.length; i++) {
+            let char = text[i];
+            
+            if (char.match(/[A-Z]/)) {
+                const code = char.charCodeAt(0);
+                const shifted = ((code - 65 + direction * shift) % 26 + 26) % 26;
+                result += String.fromCharCode(shifted + 65);
+            } else if (char.match(/[a-z]/)) {
+                const code = char.charCodeAt(0);
+                const shifted = ((code - 97 + direction * shift) % 26 + 26) % 26;
+                result += String.fromCharCode(shifted + 97);
+            } else {
+                result += char;
+            }
+        }
+        return result;
+    }
+    
+    function encryptCaesar() {
+        const plaintext = document.getElementById('caesarPlaintext').value.toUpperCase();
+        const shift = parseInt(document.getElementById('caesarShift').value);
+        const result = caesarCipher(plaintext, shift, true);
+        document.getElementById('caesarResult').textContent = result;
+    }
+    
+    function decryptCaesar() {
+        const ciphertext = document.getElementById('caesarPlaintext').value.toUpperCase();
+        const shift = parseInt(document.getElementById('caesarShift').value);
+        const result = caesarCipher(ciphertext, shift, false);
+        document.getElementById('caesarResult').textContent = result;
+    }
+    
+    // Vigenère Cipher Functions
+    function vigenereCipher(text, key, encrypt = true) {
+        let result = '';
+        key = key.toUpperCase().replace(/[^A-Z]/g, '');
+        
+        for (let i = 0, j = 0; i < text.length; i++) {
+            let char = text[i].toUpperCase();
+            
+            if (char.match(/[A-Z]/)) {
+                const textCode = char.charCodeAt(0) - 65;
+                const keyCode = key[j % key.length].charCodeAt(0) - 65;
+                
+                let shifted;
+                if (encrypt) {
+                    shifted = (textCode + keyCode) % 26;
+                } else {
+                    shifted = (textCode - keyCode + 26) % 26;
+                }
+                
+                result += String.fromCharCode(shifted + 65);
+                j++;
+            } else {
+                result += char;
+            }
+        }
+        return result;
+    }
+    
+    function encryptVigenere() {
+        const plaintext = document.getElementById('vigenerePlaintext').value.toUpperCase();
+        const key = document.getElementById('vigenereKey').value;
+        const result = vigenereCipher(plaintext, key, true);
+        document.getElementById('vigenereResult').textContent = result;
+    }
+    
+    function decryptVigenere() {
+        const ciphertext = document.getElementById('vigenerePlaintext').value.toUpperCase();
+        const key = document.getElementById('vigenereKey').value;
+        const result = vigenereCipher(ciphertext, key, false);
+        document.getElementById('vigenereResult').textContent = result;
+    }
+    
+    function showHint() {
+        document.getElementById('hint').style.display = 'block';
+    }
+</script>
+{% endblock %}

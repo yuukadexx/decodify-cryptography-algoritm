@@ -1,0 +1,390 @@
+{% extends "base.html" %}
+
+{% block title %}Dasar Kriptografi - DecoDify{% endblock %}
+
+{% block extra_css %}
+<style>
+    .learning-content {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+    
+    .content-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--glass);
+    }
+    
+    .back-btn {
+        padding: 0.75rem 1.5rem;
+        background: transparent;
+        border: 1px solid var(--glass);
+        color: var(--text);
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .back-btn:hover {
+        background: rgba(255, 255, 255, 0.05);
+    }
+    
+    .content-body {
+        background: var(--card-bg);
+        border: 1px solid var(--glass);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .content-body h1 {
+        color: var(--text);
+        margin-bottom: 1.5rem;
+        font-size: 2rem;
+    }
+    
+    .content-body h2 {
+        color: var(--text);
+        margin: 1.5rem 0 1rem 0;
+        font-size: 1.5rem;
+    }
+    
+    .content-body h3 {
+        color: var(--text);
+        margin: 1rem 0 0.5rem 0;
+        font-size: 1.2rem;
+    }
+    
+    .content-body p {
+        color: var(--text-muted);
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+    
+    .content-body ul, .content-body ol {
+        color: var(--text-muted);
+        margin-left: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .content-body li {
+        margin-bottom: 0.5rem;
+    }
+    
+    .info-box {
+        background: rgba(139, 92, 246, 0.1);
+        border-left: 4px solid var(--secondary);
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin: 1.5rem 0;
+    }
+    
+    .info-box h3 {
+        color: var(--text);
+        margin-top: 0;
+    }
+    
+    .definition-box {
+        background: rgba(16, 185, 129, 0.1);
+        border-left: 4px solid #10b981;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin: 1.5rem 0;
+    }
+    
+    .definition-box h3 {
+        color: #10b981;
+        margin-top: 0;
+    }
+    
+    .example-box {
+        background: rgba(245, 158, 11, 0.1);
+        border-left: 4px solid #f59e0b;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin: 1.5rem 0;
+    }
+    
+    .example-box h3 {
+        color: #f59e0b;
+        margin-top: 0;
+    }
+    
+    .table-container {
+        overflow-x: auto;
+        margin: 1.5rem 0;
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--card-bg);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    th {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+    }
+    
+    td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--glass);
+        color: var(--text-muted);
+    }
+    
+    tr:hover {
+        background: rgba(255, 255, 255, 0.05);
+    }
+    
+    .code-snippet {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+        font-family: 'Courier New', monospace;
+        color: #ff79c6;
+        overflow-x: auto;
+    }
+    
+    .chapter-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 3rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--glass);
+    }
+    
+    .nav-btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+    
+    .prev-btn {
+        background: transparent;
+        border: 1px solid var(--glass);
+        color: var(--text);
+    }
+    
+    .next-btn {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+    }
+    
+    .nav-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
+    }
+    
+    .progress-indicator {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+    
+    .progress-bar {
+        width: 200px;
+        height: 8px;
+        background: var(--glass);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border-radius: 4px;
+        transition: width 0.3s ease;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="learning-content">
+    <div class="content-header">
+        <div>
+            <h1>📚 Dasar Kriptografi</h1>
+            <p style="color: var(--text-muted); margin-top: 0.5rem;">Pengenalan konsep kriptografi untuk pemula</p>
+        </div>
+        <a href="{{ url_for('learning_path') }}" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Kembali ke Learning Path
+        </a>
+    </div>
+
+    <div class="progress-indicator">
+        <span>Progress: 5/6 Tutorial</span>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 83.33%"></div>
+        </div>
+        <span>83%</span>
+    </div>
+
+    <div class="content-body">
+        <h2>🎯 Apa itu Kriptografi?</h2>
+        <p>Kriptografi berasal dari bahasa Yunani: <em>"kryptós"</em> yang berarti "tersembunyi" dan <em>"graphein"</em> yang berarti "menulis". Secara sederhana, kriptografi adalah ilmu dan seni untuk mengamankan informasi dengan menyembunyikannya.</p>
+        
+        <div class="definition-box">
+            <h3>Definisi Kriptografi</h3>
+            <p>Kriptografi adalah ilmu yang mempelajari teknik matematika untuk keamanan informasi, mencakup aspek kerahasiaan, integritas data, autentikasi, dan non-repudiasi.</p>
+        </div>
+        
+        <h2>📜 Sejarah Singkat Kriptografi</h2>
+        <div class="table-container">
+            <table>
+                <tr>
+                    <th>Periode</th>
+                    <th>Penemuan Penting</th>
+                    <th>Penggunaan</th>
+                </tr>
+                <tr>
+                    <td>400 SM</td>
+                    <td>Skytale (Sparta)</td>
+                    <td>Komunikasi militer</td>
+                </tr>
+                <tr>
+                    <td>50 SM</td>
+                    <td>Cipher Caesar</td>
+                    <td>Surat rahasia Julius Caesar</td>
+                </tr>
+                <tr>
+                    <td>Abad 9</td>
+                    <td>Kama-sutra (India)</td>
+                    <td>Teknik substitusi sederhana</td>
+                </tr>
+                <tr>
+                    <td>Abad 16</td>
+                    <td>Cipher Vigenère</td>
+                    <td>Diplomasi Eropa</td>
+                </tr>
+                <tr>
+                    <td>Perang Dunia II</td>
+                    <td>Mesin Enigma</td>
+                    <td>Komunikasi militer Jerman</td>
+                </tr>
+                <tr>
+                    <td>1970-an</td>
+                    <td>DES (Data Encryption Standard)</td>
+                    <td>Standar enkripsi pertama</td>
+                </tr>
+                <tr>
+                    <td>1976</td>
+                    <td>Kriptografi Kunci Publik</td>
+                    <td>Revolusi komunikasi digital</td>
+                </tr>
+            </table>
+        </div>
+        
+        <h2>🔑 Terminologi Penting</h2>
+        
+        <div class="info-box">
+            <h3><i class="fas fa-key"></i> 1. Plaintext</h3>
+            <p>Pesan asli yang ingin dikirimkan sebelum dienkripsi.</p>
+        </div>
+        
+        <div class="info-box">
+            <h3><i class="fas fa-lock"></i> 2. Ciphertext</h3>
+            <p>Pesan yang sudah dienkripsi dan tidak bisa dibaca tanpa kunci.</p>
+        </div>
+        
+        <div class="info-box">
+            <h3><i class="fas fa-unlock"></i> 3. Enkripsi</h3>
+            <p>Proses mengubah plaintext menjadi ciphertext.</p>
+        </div>
+        
+        <div class="info-box">
+            <h3><i class="fas fa-lock-open"></i> 4. Dekripsi</h3>
+            <p>Proses mengubah ciphertext kembali menjadi plaintext.</p>
+        </div>
+        
+        <div class="info-box">
+            <h3><i class="fas fa-user-secret"></i> 5. Kriptanalisis</h3>
+            <p>Ilmu memecahkan ciphertext tanpa mengetahui kunci.</p>
+        </div>
+        
+        <h2>🎭 Jenis-jenis Kriptografi</h2>
+        
+        <div class="example-box">
+            <h3><i class="fas fa-history"></i> Kriptografi Klasik</h3>
+            <p>Menggunakan teknik substitusi dan transposisi sederhana:</p>
+            <ul>
+                <li><strong>Cipher Caesar</strong>: Menggeser huruf sejumlah tertentu</li>
+                <li><strong>Cipher Vigenère</strong>: Menggunakan kunci kata untuk enkripsi</li>
+                <li><strong>Cipher Playfair</strong>: Menggunakan matriks 5x5</li>
+            </ul>
+        </div>
+        
+        <div class="example-box">
+            <h3><i class="fas fa-microchip"></i> Kriptografi Modern</h3>
+            <p>Berdasarkan matematika kompleks dan komputasi:</p>
+            <ul>
+                <li><strong>Kriptografi Simetris</strong>: Kunci sama untuk enkripsi dan dekripsi</li>
+                <li><strong>Kriptografi Asimetris</strong>: Menggunakan kunci publik dan privat</li>
+                <li><strong>Fungsi Hash</strong>: Mengubah data menjadi nilai unik tetap</li>
+            </ul>
+        </div>
+        
+        <h2>💡 Prinsip Dasar Keamanan Informasi</h2>
+        <div class="code-snippet">
+            CIA Triad - Tiga Pilar Keamanan Informasi:
+            1. Confidentiality (Kerahasiaan)
+            2. Integrity (Integritas)
+            3. Availability (Ketersediaan)
+            
+            + Authentication (Autentikasi)
+            + Non-repudiation (Tidak dapat disangkal)
+        </div>
+        
+        <div class="info-box">
+            <h3><i class="fas fa-shield-alt"></i> Aplikasi Kriptografi Modern</h3>
+            <ul>
+                <li><strong>SSL/TLS</strong>: Mengamankan komunikasi internet</li>
+                <li><strong>PGP/GPG</strong>: Enkripsi email</li>
+                <li><strong>Cryptocurrency</strong>: Bitcoin, Ethereum, dll.</li>
+                <li><strong>Digital Signature</strong>: Tanda tangan digital dokumen</li>
+                <li><strong>VPN</strong>: Koneksi internet aman</li>
+            </ul>
+        </div>
+        
+        <h2>🎓 Tips Belajar Kriptografi</h2>
+        <ol>
+            <li><strong>Mulai dari yang sederhana</strong>: Pahami cipher klasik sebelum modern</li>
+            <li><strong>Praktek langsung</strong>: Coba enkripsi-dekripsi sederhana</li>
+            <li><strong>Pelajari matematika dasar</strong>: Teori bilangan, modular arithmetic</li>
+            <li><strong>Ikuti perkembangan</strong>: Kriptografi terus berkembang</li>
+            <li><strong>Bergabung dengan komunitas</strong>: Belajar dari praktisi lain</li>
+        </ol>
+    </div>
+
+    <div class="chapter-nav">
+        <a href="#" class="nav-btn prev-btn">
+            <i class="fas fa-chevron-left"></i> Tutorial Sebelumnya
+        </a>
+        <a href="{{ url_for('cipher_klasik') }}" class="nav-btn next-btn">
+            Lanjut ke Cipher Klasik <i class="fas fa-chevron-right"></i>
+        </a>
+    </div>
+</div>
+{% endblock %}

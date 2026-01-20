@@ -1,0 +1,742 @@
+{% extends "base.html" %}
+
+{% block title %}Tutorial {{ category|title }} - DecoDify{% endblock %}
+
+{% block extra_css %}
+<style>
+    .category-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    .category-header {
+        text-align: center;
+        margin-bottom: 3rem;
+        padding: 2rem;
+        background: linear-gradient(135deg, var(--card-bg), rgba(139, 92, 246, 0.1));
+        border-radius: 20px;
+        border: 1px solid var(--glass);
+    }
+
+    .category-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .category-header h1 {
+        color: var(--text);
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .category-description {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+        max-width: 800px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+
+    .category-stats {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .stat-item {
+        text-align: center;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        min-width: 120px;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    .tutorials-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .tutorial-card {
+        background: var(--card-bg);
+        border: 1px solid var(--glass);
+        border-radius: 16px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .tutorial-card:hover {
+        border-color: var(--secondary);
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .tutorial-card.completed {
+        border-left: 4px solid #10b981;
+    }
+
+    .tutorial-card.in-progress {
+        border-left: 4px solid #f59e0b;
+    }
+
+    .tutorial-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: white;
+    }
+
+    .badge-beginner {
+        background: linear-gradient(135deg, #10b981, #059669);
+    }
+
+    .badge-intermediate {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+    }
+
+    .badge-advanced {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+    }
+
+    .tutorial-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+        color: white;
+        font-size: 1.5rem;
+    }
+
+    .tutorial-card h3 {
+        color: var(--text);
+        font-size: 1.25rem;
+        margin-bottom: 0.75rem;
+        min-height: 60px;
+    }
+
+    .tutorial-card p {
+        color: var(--text-muted);
+        line-height: 1.5;
+        margin-bottom: 1.5rem;
+        font-size: 0.95rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .tutorial-meta {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+    }
+
+    .meta-item i {
+        width: 16px;
+        text-align: center;
+        color: var(--primary);
+    }
+
+    .progress-container {
+        margin: 1.5rem 0;
+    }
+
+    .progress-label {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+    }
+
+    .progress-percentage {
+        color: var(--primary);
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .progress-text {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+    }
+
+    .progress-bar {
+        height: 6px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border-radius: 3px;
+        transition: width 0.3s ease;
+    }
+
+    .tutorial-actions {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+    }
+
+    .start-btn, .continue-btn, .review-btn {
+        padding: 0.75rem 1.25rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex: 1;
+        justify-content: center;
+        text-decoration: none;
+    }
+
+    .start-btn {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+    }
+
+    .continue-btn {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+    }
+
+    .review-btn {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+    }
+
+    .start-btn:hover, .continue-btn:hover, .review-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .prerequisites-section {
+        background: rgba(59, 130, 246, 0.1);
+        border-radius: 16px;
+        padding: 2rem;
+        margin: 3rem 0;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .prerequisites-section h3 {
+        color: #3b82f6;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .prerequisites-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .prerequisite-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+    }
+
+    .prerequisite-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+
+    .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+        color: var(--text-muted);
+    }
+
+    .breadcrumb a {
+        color: var(--text);
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .breadcrumb a:hover {
+        color: var(--primary);
+    }
+
+    .breadcrumb .separator {
+        color: var(--text-muted);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: var(--card-bg);
+        border: 2px dashed var(--glass);
+        border-radius: 20px;
+        margin: 2rem 0;
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        color: var(--text-muted);
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .empty-state h3 {
+        color: var(--text);
+        margin-bottom: 1rem;
+    }
+
+    .empty-state p {
+        color: var(--text-muted);
+        max-width: 600px;
+        margin: 0 auto 2rem;
+    }
+
+    .empty-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 2rem;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .empty-action:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
+    }
+
+    .filter-section {
+        background: var(--card-bg);
+        border: 1px solid var(--glass);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .filter-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .filter-options {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-btn {
+        padding: 0.5rem 1rem;
+        background: transparent;
+        border: 1px solid var(--glass);
+        color: var(--text-muted);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .filter-btn:hover {
+        border-color: var(--primary);
+        color: var(--text);
+    }
+
+    .filter-btn.active {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        border-color: transparent;
+    }
+
+    @media (max-width: 768px) {
+        .category-header {
+            padding: 1.5rem;
+        }
+
+        .category-header h1 {
+            font-size: 2rem;
+        }
+
+        .category-stats {
+            gap: 1rem;
+        }
+
+        .stat-item {
+            min-width: 100px;
+            padding: 0.75rem;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+        }
+
+        .tutorials-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .tutorial-card h3 {
+            min-height: auto;
+        }
+
+        .prerequisites-list {
+            grid-template-columns: 1fr;
+        }
+
+        .tutorial-actions {
+            flex-direction: column;
+        }
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .tutorial-card {
+        animation: fadeInUp 0.5s ease;
+        animation-fill-mode: both;
+    }
+
+    .tutorial-card:nth-child(1) { animation-delay: 0.1s; }
+    .tutorial-card:nth-child(2) { animation-delay: 0.2s; }
+    .tutorial-card:nth-child(3) { animation-delay: 0.3s; }
+    .tutorial-card:nth-child(4) { animation-delay: 0.4s; }
+    .tutorial-card:nth-child(5) { animation-delay: 0.5s; }
+    .tutorial-card:nth-child(6) { animation-delay: 0.6s; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="category-container">
+    <!-- Breadcrumb Navigation -->
+    <div class="breadcrumb">
+        <a href="{{ url_for('index') }}">Home</a>
+        <span class="separator">/</span>
+        <a href="{{ url_for('tutorials') }}">Tutorials</a>
+        <span class="separator">/</span>
+        <span style="color: var(--primary); font-weight: 600;">{{ category|title }}</span>
+    </div>
+
+    <!-- Category Header -->
+    <div class="category-header">
+        <div class="category-icon">
+            {% if category == 'dasar' %}
+            <i class="fas fa-baby"></i>
+            {% elif category == 'menengah' %}
+            <i class="fas fa-user-graduate"></i>
+            {% elif category == 'lanjutan' %}
+            <i class="fas fa-user-ninja"></i>
+            {% else %}
+            <i class="fas fa-book-open"></i>
+            {% endif %}
+        </div>
+        
+        <h1>Tutorial {{ category|title }}</h1>
+        
+        <p class="category-description">
+            {% if category == 'dasar' %}
+            Pelajari konsep dasar kriptografi dari nol. Mulai dengan cipher klasik dan pahami prinsip dasar enkripsi dan dekripsi. Cocok untuk pemula yang baru mengenal dunia kriptografi.
+            {% elif category == 'menengah' %}
+            Tingkatkan kemampuan dengan cipher yang lebih kompleks dan teknik kriptanalisis dasar. Pelajari implementasi praktis dan mulai eksplorasi keamanan data.
+            {% elif category == 'lanjutan' %}
+            Kuasai kriptografi modern dan teknik kriptanalisis tingkat lanjut. Pelajari enkripsi asimetris, hash functions, dan keamanan sistem untuk menjadi ahli kriptografi.
+            {% else %}
+            Kumpulan tutorial terstruktur untuk mempelajari kriptografi secara bertahap.
+            {% endif %}
+        </p>
+
+        <div class="category-stats">
+            <div class="stat-item">
+                <div class="stat-value">{{ tutorials|length }}</div>
+                <div class="stat-label">Tutorial</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">{{ total_duration }}</div>
+                <div class="stat-label">Total Durasi</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">{{ completed_tutorials }}/{{ tutorials|length }}</div>
+                <div class="stat-label">Telah Diselesaikan</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">{{ total_xp }} XP</div>
+                <div class="stat-label">Total Hadiah</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Prerequisites Section -->
+    {% if prerequisites %}
+    <div class="prerequisites-section">
+        <h3><i class="fas fa-clipboard-check"></i> Prasyarat Sebelum Belajar</h3>
+        <p>Sebelum memulai tutorial {{ category }}, pastikan Anda telah memahami:</p>
+        
+        <div class="prerequisites-list">
+            {% for prereq in prerequisites %}
+            <div class="prerequisite-item">
+                <div class="prerequisite-icon">
+                    <i class="{{ prereq.icon }}"></i>
+                </div>
+                <div>
+                    <h4 style="margin: 0 0 0.25rem 0; color: var(--text);">{{ prereq.title }}</h4>
+                    <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem;">{{ prereq.description }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <div class="filter-header">
+            <h3 style="margin: 0; color: var(--text);">Filter Tutorial</h3>
+            <span style="color: var(--text-muted); font-size: 0.9rem;">{{ tutorials|length }} tutorial tersedia</span>
+        </div>
+        
+        <div class="filter-options">
+            <button class="filter-btn active" onclick="filterTutorials('all')">
+                Semua
+            </button>
+            <button class="filter-btn" onclick="filterTutorials('uncompleted')">
+                Belum Selesai
+            </button>
+            <button class="filter-btn" onclick="filterTutorials('completed')">
+                Selesai
+            </button>
+            <button class="filter-btn" onclick="filterTutorials('beginner')">
+                Pemula
+            </button>
+            <button class="filter-btn" onclick="filterTutorials('intermediate')">
+                Menengah
+            </button>
+            <button class="filter-btn" onclick="filterTutorials('advanced')">
+                Lanjutan
+            </button>
+        </div>
+    </div>
+
+    <!-- Tutorials Grid -->
+    <div class="tutorials-grid" id="tutorialsGrid">
+        {% if tutorials %}
+            {% for tutorial in tutorials %}
+            <div class="tutorial-card 
+                {% if tutorial.completed %}completed{% elif tutorial.progress > 0 %}in-progress{% endif %}" 
+                data-status="{% if tutorial.completed %}completed{% else %}uncompleted{% endif %}"
+                data-difficulty="{{ tutorial.difficulty|lower }}">
+                
+                <div class="tutorial-badge badge-{{ tutorial.difficulty|lower }}">
+                    {{ tutorial.difficulty }}
+                </div>
+                
+                <div class="tutorial-icon">
+                    <i class="{{ tutorial.icon }}"></i>
+                </div>
+                
+                <h3>{{ tutorial.title }}</h3>
+                
+                <p>{{ tutorial.description }}</p>
+                
+                <div class="tutorial-meta">
+                    <div class="meta-item">
+                        <i class="fas fa-clock"></i>
+                        <span>{{ tutorial.duration }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-layer-group"></i>
+                        <span>{{ tutorial.modules|length }} modul</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-trophy"></i>
+                        <span>{{ tutorial.xp_reward }} XP</span>
+                    </div>
+                </div>
+
+                {% if tutorial.progress > 0 %}
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span class="progress-percentage">{{ tutorial.progress }}%</span>
+                        <span class="progress-text">{{ tutorial.completed_modules }}/{{ tutorial.total_modules }} modul</span>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="tutorial-actions">
+                    {% if tutorial.completed %}
+                        <a href="{{ url_for('tutorial_detail', tutorial_id=tutorial.id) }}" class="review-btn">
+                            <i class="fas fa-redo"></i> Review
+                        </a>
+                    {% elif tutorial.progress > 0 %}
+                        <a href="{{ url_for('tutorial_detail', tutorial_id=tutorial.id) }}" class="continue-btn">
+                            <i class="fas fa-play"></i> Lanjutkan
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('tutorial_detail', tutorial_id=tutorial.id) }}" class="start-btn">
+                            <i class="fas fa-play"></i> Mulai Belajar
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state" style="grid-column: 1 / -1;">
+                <div class="empty-icon">
+                    <i class="fas fa-book-open"></i>
+                </div>
+                <h3>Belum Ada Tutorial</h3>
+                <p>Tutorial untuk kategori ini sedang dalam pengembangan. Silakan kembali nanti atau pilih kategori lainnya.</p>
+                <a href="{{ url_for('tutorials') }}" class="empty-action">
+                    <i class="fas fa-arrow-left"></i> Kembali ke Semua Tutorial
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Filter tutorials
+    function filterTutorials(filterType) {
+        const tutorials = document.querySelectorAll('.tutorial-card');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        
+        // Update active filter button
+        filterBtns.forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.textContent.trim().toLowerCase() === filterType.toLowerCase()) {
+                btn.classList.add('active');
+            }
+        });
+        
+        // Filter tutorials
+        tutorials.forEach(tutorial => {
+            let show = false;
+            
+            switch(filterType) {
+                case 'all':
+                    show = true;
+                    break;
+                case 'completed':
+                    show = tutorial.dataset.status === 'completed';
+                    break;
+                case 'uncompleted':
+                    show = tutorial.dataset.status !== 'completed';
+                    break;
+                case 'beginner':
+                    show = tutorial.dataset.difficulty === 'beginner';
+                    break;
+                case 'intermediate':
+                    show = tutorial.dataset.difficulty === 'intermediate';
+                    break;
+                case 'advanced':
+                    show = tutorial.dataset.difficulty === 'advanced';
+                    break;
+                default:
+                    show = true;
+            }
+            
+            if (show) {
+                tutorial.style.display = 'block';
+                tutorial.style.animation = 'fadeInUp 0.3s ease';
+            } else {
+                tutorial.style.display = 'none';
+            }
+        });
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        // Smooth scroll animations
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.tutorial-card').forEach(card => {
+            observer.observe(card);
+        });
+        
+        // Check URL for filter parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const filter = urlParams.get('filter');
+        if (filter) {
+            filterTutorials(filter);
+        }
+    });
+</script>
+{% endblock %}
