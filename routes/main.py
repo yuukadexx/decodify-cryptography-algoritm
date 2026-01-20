@@ -1,7 +1,8 @@
 # routes/main.py
-from flask import Blueprint, render_template, redirect, url_for
+from flask import Blueprint, jsonify, render_template, redirect, url_for
 from flask_login import login_required, current_user
 from app import db
+from rsa import generate_keypair, rsa_encrypt, rsa_decrypt, ciphertext_to_string
 
 main_bp = Blueprint('main', __name__)
 
@@ -30,3 +31,63 @@ def dashboard():
                          completed_ciphers=cipher_usages,
                          total_ciphers=total_ciphers,
                          streak_days=progress.current_streak)
+
+
+@app.route('/api/rsa/generate', methods=['POST'])
+@login_required  # Hapus baris ini kalau tidak pakai login
+def api_rsa_generate():
+    try:
+        public_key, private_key = generate_keypair(bits=16)
+        
+        return jsonify({
+            'success': True,
+            'public_key': list(public_key),
+            'private_key': list(private_key)
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 400
+
+@app.route('/api/rsa/encrypt', methods=['POST'])
+@login_required  # Hapus baris ini kalau tidak pakai login
+def api_rsa_encrypt():
+    try:
+        data = request.get_json()
+        text = data.get('text', '')
+        public_key = tuple(data.get('public_key', []))
+        
+        ciphertext = rsa_encrypt(text, public_key)
+        ciphertext_string = ciphertext_to_string(ciphertext)
+        
+        return jsonify({
+            'success': True,
+            'ciphertext': ciphertext,
+            'ciphertext_string': ciphertext_string
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 400
+
+@app.route('/api/rsa/decrypt', methods=['POST'])
+@login_required  # Hapus baris ini kalau tidak pakai login
+def api_rsa_decrypt():
+    try:
+        data = request.get_json()
+        ciphertext = data.get('ciphertext', [])
+        private_key = tuple(data.get('private_key', []))
+        
+        plaintext = rsa_decrypt(ciphertext, private_key)
+        
+        return jsonify({
+            'success': True,
+            'plaintext': plaintext
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 400
