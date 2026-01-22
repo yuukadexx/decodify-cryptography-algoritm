@@ -304,80 +304,106 @@
 <script>
     let currentIV = '';
 
-    async function perform3DES(mode) {
-        const text = document.getElementById('inputText').value;
-        const key = document.getElementById('keyInput').value;
+async function perform3DES(mode) {
+    const text = document.getElementById('inputText').value;
+    const key = document.getElementById('keyInput').value;
+    
+    if (!text.trim()) {
+        alert('Masukkan text terlebih dahulu!');
+        return;
+    }
+
+    if (!key.trim()) {
+        alert('Masukkan encryption key terlebih dahulu!');
+        return;
+    }
+
+    // 3DES membutuhkan key 16 atau 24 karakter
+    if (key.length !== 16 && key.length !== 24) {
+        alert('Key harus 16 atau 24 karakter untuk Triple DES!');
+        return;
+    }
+
+    try {
+        let requestBody = { text, key, mode };
         
-        if (!text.trim()) {
-            alert('Masukkan text terlebih dahulu!');
-            return;
-        }
-
-        if (!key.trim()) {
-            alert('Masukkan encryption key terlebih dahulu!');
-            return;
-        }
-
-        if (key.length < 16) {
-            alert('Key harus minimal 16 karakter!');
-            return;
-        }
-
-        try {
-            let requestBody = { text, key, mode };
-            
-            if (mode === 'decrypt') {
-                const iv = document.getElementById('ivInput').value || currentIV;
-                if (!iv) {
-                    alert('Masukkan IV untuk dekripsi!');
-                    return;
-                }
-                requestBody.iv = iv;
-            }
-
-            const response = await fetch('/api/triple-des', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(requestBody)
-            });
-
-            const data = await response.json();
-            
-            if (data.error) {
-                alert('Error: ' + data.error);
+        if (mode === 'decrypt') {
+            const iv = document.getElementById('ivInput').value;
+            if (!iv) {
+                alert('Masukkan IV untuk dekripsi! Copy dari hasil enkripsi.');
                 return;
             }
-
-            displayResult(data, mode);
-        } catch (error) {
-            alert('Terjadi kesalahan: ' + error.message);
+            requestBody.iv = iv;
         }
-    }
 
-    function displayResult(data, mode) {
-        const resultCard = document.getElementById('resultCard');
-        const resultBox = document.getElementById('resultBox');
-        const ivDisplay = document.getElementById('ivDisplay');
-        const ivBox = document.getElementById('ivBox');
-        const ivGroup = document.getElementById('ivGroup');
-        const ivInput = document.getElementById('ivInput');
+        const response = await fetch('/api/triple-des', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody)
+        });
 
-        resultCard.style.display = 'block';
+        // Cek content type
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            const textResponse = await response.text();
+            console.error('Response bukan JSON:', textResponse);
+            throw new Error('Server tidak mengembalikan JSON');
+        }
+
+        const data = await response.json();
         
-        if (mode === 'encrypt') {
-            resultBox.textContent = data.result;
-            ivBox.textContent = data.iv;
-            ivDisplay.style.display = 'block';
-            currentIV = data.iv;
-            
-            ivInput.value = data.iv;
-            ivGroup.style.display = 'block';
-        } else {
-            resultBox.textContent = data.result;
-            ivDisplay.style.display = 'none';
+        if (data.error) {
+            alert('Error: ' + data.error);
+            return;
         }
 
-        resultCard.scrollIntoView({ behavior: 'smooth' });
+        displayResult(data, mode);
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Terjadi kesalahan: ' + error.message);
     }
+}
+
+function displayResult(data, mode) {
+    const resultCard = document.getElementById('resultCard');
+    const resultBox = document.getElementById('resultBox');
+    const ivDisplay = document.getElementById('ivDisplay');
+    const ivBox = document.getElementById('ivBox');
+    const ivGroup = document.getElementById('ivGroup');
+    const ivInput = document.getElementById('ivInput');
+
+    resultCard.style.display = 'block';
+    
+    if (mode === 'encrypt') {
+        // Hasil enkripsi
+        resultBox.textContent = data.result;
+        ivBox.textContent = data.iv;
+        ivDisplay.style.display = 'block';
+        
+        // Auto-fill IV untuk dekripsi
+        currentIV = data.iv;
+        ivInput.value = data.iv;
+        ivGroup.style.display = 'block';
+        
+        // Auto copy ciphertext untuk dekripsi
+        document.getElementById('inputText').value = data.result;
+    } else {
+        // Hasil dekripsi
+        resultBox.textContent = data.result;
+        ivDisplay.style.display = 'none';
+    }
+
+    resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// Fungsi untuk clear/reset
+function clearAll() {
+    document.getElementById('inputText').value = '';
+    document.getElementById('keyInput').value = '';
+    document.getElementById('ivInput').value = '';
+    document.getElementById('resultCard').style.display = 'none';
+    document.getElementById('ivGroup').style.display = 'none';
+    currentIV = '';
+}
 </script>
 {% endblock %}

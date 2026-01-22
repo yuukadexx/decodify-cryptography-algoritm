@@ -1,5 +1,5 @@
 # routes/main.py
-from flask import Blueprint, jsonify, render_template, redirect, url_for
+from flask import Blueprint, app, jsonify, render_template, redirect, request, url_for
 from flask_login import login_required, current_user
 from app import db
 from rsa import generate_keypair, rsa_encrypt, rsa_decrypt, ciphertext_to_string

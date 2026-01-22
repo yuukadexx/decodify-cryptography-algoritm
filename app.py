@@ -1,3 +1,6 @@
+import base64
+import hashlib
+import time
 from flask import Flask, render_template, redirect, url_for, flash, request, session, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
@@ -5,6 +8,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 from functools import wraps
+from Crypto.Cipher import DES, DES3
+from Crypto.Random import get_random_bytes
+from Crypto.Util.Padding import pad, unpad
 import os
 import secrets
 import bcrypt
@@ -17,11 +23,11 @@ import os
 import numpy as np 
 from flask_mail import Mail, Message
 from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 from datetime import datetime, date, timedelta
 from collections import Counter
+from flask_cors import CORS
 
-from utils.modern_crypto import aes_decrypt, aes_encrypt
+from utils.modern_crypto import aes_decrypt, aes_encrypt, des_decrypt, des_encrypt
 from utils.rsa import ciphertext_to_string, generate_keypair, rsa_decrypt, rsa_encrypt
 
 
@@ -43,6 +49,7 @@ app.config.update(
     MAIL_DEFAULT_SENDER=('DecoDify', 'noreply@decodify.com')
 )
 mail = Mail(app)
+cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # Inisialisasi ekstensi
 db = SQLAlchemy(app)
@@ -1357,7 +1364,7 @@ def log_cipher_usage(user_id, cipher_name):
 def security_headers():
     protected_routes = [
         'substitution', 'transposition', 'playfair', 'hill', 'rsa', 'hash_func',
-        'aes_page', 'des_page', 'triple_des_page', 'blowfish_page'
+        'aes_page', 'des_page', 'triple_des_page', 'dashboard', 'profile', 'logout', 'quiz', 'chatbot'
     ]
     
     if request.endpoint in protected_routes:
@@ -2009,11 +2016,6 @@ def des_page():
 def triple_des_page():
     return render_template('triple_des.html')
 
-@app.route('/blowfish')
-@login_required
-def blowfish_page():
-    return render_template('blowfish.html')
-
 # ============ RSA ENDPOINTS ============
 @app.route('/api/rsa/generate', methods=['POST'])
 @login_required
@@ -2131,6 +2133,531 @@ def api_aes():
             'error': str(e)
         }), 400
     
+# ================ DES ENDPOINTS ===============
+@app.route('/api/des', methods=['POST'])
+@login_required
+def api_des():
+    """DES Encryption/Decryption endpoint"""
+    try:
+        data = request.get_json()
+        text = data.get('text', '')
+        key = data.get('key', '')
+        mode = data.get('mode', 'encrypt')
+        
+        if not text or not key:
+            return jsonify({
+                'error': 'Text dan key harus diisi'
+            }), 400
+        
+        if len(key) != 8:
+            return jsonify({
+                'error': 'Key harus 8 karakter untuk DES'
+            }), 400
+        
+        if mode == 'encrypt':
+            ciphertext, iv = des_encrypt(text, key)
+            return jsonify({
+                'result': ciphertext,
+                'iv': iv
+            })
+        else:  # decrypt
+            iv = data.get('iv', '')
+            if not iv:
+                return jsonify({
+                    'error': 'IV diperlukan untuk dekripsi'
+                }), 400
+            
+            plaintext = des_decrypt(text, key, iv)
+            return jsonify({
+                'result': plaintext
+            })
+        
+    except Exception as e:
+        return jsonify({
+            'error': str(e)
+        }), 400
+
+
+def des_encrypt(plaintext, key):
+    """Encrypt dengan DES-CBC mode"""
+    try:
+        # Convert key ke bytes (8 bytes)
+        key_bytes = key.encode('utf-8')[:8]
+        if len(key_bytes) < 8:
+            key_bytes = key_bytes.ljust(8, b'\0')
+        
+        # Generate IV random (8 bytes untuk DES)
+        iv = get_random_bytes(8)
+        
+        # Create cipher dengan mode CBC
+        cipher = DES.new(key_bytes, DES.MODE_CBC, iv)
+        
+        # Pad plaintext ke kelipatan 8 bytes (DES block size)
+        # PERBAIKAN: Gunakan pad dari Crypto.Util.Padding, BUKAN np.pad!
+        padded_text = pad(plaintext.encode('utf-8'), DES.block_size)
+        
+        # Encrypt
+        ciphertext = cipher.encrypt(padded_text)
+        
+        # Convert ke base64 agar bisa ditampilkan
+        ciphertext_b64 = base64.b64encode(ciphertext).decode('utf-8')
+        iv_b64 = base64.b64encode(iv).decode('utf-8')
+        
+        return ciphertext_b64, iv_b64
+        
+    except Exception as e:
+        raise Exception(f"Enkripsi gagal: {str(e)}")
+
+
+def des_decrypt(ciphertext_b64, key, iv_b64):
+    """Decrypt dengan DES-CBC mode"""
+    try:
+        # Convert key ke bytes (8 bytes)
+        key_bytes = key.encode('utf-8')[:8]
+        if len(key_bytes) < 8:
+            key_bytes = key_bytes.ljust(8, b'\0')
+        
+        # Decode dari base64
+        ciphertext = base64.b64decode(ciphertext_b64)
+        iv = base64.b64decode(iv_b64)
+        
+        # Create cipher dengan IV yang sama
+        cipher = DES.new(key_bytes, DES.MODE_CBC, iv)
+        
+        # Decrypt
+        padded_plaintext = cipher.decrypt(ciphertext)
+        
+        # Unpad
+        plaintext = unpad(padded_plaintext, DES.block_size).decode('utf-8')
+        
+        return plaintext
+        
+    except Exception as e:
+        raise Exception(f"Dekripsi gagal: {str(e)}")
+
+# ================ TRIPLE DES ENDPOINTS ===============
+@app.route('/api/triple-des', methods=['POST'])
+@login_required
+def api_triple_des():
+    """Triple DES (3DES) Encryption/Decryption endpoint"""
+    try:
+        data = request.get_json()
+        text = data.get('text', '')
+        key = data.get('key', '')
+        mode = data.get('mode', 'encrypt')
+        
+        if not text or not key:
+            return jsonify({'error': 'Text dan key harus diisi'}), 400
+        
+        # 3DES mendukung key 16 bytes (2-key) atau 24 bytes (3-key)
+        if len(key) not in [16, 24]:
+            return jsonify({'error': 'Key harus 16 atau 24 karakter untuk Triple DES'}), 400
+        
+        if mode == 'encrypt':
+            ciphertext, iv = triple_des_encrypt(text, key)
+            return jsonify({
+                'result': ciphertext,
+                'iv': iv
+            })
+        else:  # decrypt
+            iv = data.get('iv', '')
+            if not iv:
+                return jsonify({'error': 'IV diperlukan untuk dekripsi'}), 400
+            
+            plaintext = triple_des_decrypt(text, key, iv)
+            return jsonify({
+                'result': plaintext
+            })
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+
+def triple_des_encrypt(plaintext, key):
+    """Encrypt dengan Triple DES (3DES) CBC mode"""
+    try:
+        # Convert key ke bytes
+        key_bytes = key.encode('utf-8')
+        
+        # Adjust key length untuk 3DES
+        # 2-key 3DES: 16 bytes (128 bit)
+        # 3-key 3DES: 24 bytes (192 bit)
+        if len(key_bytes) == 16:
+            # 2-key 3DES
+            key_bytes = key_bytes[:16]
+        elif len(key_bytes) == 24:
+            # 3-key 3DES
+            key_bytes = key_bytes[:24]
+        else:
+            # Pad atau truncate ke 16 bytes
+            if len(key_bytes) < 16:
+                key_bytes = key_bytes.ljust(16, b'\0')
+            else:
+                key_bytes = key_bytes[:16]
+        
+        # Generate IV random (8 bytes untuk DES/3DES)
+        iv = get_random_bytes(8)
+        
+        # Create cipher dengan mode CBC
+        cipher = DES3.new(key_bytes, DES3.MODE_CBC, iv)
+        
+        # Pad plaintext ke kelipatan 8 bytes (DES block size)
+        padded_text = pad(plaintext.encode('utf-8'), DES3.block_size)
+        
+        # Encrypt
+        ciphertext = cipher.encrypt(padded_text)
+        
+        # Convert ke base64
+        ciphertext_b64 = base64.b64encode(ciphertext).decode('utf-8')
+        iv_b64 = base64.b64encode(iv).decode('utf-8')
+        
+        return ciphertext_b64, iv_b64
+        
+    except Exception as e:
+        raise Exception(f"Enkripsi gagal: {str(e)}")
+
+
+def triple_des_decrypt(ciphertext_b64, key, iv_b64):
+    """Decrypt dengan Triple DES (3DES) CBC mode"""
+    try:
+        # Convert key ke bytes
+        key_bytes = key.encode('utf-8')
+        
+        # Adjust key length
+        if len(key_bytes) == 16:
+            key_bytes = key_bytes[:16]
+        elif len(key_bytes) == 24:
+            key_bytes = key_bytes[:24]
+        else:
+            if len(key_bytes) < 16:
+                key_bytes = key_bytes.ljust(16, b'\0')
+            else:
+                key_bytes = key_bytes[:16]
+        
+        # Decode dari base64
+        ciphertext = base64.b64decode(ciphertext_b64)
+        iv = base64.b64decode(iv_b64)
+        
+        # Create cipher dengan IV yang sama
+        cipher = DES3.new(key_bytes, DES3.MODE_CBC, iv)
+        
+        # Decrypt
+        padded_plaintext = cipher.decrypt(ciphertext)
+        
+        # Unpad
+        plaintext = unpad(padded_plaintext, DES3.block_size).decode('utf-8')
+        
+        return plaintext
+        
+    except Exception as e:
+        raise Exception(f"Dekripsi gagal: {str(e)}")
+
+# =============== Argon2 Endpoint ==============
+@app.route('/api/hash/generate', methods=['POST'])
+def generate_hashes():
+    """Generate berbagai jenis hash dari input text"""
+    data = request.json
+    text = data.get('text', '')
+    
+    if not text:
+        return jsonify({'error': 'Text is required'}), 400
+    
+    # Encode text ke bytes
+    text_bytes = text.encode('utf-8')
+    
+    hashes = {
+        'md5': hashlib.md5(text_bytes).hexdigest(),
+        'sha1': hashlib.sha1(text_bytes).hexdigest(),
+        'sha256': hashlib.sha256(text_bytes).hexdigest(),
+        'sha512': hashlib.sha512(text_bytes).hexdigest(),
+        'sha3_256': hashlib.sha3_256(text_bytes).hexdigest(),
+        'blake2b': hashlib.blake2b(text_bytes).hexdigest()
+    }
+    
+    return jsonify({'hashes': hashes})
+
+
+@app.route('/api/hash/bcrypt', methods=['POST'])
+def hash_bcrypt():
+    """Hash password menggunakan Bcrypt"""
+    data = request.json
+    password = data.get('password', '')
+    
+    if not password:
+        return jsonify({'error': 'Password is required'}), 400
+    
+    # Bcrypt hashing
+    start_time = time.time()
+    rounds = 12  # Cost factor
+    salt = bcrypt.gensalt(rounds=rounds)
+    hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
+    end_time = time.time()
+    
+    processing_time = (end_time - start_time) * 1000  # Convert to ms
+    
+    return jsonify({
+        'algorithm': 'bcrypt',
+        'hash': hashed.decode('utf-8'),
+        'rounds': rounds,
+        'time_ms': round(processing_time, 2),
+        'info': f'Bcrypt menggunakan adaptive hashing dengan {rounds} rounds. '
+                f'Semakin besar rounds, semakin lambat dan aman. '
+                f'Processing time: {processing_time:.2f}ms'
+    })
+
+
+@app.route('/api/hash/argon2', methods=['POST'])
+def hash_argon2():
+    """Hash password menggunakan Argon2 dengan parameter lengkap"""
+    data = request.json
+    password = data.get('password', '')
+    
+    if not password:
+        return jsonify({'error': 'Password is required'}), 400
+    
+    # Argon2 hashing
+    start_time = time.time()
+    hashed = ph.hash(password)
+    end_time = time.time()
+    
+    processing_time = (end_time - start_time) * 1000  # Convert to ms
+    
+    return jsonify({
+        'algorithm': 'argon2',
+        'hash': hashed,
+        'parameters': {
+            'time_cost': 3,
+            'memory_cost': '64 MB',
+            'parallelism': 4,
+            'hash_length': 32,
+            'salt_length': 16
+        },
+        'time_ms': round(processing_time, 2),
+        'info': f'Argon2 adalah pemenang Password Hashing Competition 2015. '
+                f'Menggunakan memory-hard function untuk resist GPU/ASIC attacks. '
+                f'Processing time: {processing_time:.2f}ms'
+    })
+
+
+@app.route('/api/hash/compare-algos', methods=['POST'])
+def compare_algorithms():
+    """Bandingkan Bcrypt vs Argon2 - REQUIREMENT DOSEN"""
+    data = request.json
+    password = data.get('password', '')
+    
+    if not password:
+        return jsonify({'error': 'Password is required'}), 400
+    
+    # Hash dengan Bcrypt
+    bcrypt_start = time.time()
+    rounds = 12
+    bcrypt_salt = bcrypt.gensalt(rounds=rounds)
+    bcrypt_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt_salt)
+    bcrypt_time = (time.time() - bcrypt_start) * 1000
+    
+    # Hash dengan Argon2
+    argon2_start = time.time()
+    argon2_hash = ph.hash(password)
+    argon2_time = (time.time() - argon2_start) * 1000
+    
+    # Determine faster algorithm
+    faster = 'Bcrypt' if bcrypt_time < argon2_time else 'Argon2'
+    
+    return jsonify({
+        'bcrypt': {
+            'hash': bcrypt_hash.decode('utf-8'),
+            'time': f'{bcrypt_time:.2f}ms',
+            'rounds': rounds
+        },
+        'argon2': {
+            'hash': argon2_hash,
+            'time': f'{argon2_time:.2f}ms',
+            'params': 'time=3, mem=64MB, parallel=4'
+        },
+        'recommendation': f'Argon2 lebih direkomendasikan untuk aplikasi modern karena '
+                         f'resistance terhadap GPU/ASIC attacks lebih baik. '
+                         f'Bcrypt masih aman untuk mayoritas use case. '
+                         f'{faster} lebih cepat dalam test ini.'
+    })
+
+
+@app.route('/api/hash/password-strength', methods=['POST'])
+def check_password_strength():
+    """Cek kekuatan password dengan analisis angka - REQUIREMENT DOSEN"""
+    data = request.json
+    password = data.get('password', '')
+    
+    if not password:
+        return jsonify({'error': 'Password is required'}), 400
+    
+    score = 0
+    max_score = 10
+    feedback = []
+    
+    # Cek panjang
+    length = len(password)
+    if length >= 12:
+        score += 3
+        feedback.append('✅ Panjang bagus (≥12 karakter)')
+    elif length >= 8:
+        score += 2
+        feedback.append('⚠️ Panjang cukup (8-11 karakter)')
+    else:
+        score += 1
+        feedback.append('❌ Terlalu pendek (<8 karakter)')
+    
+    # Cek huruf besar
+    if re.search(r'[A-Z]', password):
+        score += 1
+        feedback.append('✅ Mengandung huruf besar')
+    else:
+        feedback.append('❌ Tidak ada huruf besar')
+    
+    # Cek huruf kecil
+    if re.search(r'[a-z]', password):
+        score += 1
+        feedback.append('✅ Mengandung huruf kecil')
+    else:
+        feedback.append('❌ Tidak ada huruf kecil')
+    
+    # Cek angka
+    has_numbers = bool(re.search(r'\d', password))
+    if has_numbers:
+        score += 1
+        feedback.append('✅ Mengandung angka')
+    else:
+        feedback.append('❌ Tidak ada angka')
+    
+    # Cek karakter spesial
+    if re.search(r'[!@#$%^&*()_+=\-\[\]{};:\'",.<>?/\\|`~]', password):
+        score += 2
+        feedback.append('✅ Mengandung karakter spesial')
+    else:
+        feedback.append('❌ Tidak ada karakter spesial')
+    
+    # Cek variasi
+    unique_chars = len(set(password))
+    if unique_chars >= length * 0.7:
+        score += 1
+        feedback.append('✅ Variasi karakter tinggi')
+    else:
+        feedback.append('⚠️ Banyak karakter berulang')
+    
+    # Cek pola umum
+    common_patterns = ['123', '234', 'abc', 'qwerty', 'password', 'admin']
+    has_pattern = any(pattern in password.lower() for pattern in common_patterns)
+    if has_pattern:
+        score -= 2
+        feedback.append('❌ Mengandung pola umum (weak!)')
+    else:
+        score += 1
+        feedback.append('✅ Tidak ada pola umum')
+    
+    # REQUIREMENT DOSEN: ANALISIS ANGKA DETAIL
+    numbers_found = re.findall(r'\d+', password)
+    digit_chars = [c for c in password if c.isdigit()]
+    total_digits = len(digit_chars)
+    
+    # Deteksi urutan angka (123, 456, dll)
+    has_sequence = False
+    for i in range(len(password) - 2):
+        if password[i:i+3].isdigit():
+            nums = [int(password[i]), int(password[i+1]), int(password[i+2])]
+            if nums[1] == nums[0] + 1 and nums[2] == nums[1] + 1:
+                has_sequence = True
+                break
+    
+    # Deteksi angka berulang (111, 222, dll)
+    has_repeated_digits = bool(re.search(r'(\d)\1{2,}', password))
+    
+    number_analysis = {
+        'contains_numbers': has_numbers,
+        'total_numbers': len(numbers_found),
+        'numbers_found': numbers_found,
+        'total_digits': total_digits,
+        'percentage': (total_digits / length * 100) if length > 0 else 0,
+        'has_sequence': has_sequence,
+        'has_repeated_digits': has_repeated_digits
+    }
+    
+    # Tentukan strength
+    if score >= 8:
+        strength = 'Sangat Kuat'
+    elif score >= 6:
+        strength = 'Kuat'
+    elif score >= 4:
+        strength = 'Sedang'
+    elif score >= 2:
+        strength = 'Lemah'
+    else:
+        strength = 'Sangat Lemah'
+    
+    return jsonify({
+        'strength': strength,
+        'score': max(0, score),
+        'max_score': max_score,
+        'feedback': feedback,
+        'number_analysis': number_analysis
+    })
+
+
+@app.route('/api/hash/compare', methods=['POST'])
+def compare_hashes():
+    """Bandingkan hash dari dua text"""
+    data = request.json
+    text1 = data.get('text1', '')
+    text2 = data.get('text2', '')
+    algorithm = data.get('algorithm', 'sha256')
+    
+    if not text1 or not text2:
+        return jsonify({'error': 'Both texts are required'}), 400
+    
+    # Generate hash berdasarkan algoritma
+    hash_func = getattr(hashlib, algorithm, hashlib.sha256)
+    hash1 = hash_func(text1.encode('utf-8')).hexdigest()
+    hash2 = hash_func(text2.encode('utf-8')).hexdigest()
+    
+    return jsonify({
+        'hash1': hash1,
+        'hash2': hash2,
+        'match': hash1 == hash2,
+        'algorithm': algorithm.upper()
+    })
+
+
+@app.route('/api/hash/verify-bcrypt', methods=['POST'])
+def verify_bcrypt():
+    """Verifikasi password dengan Bcrypt hash"""
+    data = request.json
+    password = data.get('password', '')
+    hashed = data.get('hash', '')
+    
+    if not password or not hashed:
+        return jsonify({'error': 'Password and hash are required'}), 400
+    
+    try:
+        is_valid = bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
+        return jsonify({'valid': is_valid})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+
+@app.route('/api/hash/verify-argon2', methods=['POST'])
+def verify_argon2():
+    """Verifikasi password dengan Argon2 hash"""
+    data = request.json
+    password = data.get('password', '')
+    hashed = data.get('hash', '')
+    
+    if not password or not hashed:
+        return jsonify({'error': 'Password and hash are required'}), 400
+    
+    try:
+        ph.verify(hashed, password)
+        return jsonify({'valid': True})
+    except Exception:
+        return jsonify({'valid': False})
+ 
 # =============== API ENDPOINTS ===============
 
 @app.route('/api/user/score')
