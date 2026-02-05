@@ -331,54 +331,71 @@
     let currentIV = '';
 
     async function performDES(mode) {
-        const text = document.getElementById('inputText').value;
-        const key = document.getElementById('keyInput').value;
+    const text = document.getElementById('inputText').value;
+    const key = document.getElementById('keyInput').value;
+    
+    if (!text.trim()) {
+        alert('Masukkan text terlebih dahulu!');
+        return;
+    }
+
+    if (!key.trim()) {
+        alert('Masukkan encryption key terlebih dahulu!');
+        return;
+    }
+
+    if (key.length < 8) {
+        alert('Key harus 8 karakter!');
+        return;
+    }
+
+    try {
+        let requestBody = { text, key, mode };
         
-        if (!text.trim()) {
-            alert('Masukkan text terlebih dahulu!');
-            return;
-        }
-
-        if (!key.trim()) {
-            alert('Masukkan encryption key terlebih dahulu!');
-            return;
-        }
-
-        if (key.length < 8) {
-            alert('Key harus 8 karakter!');
-            return;
-        }
-
-        try {
-            let requestBody = { text, key, mode };
-            
-            if (mode === 'decrypt') {
-                const iv = document.getElementById('ivInput').value || currentIV;
-                if (!iv) {
-                    alert('Masukkan IV untuk dekripsi!');
-                    return;
-                }
-                requestBody.iv = iv;
-            }
-
-            const response = await fetch('/api/des', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(requestBody)
-            });
-
-            const data = await response.json();
-            
-            if (data.error) {
-                alert('Error: ' + data.error);
+        if (mode === 'decrypt') {
+            const iv = document.getElementById('ivInput').value || currentIV;
+            if (!iv) {
+                alert('Masukkan IV untuk dekripsi!');
                 return;
             }
-
-            displayResult(data, mode);
-        } catch (error) {
-            alert('Terjadi kesalahan: ' + error.message);
+            requestBody.iv = iv;
         }
+
+        const response = await fetch('/api/des', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody)
+        });
+
+        // CEK CONTENT-TYPE SEBELUM PARSE JSON
+        const contentType = response.headers.get('content-type');
+        
+        if (!response.ok) {
+            // Jika response tidak OK, coba baca sebagai text dulu
+            const errorText = await response.text();
+            console.error('Server error:', errorText);
+            throw new Error(`Server error: ${response.status} - ${response.statusText}`);
+        }
+        
+        if (!contentType || !contentType.includes('application/json')) {
+            const textResponse = await response.text();
+            console.error('Response bukan JSON:', textResponse);
+            throw new Error('Server tidak mengembalikan JSON. Periksa endpoint /api/des');
+        }
+
+        const data = await response.json();
+        
+        if (data.error) {
+            alert('Error: ' + data.error);
+            return;
+        }
+
+        displayResult(data, mode);
+    } catch (error) {
+        console.error('Full error:', error);
+        alert('Terjadi kesalahan: ' + error.message);
     }
+}
 
     function displayResult(data, mode) {
         const resultCard = document.getElementById('resultCard');
